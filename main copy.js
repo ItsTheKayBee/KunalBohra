@@ -1,14 +1,18 @@
-let scene, camera, renderer, stars, starGeo;
+let scene, camera, renderer, stars, starGeo, flyCont, earth, jupiter, neptune, pluto;
 let mars, marsGeom, rover, light, input;
 let whl1, whl2, whl3, whl4, whl5, whl6;
 let movefront=0;
 let rotationSpeed = 0.05;
 y_axis = new THREE.Vector3(0, 1, 0);
 var clock = new THREE.Clock();
+Physijs.scripts.worker = "js/physijs_worker.js";
+Physijs.scripts.ammo = "ammo.js";
 
 
 function scenes() {
-    scene = new THREE.Scene();
+    scene = new Physijs.Scene;
+    scene.setGravity(new THREE.Vector3(0, -100, 0));
+    // console.log(scene);
     scene.fog = new THREE.FogExp2(0x000000, 0.00000025);
     var axesHelper = new THREE.AxesHelper(5);
     scene.add(axesHelper);
@@ -21,16 +25,52 @@ function cam() {
 }
 
 function lights() {
-
-    //ambient light
     hlight = new THREE.AmbientLight(0xffffff, 4);
     scene.add(hlight);
-
-    //directional light
+    scene.setGravity(new THREE.Vector3(0, -10, 0));
     directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight.position.set(0, 1, 1);
     directionalLight.castShadow = true;
     scene.add(directionalLight);
+
+    light = new THREE.DirectionalLight(0xFFFFFF);
+    light.position.set(20, 20, -15);
+    light.target.position.copy(scene.position);
+    light.castShadow = true;
+    light.shadow.camera.left = -150;
+    light.shadow.camera.top = -150;
+    light.shadow.camera.right = 150;
+    light.shadow.camera.bottom = 150;
+    light.shadow.camera.near = 20;
+    light.shadow.camera.far = 400;
+    light.shadow.bias = -.0001
+    scene.add(light);
+
+
+    // light2 = new THREE.PointLight(0xc4c4c4, 100);
+    // light2.position.set(-10, 20, 100);
+    // scene.add(light2);
+
+    // light3 = new THREE.PointLight(0xc4c4c4, 10);
+    // light3.position.set(0, 100, -500);
+    // scene.add(light3);
+
+    // light4 = new THREE.PointLight(0xc4c4c4, 10);
+    // light4.position.set(-500, 300, 500);
+    // scene.add(light4);
+}
+
+
+function fly() {
+    flyCont = new THREE.FlyControls(camera, renderer.domElement);
+    flyCont.domElement = renderer.domElement;
+    flyCont.rollSpeed = Math.PI / 24;
+    flyCont.autoForward = false;
+    flyCont.dragToLook = true;
+    flyCont = new THREE.FirstPersonControls(camera, renderer.domElement);
+    flyCont.lookSpeed = 0.5;
+    flyCont.movementSpeed = 1;
+    flyCont.lookAt(-100, 20, 40);
 }
 
 
@@ -127,10 +167,11 @@ function init() {
     loadMars();
     addRover();
     cam();
-    orbCont();
+    // orbCont();
     lights();
     // starAdd();
     animate();
+    scene.simulate();
 }
 
 init();
@@ -151,8 +192,37 @@ function distance() {
 
 }
 
+function rotatePlanets() {
+    if (earth != undefined)
+        earth.rotation.z += rotationSpeed * delta;
+    if (jupiter != undefined)
+        jupiter.rotation.z += rotationSpeed * delta;
+    if (neptune != undefined)
+        neptune.rotation.z += rotationSpeed * delta;
+    if (pluto != undefined)
+        pluto.rotation.z += rotationSpeed * delta;
+}
 
 function animate() {
+    // starGen();
+    // delta = clock.getDelta();
+    // rotatePlanets();
+    // distance();
+    // flyCont.update(delta);
+    // move();
+    // rotateWheels(-1);
+    if (movefront === 1) {
+        var curr_rot = new THREE.Matrix4().extractRotation(rover.matrix);
+        // console.log(curr_rot);
+        var force_vec = new THREE.Vector3(40, 0, 0).applyMatrix4(curr_rot);
+        // console.log(force_vec);
+        // rover.setLinearFactor(1, 1, 1);
+        // rover.setLinearVelocity(40, 0, 0);
+        rover.applyCentralImpulse(force_vec);
+
+        // rover.translateX(2);
+        rover.__dirtyPosition = true;
+    }
     renderer.clear();
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
@@ -172,6 +242,43 @@ function starGen() {
     starGeo.verticesNeedUpdate = true;
 }
 
+/* 
+function moveFront() {
+    var curr_rot = new THREE.Matrix4().extractRotation(rover.matrix);
+    // console.log(curr_rot);
+    var force_vec = new THREE.Vector3(40, 0, 0).applyMatrix4(curr_rot);
+    // console.log(force_vec);
+    // rover.setLinearFactor(1, 1, 1);
+    // rover.setLinearVelocity(40, 0, 0);
+    rover.applyCentralImpulse(force_vec);
+
+    // rover.translateX(2);
+    rover.__dirtyPosition = true;
+    // var temp = new THREE.Vector3;
+    // temp.setFromMatrixPosition(goal.matrixWorld);
+    // camera.position.lerp(temp, 0.4);
+    // camera.lookAt(rocket.position);
+} */
+function moveLeft() {
+    rot = new THREE.Quaternion().setFromAxisAngle(y_axis, 0.1);
+    curr = rover.quaternion;
+    curr.multiplyQuaternions(rot, curr);
+    rover.__dirtyRotation = true;
+}
+function moveRight() {
+    rot = new THREE.Quaternion().setFromAxisAngle(y_axis, -0.1);
+    curr = rover.quaternion;
+    curr.multiplyQuaternions(rot, curr);
+    rover.__dirtyRotation = true;
+}
+
+function moveBack() {
+    var curr_rot = new THREE.Matrix4().extractRotation(rover.matrix);
+    var force_vec = new THREE.Vector3(-40, 0, 0).applyMatrix4(curr_rot);
+    rover.applyCentralImpulse(force_vec);
+    rover.__dirtyPosition = true;
+}
+
 
 function moveCam() {
     if (rover) {
@@ -183,6 +290,28 @@ function moveCam() {
     }
 }
 
+/* 
+function move() {
+    if (input && rover) {
+        console.log(input);
+        if (input.direction !== null) {
+            input.steering += input.direction / 50;
+            if (input.steering < -.6) input.steering = -.6;
+            if (input.steering > .6) input.steering = .6;
+        }
+        rover.setSteering(input.steering, 0);
+        rover.setSteering(input.steering, 1);
+
+        if (input.power === true) {
+            rover.applyEngineForce(300);
+        } else if (input.power === false) {
+            rover.setBrake(20, 2);
+            rover.setBrake(20, 3);
+        } else {
+            rover.applyEngineForce(0);
+        }
+    }
+} */
 
 document.addEventListener('keydown', function (ev) {
     switch (ev.keyCode) {
@@ -191,13 +320,13 @@ document.addEventListener('keydown', function (ev) {
             break;
         case 38: // forward
             // input.power = true;
-            // movefront = 1;
+            movefront = 1;
             break;
         case 39: // right
-            // input.direction = -1;
+            input.direction = -1;
             break;
         case 40: // back
-            // input.power = false;
+            input.power = false;
             break;
     }
 });
@@ -211,29 +340,31 @@ document.addEventListener('keyup', function (ev) {
             // input.power = null;
             break;
         case 39: // right
-            // input.direction = null;
+            input.direction = null;
             break;
         case 40: // back
-            // input.power = null;
+            input.power = null;
             break;
     }
 });
 
-//loads the plain
 function loadMars() {
     // marsGeom = new THREE.BoxGeometry(650, 17, 17);
     marsGeom = new THREE.PlaneGeometry(1000, 1000, 100, 100);
     buildTerrain();
     var marsTexture = new THREE.TextureLoader().load('textures/mars_texture.jpg');
-    var marsMaterial =new THREE.MeshBasicMaterial({ map: marsTexture });
-    mars = new THREE.Mesh(marsGeom, marsMaterial);
+    var marsMaterial = Physijs.createMaterial(
+        new THREE.MeshBasicMaterial({ map: marsTexture }),
+        0.8,
+        0.4
+    );
+    mars = new Physijs.HeightfieldMesh(marsGeom, marsMaterial, 0, 100, 100);
     mars.receiveShadow = true;
     // mars.position.y = -400;
     mars.rotation.x = -Math.PI / 2;
     scene.add(mars);
 }
 
-//creates noisy terrain
 function buildTerrain() {
     for (var i = 0; i < marsGeom.vertices.length; i++) {
         var vertex = marsGeom.vertices[i];
@@ -244,11 +375,10 @@ function buildTerrain() {
     marsGeom.computeVertexNormals();
 }
 
-//returns a wheel
 function addWheel(x, y, z) {
     var sphGeo = new THREE.CylinderBufferGeometry(2.5, 2.5, 2, 32);
     var sphmat = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('textures/metal.jpg') });
-    var sph = new THREE.Mesh(sphGeo, sphmat);
+    var sph = new Physijs.CylinderMesh(sphGeo, sphmat);
     sph.castShadow = true;
     sph.position.y -= y;
     sph.position.z += z;
@@ -261,16 +391,19 @@ function addWheel(x, y, z) {
 //inner wheel 
 function innerWheel() {
     var sphGeo = new THREE.TorusGeometry(0.2, 1, 16, 100);
-    var sphmat = new THREE.MeshLambertMaterial({ color: 0x000000 });
+    var sphmat = Physijs.createMaterial(new THREE.MeshLambertMaterial({ color: 0x000000 }), 0.8, 0.3);
     var sph = new THREE.Mesh(sphGeo, sphmat);
     return sph;
 }
 
-//add rover to scene
 function addRover() {
     var boxGeo = new THREE.BoxGeometry(30, 4, 18);
-    var boxMat = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('textures/gold.jpg') });
-    var chassis = new THREE.Mesh(boxGeo, boxMat);
+    var boxMat = Physijs.createMaterial(
+        new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('textures/gold.jpg') }),
+        0.6,
+        0.3
+    );
+    var chassis = new Physijs.BoxMesh(boxGeo, boxMat);
     chassis.position.y = 8;
 
     //create and add wheels
@@ -293,14 +426,78 @@ function addRover() {
     chassis.castShadow = chassis.receiveShadow = true;
     rover = chassis;
 
+    //create vehicle
+    /*  rover = new Physijs.Vehicle(chassis, new Physijs.VehicleTuning(
+         10.88,
+         1.83,
+         0.28,
+         500,
+         10.5,
+         6000
+     )); */
+
     scene.add(chassis);
+    /*  input = {
+         power: null,
+         direction: null,
+         steering: 0
+     }; */
+
+    /*  //wheel 1
+     whl1_con = new Physijs.DOFConstraint(
+         whl1, chassis, new THREE.Vector3(10, 3, 10)
+     );
+     scene.addConstraint(whl1_con);
+     whl1_con.setAngularLowerLimit({ x: 0, y: -Math.PI / 8, z: 1 });
+     whl1_con.setAngularUpperLimit({ x: 0, y: Math.PI / 8, z: 0 });
+ 
+     //wheel 2
+     whl2_con = new Physijs.DOFConstraint(
+         whl2, chassis, new THREE.Vector3(10, 3, -10)
+     );
+     scene.addConstraint(whl2_con);
+     whll_con.setAngularLowerLimit({ x: 0, y: -Math.PI / 8, z: 1 });
+     whll_con.setAngularUpperLimit({ x: 0, y: Math.PI / 8, z: 0 });
+ 
+     //wheel 3
+     whl3_con = new Physijs.DOFConstraint(
+         whl3, chassis, new THREE.Vector3(0, 3, 10)
+     );
+     scene.addConstraint(whl3_con);
+     whl3_con.setAngularLowerLimit({ x: 0, y: 0, z: 0 });
+     whl3_con.setAngularUpperLimit({ x: 0, y: 0, z: 0 });
+ 
+     //wheel 4
+     whl4_con = new Physijs.DOFConstraint(
+         whl3, chassis, new THREE.Vector3(0, 3, -10)
+     );
+     scene.addConstraint(whl4_con);
+     whl4_con.setAngularLowerLimit({ x: 0, y: 0, z: 0 });
+     whl4_con.setAngularUpperLimit({ x: 0, y: 0, z: 0 });
+ 
+     //wheel 5
+     whl5_con = new Physijs.DOFConstraint(
+         whl5, chassis, new THREE.Vector3(-10, 3, 10)
+     );
+     scene.addConstraint(whl5_con);
+     whl5_con.setAngularLowerLimit({ x: 0, y: 0, z: 0 });
+     whl5_con.setAngularUpperLimit({ x: 0, y: 0, z: 0 });
+ 
+     //wheel 6
+     whl6_con = new Physijs.DOFConstraint(
+         whl3, chassis, new THREE.Vector3(-10, 3, -10)
+     );
+     scene.addConstraint(whl6_con);
+     whl6_con.setAngularLowerLimit({ x: 0, y: 0, z: 0 });
+     whl6_con.setAngularUpperLimit({ x: 0, y: 0, z: 0 }); */
+
 }
 
 //solar panel
 function addPanel() {
     var boxGeo = new THREE.BoxGeometry(20, 0.5, 15);
     var boxMat = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('textures/solar_panel.jpg') });
-    var panel = new THREE.Mesh(boxGeo, boxMat);
+    var panel = new Physijs.BoxMesh(boxGeo, boxMat);
     panel.rotation.x = Math.PI / 4;
     panel.position.z += 2.5;
     panel.position.y += 8.5;
