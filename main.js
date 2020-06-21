@@ -44,7 +44,7 @@ Ammo().then(function (Ammo) {
 
 	function lights() {
 		//ambient light
-		hlight = new THREE.AmbientLight(0xffffff, 1);
+		hlight = new THREE.AmbientLight(0xffffff, 0.);
 		scene.add(hlight);
 
 		//directional light
@@ -71,9 +71,9 @@ Ammo().then(function (Ammo) {
 
 		scene.add(spotLight);
 
-		var plight = new THREE.PointLight(0xff0000, 1, 0);
-		plight.position.set(20, 20, 20);
-		scene.add(plight);
+		// var plight = new THREE.PointLight(0xff0000, 1, 0);
+		// plight.position.set(20, 20, 20);
+		// scene.add(plight);
 	}
 
 
@@ -343,7 +343,7 @@ Ammo().then(function (Ammo) {
 		function sync(dt) {
 
 			var speed = vehicle.getCurrentSpeedKmHour();
-			console.log(speed);
+			// console.log(speed);
 
 			breakingForce = 0;
 			engineForce = 0;
@@ -426,18 +426,19 @@ Ammo().then(function (Ammo) {
 	}
 
 	function modelsLoader() {
-		let loader = new THREE.GLTFLoader();
-		/* loader.load('models3d/spaceship/scene.gltf', function (gltf) {
-			// console.log(gltf);
-			rocket = gltf.scene.children[0];
-			rocket.scale.set(0.05, 0.05, 0.05);
-			pos = { x: 100, y: 1400, z: 10 };
-			quat = { x: 0, y: 0, z: 0, w: 1 };
-			createBox(gltf.scene, pos, quat, 100, 200, 50, 200000, 1);
-		}); */
+		// let loader = new THREE.GLTFLoader();
+		// loader.load('models3d/taj_mahal/scene.gltf', function (gltf) {
+		// 	// console.log(gltf);
+		// 	taj = gltf.scene.children[0];
+		// 	taj.scale.set(0.01, 0.01, 0.01);
+		// 	/* pos = { x: 100, y: 1400, z: 10 };
+		// 	quat = { x: 0, y: 0, z: 0, w: 1 };
+		// 	createBox(gltf.scene, pos, quat, 100, 200, 50, 200000, 1); */
+		// 	scene.add(gltf.scene);
+		// });
 	}
 
-	function flag() {
+	function flagLoader() {
 		var steelMaterial = new THREE.MeshPhongMaterial({
 			flatShading: true,
 			color: 0x858482,
@@ -460,18 +461,119 @@ Ammo().then(function (Ammo) {
 		flag.position.x = -3.25;
 		pole.add(flag);
 		pole.rotation.y = Math.PI / 2;
-		// pole.position.set(20, 20, 0);
+		pole.position.set(20, 20, 0);
 		scene.add(pole);
 	}
 
-	function f() {
-		
+	function textLoader(texts, pos, quat, s, size, depth) {
+		var textLoader = new THREE.FontLoader();
+		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
+			var textGeometry = new THREE.TextBufferGeometry(texts, {
+				font: font,
+				size: size,
+				height: depth,
+				curveSegments: 2,
+				bevelEnabled: false,
+			});
+			var textMaterial = new THREE.MeshLambertMaterial({ color: 0x654321 });
+			var text = new THREE.Mesh(textGeometry, textMaterial);
+			text.scale.set(s, s, s);
+			text.position.set(pos.x, pos.y, pos.z);
+			text.rotation.set(quat.x, quat.y, quat.z);
+			console.log(text);
+			scene.add(text);
+		});
 	}
+
+	function signpostLoader() {
+		//wooden material
+		var woodMaterial = new THREE.MeshLambertMaterial({
+			color: 0xcaa472,
+			flatShading: true,
+			side: THREE.DoubleSide
+		});
+
+		//pole
+		var poleGeometry = new THREE.CylinderBufferGeometry(0.2, 0.2, 10.5, 8);
+		var woodenPole = new THREE.Mesh(poleGeometry, woodMaterial);
+
+		//signboard
+		var projectsSignGeometry = new THREE.BoxBufferGeometry(4, 0.25, 1.25);
+		var skillsSignGeometry = new THREE.BoxBufferGeometry(4, 0.25, 1.25);
+		var aboutSignGeometry = new THREE.BoxBufferGeometry(4, 0.25, 1.25);
+		var projectsSign = new THREE.Mesh(projectsSignGeometry, woodMaterial);
+		var skillsSign = new THREE.Mesh(skillsSignGeometry, woodMaterial);
+		var aboutSign = new THREE.Mesh(aboutSignGeometry, woodMaterial);
+		projectsSign.position.y = 4.375;
+		projectsSign.position.x = -2;
+		projectsSign.rotation.x = Math.PI / 2;
+
+		skillsSign.position.y = 1.8;
+		skillsSign.position.x = 2;
+		skillsSign.rotation.x = Math.PI / 2;
+
+		aboutSign.position.y = 3;
+		aboutSign.position.z = 2;
+		aboutSign.rotation.x = Math.PI / 2;
+		aboutSign.rotation.z = -Math.PI / 2;
+
+
+		//pointy directionheads
+		var triGeo = new THREE.BoxBufferGeometry(1, 0.25, 1);
+		var triangleL = new THREE.Mesh(triGeo, woodMaterial);
+		var triangleR = new THREE.Mesh(triGeo, woodMaterial);
+		var triangleB = new THREE.Mesh(triGeo, woodMaterial);
+		triangleL.position.x = -2;
+
+		triangleR.position.x = 2;
+
+		triangleB.position.x = -2;
+		triangleL.rotation.y = Math.PI / 4;
+		triangleR.rotation.y = Math.PI / 4;
+		triangleB.rotation.y = Math.PI / 4;
+
+		//creating text
+		textLoader(
+			"PROJECTS",
+			{ x: -4, y: 4.1, z: 0 },
+			{ x: 0, y: 0, z: 0, w: 1 },
+			0.5,
+			1,
+			0.3
+		);
+		textLoader(
+			"SKILLS",
+			{ x: 1, y: 1.6, z: 0 },
+			{ x: 0, y: 0, z: 0, w: 1 },
+			0.5,
+			1,
+			0.3
+		);
+		textLoader(
+			"ABOUT ME",
+			{ x: 0, y: 2.8, z: 4 },
+			{ x: 0, y: Math.PI/2, z: 0, w: 1 },
+			0.5,
+			1,
+			0.3
+		);
+
+		//adding to parents
+		projectsSign.add(triangleL);
+		skillsSign.add(triangleR);
+		aboutSign.add(triangleB);
+		woodenPole.add(projectsSign);
+		woodenPole.add(skillsSign);
+		woodenPole.add(aboutSign);
+		scene.add(woodenPole);
+	}
+
 
 	function createObjects() {
 
 		loadMars();
-		flag();
+		flagLoader();
+		signpostLoader();
 		modelsLoader();
 		createVehicle(new THREE.Vector3(100, marsRadius - 5, 10), ZERO_QUATERNION);
 	}
