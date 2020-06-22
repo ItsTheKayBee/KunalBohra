@@ -6,6 +6,7 @@ Ammo().then(function (Ammo) {
 	var ZERO_QUATERNION = new THREE.Quaternion(0, 0, 0, 1);
 	var marsRadius = 1000;
 	var chassisMesh;
+	var font;
 
 	// Graphics variables
 	var camera, controls, scene, renderer;
@@ -96,6 +97,7 @@ Ammo().then(function (Ammo) {
 		window.addEventListener('keydown', keydown);
 		window.addEventListener('keyup', keyup);
 	}
+
 
 	function onWindowResize() {
 
@@ -426,16 +428,16 @@ Ammo().then(function (Ammo) {
 	}
 
 	function modelsLoader() {
-		// let loader = new THREE.GLTFLoader();
-		// loader.load('models3d/taj_mahal/scene.gltf', function (gltf) {
-		// 	// console.log(gltf);
-		// 	taj = gltf.scene.children[0];
-		// 	taj.scale.set(0.01, 0.01, 0.01);
-		// 	/* pos = { x: 100, y: 1400, z: 10 };
-		// 	quat = { x: 0, y: 0, z: 0, w: 1 };
-		// 	createBox(gltf.scene, pos, quat, 100, 200, 50, 200000, 1); */
-		// 	scene.add(gltf.scene);
-		// });
+		let loader = new THREE.GLTFLoader();
+		loader.load('models3d/taj_mahal/scene.gltf', function (gltf) {
+			// console.log(gltf);
+			taj = gltf.scene.children[0];
+			taj.scale.set(0.01, 0.01, 0.01);
+			/* pos = { x: 100, y: 1400, z: 10 };
+			quat = { x: 0, y: 0, z: 0, w: 1 };
+			createBox(gltf.scene, pos, quat, 100, 200, 50, 200000, 1); */
+			scene.add(gltf.scene);
+		});
 	}
 
 	function flagLoader() {
@@ -465,24 +467,20 @@ Ammo().then(function (Ammo) {
 		scene.add(pole);
 	}
 
-	function textLoader(texts, pos, quat, s, size, depth) {
-		var textLoader = new THREE.FontLoader();
-		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
-			var textGeometry = new THREE.TextBufferGeometry(texts, {
-				font: font,
-				size: size,
-				height: depth,
-				curveSegments: 2,
-				bevelEnabled: false,
-			});
-			var textMaterial = new THREE.MeshLambertMaterial({ color: 0x654321 });
-			var text = new THREE.Mesh(textGeometry, textMaterial);
-			text.scale.set(s, s, s);
-			text.position.set(pos.x, pos.y, pos.z);
-			text.rotation.set(quat.x, quat.y, quat.z);
-			console.log(text);
-			scene.add(text);
+	function createText(font, texts, pos, quat, s, size, depth) {
+		var textGeometry = new THREE.TextBufferGeometry(texts, {
+			font: font,
+			size: size,
+			height: depth,
+			curveSegments: 2,
+			bevelEnabled: false,
 		});
+		var textMaterial = new THREE.MeshLambertMaterial({ color: 0x654321 });
+		var text = new THREE.Mesh(textGeometry, textMaterial);
+		text.scale.set(s, s, s);
+		text.position.set(pos.x, pos.y, pos.z);
+		text.rotation.set(quat.x, quat.y, quat.z);
+		return text;
 	}
 
 	function signpostLoader() {
@@ -533,30 +531,39 @@ Ammo().then(function (Ammo) {
 		triangleB.rotation.y = Math.PI / 4;
 
 		//creating text
-		textLoader(
-			"PROJECTS",
-			{ x: -4, y: 4.1, z: 0 },
-			{ x: 0, y: 0, z: 0, w: 1 },
-			0.5,
-			1,
-			0.3
-		);
-		textLoader(
-			"SKILLS",
-			{ x: 1, y: 1.6, z: 0 },
-			{ x: 0, y: 0, z: 0, w: 1 },
-			0.5,
-			1,
-			0.3
-		);
-		textLoader(
-			"ABOUT ME",
-			{ x: 0, y: 2.8, z: 4 },
-			{ x: 0, y: Math.PI/2, z: 0, w: 1 },
-			0.5,
-			1,
-			0.3
-		);
+		var textLoader = new THREE.FontLoader();
+		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
+			var projectsText = createText(
+				font,
+				"PROJECTS",
+				{ x: -2, y: 0, z: 0.25 },
+				{ x: -Math.PI / 2, y: 0, z: 0, w: 1 },
+				0.5,
+				1,
+				0.3
+			);
+			projectsSign.add(projectsText);
+			var skillsText = createText(
+				font,
+				"SKILLS",
+				{ x: -1, y: 0, z: 0.25 },
+				{ x: -Math.PI / 2, y: 0, z: 0, w: 1 },
+				0.5,
+				1,
+				0.3
+			);
+			skillsSign.add(skillsText);
+			var aboutText = createText(
+				font,
+				"ABOUT ME",
+				{ x: -2, y: 0, z: 0.25 },
+				{ x: -Math.PI / 2, y: 0, z: 0, w: 1 },
+				0.5,
+				1,
+				0.3
+			);
+			aboutSign.add(aboutText);
+		});
 
 		//adding to parents
 		projectsSign.add(triangleL);
@@ -565,16 +572,244 @@ Ammo().then(function (Ammo) {
 		woodenPole.add(projectsSign);
 		woodenPole.add(skillsSign);
 		woodenPole.add(aboutSign);
+		woodenPole.position.set(-10, 20, -10);
 		scene.add(woodenPole);
 	}
 
+	function addShape(shape, extrudeSettings, color, x, y, z, rx, ry, rz, s) {
+		// extruded shape
+
+		var geometry = new THREE.ExtrudeBufferGeometry(shape, extrudeSettings);
+
+		var material = new THREE.MeshPhongMaterial({
+			color: color,
+			transparent: true,
+			opacity: 0.7
+		});
+
+		var mesh = new THREE.Mesh(geometry, material);
+		mesh.position.set(x, y, z);
+		mesh.rotation.set(rx, ry, rz);
+		mesh.scale.set(s, s, s);
+		return mesh;
+	}
+
+	function phone() {
+		var extrudeSettings = { depth: 0.2, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 0.25, bevelThickness: 0.1 };
+		var roundedRectShape = new THREE.Shape();
+
+		(function roundedRect(ctx, x, y, width, height, radius) {
+
+			ctx.moveTo(x, y + radius);
+			ctx.lineTo(x, y + height - radius);
+			ctx.quadraticCurveTo(x, y + height, x + radius, y + height);
+			ctx.lineTo(x + width - radius, y + height);
+			ctx.quadraticCurveTo(x + width, y + height, x + width, y + height - radius);
+			ctx.lineTo(x + width, y + radius);
+			ctx.quadraticCurveTo(x + width, y, x + width - radius, y);
+			ctx.lineTo(x + radius, y);
+			ctx.quadraticCurveTo(x, y, x, y + radius);
+
+		})(roundedRectShape, 0, 0, 2, 4, 0.1);
+
+		var mobile = addShape(roundedRectShape, extrudeSettings, 0x00FFFF, 5, 0, 0, 0, 0, 0, 1);
+		scene.add(mobile);
+	}
+
+	function blockchain() {
+
+		var blockGeo = new THREE.BoxBufferGeometry(1, 1, 1);
+		var material = new THREE.MeshPhongMaterial({
+			color: 0x00FFFF,
+			transparent: true,
+			opacity: 0.7
+		});
+
+		var block1 = new THREE.Mesh(blockGeo, material);
+		var block2 = new THREE.Mesh(blockGeo, material);
+		var block3 = new THREE.Mesh(blockGeo, material);
+		var block4 = new THREE.Mesh(blockGeo, material);
+
+		block1.position.set(1, 1, 1);
+		block2.position.set(1, 1, -1);
+		block3.position.set(-1, 1, -1);
+		block4.position.set(-1, 1, 1);
+
+		function CustomSinCurve(scale) {
+			THREE.Curve.call(this);
+			this.scale = (scale === undefined) ? 1 : scale;
+		}
+
+		CustomSinCurve.prototype = Object.create(THREE.Curve.prototype);
+		CustomSinCurve.prototype.constructor = CustomSinCurve;
+
+		CustomSinCurve.prototype.getPoint = function (t) {
+
+			var tx = t / 2 - 1.5;
+			var ty = Math.sin(Math.PI * t);
+			var tz = 1.25;
+
+			return new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale);
+
+		};
+		var path = new CustomSinCurve(0.8);
+
+		var group = new THREE.Group();
+
+		group.add(block1);
+		group.add(block2);
+		group.add(block3);
+		group.add(block4);
+
+		var chainGeo = new THREE.TubeBufferGeometry(path, 10, 0.1, 8, false);
+
+		var chain1 = new THREE.Mesh(chainGeo, material);
+		chain1.rotation.set(0, 0, Math.PI / 2);
+		chain1.position.set(0.6, 2, 0);
+		group.add(chain1);
+
+		var chain2 = new THREE.Mesh(chainGeo, material);
+		chain2.rotation.set(Math.PI / 2, 0, -Math.PI / 2);
+		chain2.position.set(-0.6, 2, 0);
+		group.add(chain2);
+
+		var chain3 = new THREE.Mesh(chainGeo, material);
+		chain3.rotation.set(0, Math.PI / 2, Math.PI / 2);
+		chain3.position.set(0, 2, -0.6);
+		group.add(chain3);
+
+		var chain4 = new THREE.Mesh(chainGeo, material);
+		chain4.rotation.set(Math.PI / 2, 0, Math.PI / 2);
+		chain4.position.set(0.6, 2, 0);
+		group.add(chain4);
+
+		var chain5 = new THREE.Mesh(chainGeo, material);
+		chain5.rotation.set(Math.PI / 2, 0, 0);
+		chain5.position.set(0, 2, -0.6);
+		group.add(chain5);
+
+		var chain6 = new THREE.Mesh(chainGeo, material);
+		chain6.rotation.set(0, -Math.PI / 2, Math.PI / 2);
+		chain6.position.set(0, 2, 0.6);
+		group.add(chain6);
+
+		var chain7 = new THREE.Mesh(chainGeo, material);
+		chain7.rotation.set(0, Math.PI, Math.PI / 2);
+		chain7.position.set(-0.6, 2, 0);
+		group.add(chain7);
+
+		var chain8 = new THREE.Mesh(chainGeo, material);
+		chain8.rotation.set(Math.PI / 2, Math.PI, Math.PI);
+		chain8.position.set(2, 0, 0.6);
+		group.add(chain8);
+
+		group.position.set(10, 10, -20);
+		scene.add(group);
+	}
+
+	function dialog() {
+		var cubeGeo = new THREE.BoxBufferGeometry(2, 2, 2);
+		var material = new THREE.MeshPhongMaterial({
+			color: 0x00FFFF,
+			transparent: true,
+			opacity: 0.7
+		});
+
+		var cube = new THREE.Mesh(cubeGeo, material);
+
+		var cone = new THREE.Mesh(new THREE.ConeBufferGeometry(0.4, 1, 10), material);
+		cone.rotation.set(Math.PI - Math.PI / 8, Math.PI / 2 - Math.PI / 6, -Math.PI / 4);
+		cone.position.set(0.8, -0.8, 1);
+		cube.add(cone);
+		cube.position.set(10, 10, -40);
+		scene.add(cube);
+
+	}
+
+	function desktop() {
+		var extrudeSettings = { depth: 0.2, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 0.25, bevelThickness: 0.1 };
+		var roundedRectShape = new THREE.Shape();
+		var neckShape = new THREE.Shape();
+		var standShape = new THREE.Shape();
+
+		function roundedRect(ctx, x, y, width, height, radius) {
+
+			ctx.moveTo(x, y + radius);
+			ctx.lineTo(x, y + height - radius);
+			ctx.quadraticCurveTo(x, y + height, x + radius, y + height);
+			ctx.lineTo(x + width - radius, y + height);
+			ctx.quadraticCurveTo(x + width, y + height, x + width, y + height - radius);
+			ctx.lineTo(x + width, y + radius);
+			ctx.quadraticCurveTo(x + width, y, x + width - radius, y);
+			ctx.lineTo(x + radius, y);
+			ctx.quadraticCurveTo(x, y, x, y + radius);
+
+		}
+		roundedRect(roundedRectShape, 0, 1, 4, 3, 0.1);
+		roundedRect(neckShape, 1.75, 0, 0.5, 1, 0.1);
+		roundedRect(standShape, 0.6, 0, 2.8, 1, 0.1);
+
+		var screen = addShape(roundedRectShape, extrudeSettings, 0x00FFFF, -2, 0, 0, 0, 0, 0, 1);
+		var neck = addShape(neckShape, extrudeSettings, 0x00FFFF, -2, 0, 0, 0, 0, 0, 1);
+		var stand = addShape(standShape, extrudeSettings, 0x00FFFF, -2, 0, 0, Math.PI / 2, 0, 0, 1);
+
+		var pc = new THREE.Group();
+		pc.add(screen);
+		pc.add(neck);
+		pc.add(stand);
+		pc.position.set(10, 10, 10)
+		scene.add(pc);
+	}
+
+	function stock() {
+		var material = new THREE.LineBasicMaterial({
+			color: 0x00ffff,
+			transparent: true,
+			opacity: 0.7
+		});
+		var points = [];
+		points.push(new THREE.Vector3(0, 4, 0));
+		points.push(new THREE.Vector3(0, 1, 0));
+		points.push(new THREE.Vector3(3, 1, 0));
+		var geometry = new THREE.BufferGeometry().setFromPoints(points);
+		var axes = new THREE.Line(geometry, material);
+
+		var points1 = [];
+		points1.push(new THREE.Vector3(0.25, 1.25, 0));
+		points1.push(new THREE.Vector3(0.3, 1.4, 0));
+		points1.push(new THREE.Vector3(0.35, 1.2, 0));
+		points1.push(new THREE.Vector3(0.5, 1.5, 0));
+		points1.push(new THREE.Vector3(0.7, 1.2, 0));
+		points1.push(new THREE.Vector3(0.85, 1.4, 0));
+		points1.push(new THREE.Vector3(1, 1.24, 0));
+		points1.push(new THREE.Vector3(1.3, 2.2, 0));
+		points1.push(new THREE.Vector3(1.5, 1.4, 0));
+		points1.push(new THREE.Vector3(1.6, 2.1, 0));
+		points1.push(new THREE.Vector3(1.7, 1.6, 0));
+		points1.push(new THREE.Vector3(1.9, 2.3, 0));
+		points1.push(new THREE.Vector3(2.1, 2, 0));
+		points1.push(new THREE.Vector3(2.7, 3.5, 0));
+		var geometry1 = new THREE.BufferGeometry().setFromPoints(points1);
+		var trend = new THREE.Line(geometry1, material);
+
+		var graph = new THREE.Group();
+		graph.add(axes);
+		graph.add(trend);
+		graph.position.set(10, 10, -30);
+		scene.add(graph);
+	}
 
 	function createObjects() {
 
 		loadMars();
 		flagLoader();
 		signpostLoader();
-		modelsLoader();
+		phone();
+		blockchain();
+		dialog();
+		desktop();
+		stock();
+		// modelsLoader();
 		createVehicle(new THREE.Vector3(100, marsRadius - 5, 10), ZERO_QUATERNION);
 	}
 
