@@ -6,10 +6,9 @@ Ammo().then(function (Ammo) {
 	var ZERO_QUATERNION = new THREE.Quaternion(0, 0, 0, 1);
 	var marsRadius = 1000;
 	var chassisMesh;
-	var font;
 
 	// Graphics variables
-	var camera, controls, scene, renderer;
+	var camera, controls, scene, renderer, renderPass, composer;
 	var clock = new THREE.Clock();
 
 	// Physics variables
@@ -80,6 +79,9 @@ Ammo().then(function (Ammo) {
 
 	function rend() {
 		renderer = new THREE.WebGLRenderer({ antialias: true });
+		renderPass = new POSTPROCESSING.RenderPass(scene, camera);
+		composer = new POSTPROCESSING.EffectComposer(renderer);
+		composer.addPass(renderPass);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		document.body.appendChild(renderer.domElement);
 	}
@@ -91,6 +93,7 @@ Ammo().then(function (Ammo) {
 		cam();
 		lights();
 		// orbCont();
+
 		controls = new THREE.OrbitControls(camera, renderer.domElement);
 
 		window.addEventListener('resize', onWindowResize, false);
@@ -126,6 +129,9 @@ Ammo().then(function (Ammo) {
 		if (chassisMesh)
 			camera.lookAt(chassisMesh.position);
 		controls.update(dt);
+
+		composer.render(0.1);
+
 		renderer.render(scene, camera);
 	}
 
@@ -235,7 +241,6 @@ Ammo().then(function (Ammo) {
 		physicsWorld.addRigidBody(groundBody);
 	}
 
-
 	//creates noisy terrain
 	function buildTerrain() {
 		for (var i = 0; i < marsGeom.vertices.length; i++) {
@@ -247,6 +252,7 @@ Ammo().then(function (Ammo) {
 		marsGeom.computeVertexNormals();
 	}
 
+	//add vehicle and movements
 	function createVehicle(pos, quat) {
 
 		// Vehicle contants
@@ -581,7 +587,7 @@ Ammo().then(function (Ammo) {
 
 		var geometry = new THREE.ExtrudeBufferGeometry(shape, extrudeSettings);
 
-		var material = new THREE.MeshPhongMaterial({
+		var material = new THREE.MeshBasicMaterial({
 			color: color,
 			transparent: true,
 			opacity: 0.7
@@ -592,6 +598,18 @@ Ammo().then(function (Ammo) {
 		mesh.rotation.set(rx, ry, rz);
 		mesh.scale.set(s, s, s);
 		return mesh;
+	}
+
+	function holoBase() {
+		var geometry = new THREE.SphereBufferGeometry(1.6, 28, 28, Math.PI / 2, Math.PI * 2, 0, 1)
+		var material = new THREE.MeshBasicMaterial({
+			color: 0x00ffff,
+			transparent: true,
+			opacity: 0.7
+		});
+		var sphere = new THREE.Mesh(geometry, material);
+		sphere.position.y = -1;
+		return sphere;
 	}
 
 	function phone() {
@@ -612,14 +630,32 @@ Ammo().then(function (Ammo) {
 
 		})(roundedRectShape, 0, 0, 2, 4, 0.1);
 
-		var mobile = addShape(roundedRectShape, extrudeSettings, 0x00FFFF, 5, 0, 0, 0, 0, 0, 1);
+		var mobile = addShape(roundedRectShape, extrudeSettings, 0x00FFFF, 4, 2, 0, 0, 0, 0, 1);
+		var base = holoBase();
+
+		//add godrays effect for holograph
+		// createEffect(base, 0.95, 0.5, 0.9);
+		let godraysEffect = new POSTPROCESSING.GodRaysEffect(camera, base, mobile, {
+			resolutionScale: 1,
+			density: 0.9,
+			decay: 0.95,
+			weight: 0.5,
+			samples: 100
+		});
+		let effectPass = new POSTPROCESSING.EffectPass(camera, godraysEffect);
+
+		composer.addPass(effectPass);
+
+		base.position.y = -3;
+		base.position.x = 1;
+		mobile.add(base);
 		scene.add(mobile);
 	}
 
 	function blockchain() {
 
 		var blockGeo = new THREE.BoxBufferGeometry(1, 1, 1);
-		var material = new THREE.MeshPhongMaterial({
+		var material = new THREE.MeshBasicMaterial({
 			color: 0x00FFFF,
 			transparent: true,
 			opacity: 0.7
@@ -703,16 +739,33 @@ Ammo().then(function (Ammo) {
 		chain8.position.set(2, 0, 0.6);
 		group.add(chain8);
 
-		group.position.set(10, 10, -20);
+		group.position.set(0, 2, 0);
+		var base = holoBase();
+
+
+		let godraysEffect1 = new POSTPROCESSING.GodRaysEffect(camera, base, block1, block2, {
+			resolutionScale: 1,
+			density: 0.9,
+			decay: 0.95,
+			weight: 0.5,
+			samples: 100
+		});
+		let effectPass1 = new POSTPROCESSING.EffectPass(camera, godraysEffect1);
+		composer.addPass(effectPass1);
+		// effectPass1.renderToScreen = true;
+
+		base.position.y = -3;
+		group.add(base);
+
 		scene.add(group);
 	}
 
 	function dialog() {
 		var cubeGeo = new THREE.BoxBufferGeometry(2, 2, 2);
-		var material = new THREE.MeshPhongMaterial({
+		var material = new THREE.MeshBasicMaterial({
 			color: 0x00FFFF,
 			transparent: true,
-			opacity: 0.7
+			opacity: 0.5,
 		});
 
 		var cube = new THREE.Mesh(cubeGeo, material);
@@ -721,9 +774,9 @@ Ammo().then(function (Ammo) {
 		cone.rotation.set(Math.PI - Math.PI / 8, Math.PI / 2 - Math.PI / 6, -Math.PI / 4);
 		cone.position.set(0.8, -0.8, 1);
 		cube.add(cone);
-		cube.position.set(10, 10, -40);
-		scene.add(cube);
+		cube.position.set(-3, 0, 0);
 
+		scene.add(cube);
 	}
 
 	function desktop() {
@@ -809,9 +862,11 @@ Ammo().then(function (Ammo) {
 		dialog();
 		desktop();
 		stock();
+
 		// modelsLoader();
 		createVehicle(new THREE.Vector3(100, marsRadius - 5, 10), ZERO_QUATERNION);
 	}
+
 
 	// - Init -
 	initGraphics();
