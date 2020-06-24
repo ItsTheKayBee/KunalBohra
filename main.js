@@ -10,6 +10,9 @@ Ammo().then(function (Ammo) {
 	// Graphics variables
 	var camera, controls, scene, renderer, renderPass, composer;
 	var clock = new THREE.Clock();
+	var mobile, pc, blockchain, coin, dialogueL, dialogueR;
+	var up = 1, down = 0;
+	var dl = 1, dr = 0, step = 0;
 
 	// Physics variables
 	var collisionConfiguration;
@@ -130,9 +133,42 @@ Ammo().then(function (Ammo) {
 			camera.lookAt(chassisMesh.position);
 		controls.update(dt);
 
+		projectsAnimation(step);
+		step++;
+
 		composer.render(0.1);
 
 		renderer.render(scene, camera);
+	}
+
+	function projectsAnimation(step) {
+		mobile.rotation.y += 0.01;
+		pc.rotation.y += 0.01;
+		blockchain.rotation.y += 0.01;
+		if (coin.position.y >= 3) {
+			down = 1;
+			up = 0;
+		} else if (coin.position.y <= 1) {
+			down = 0;
+			up = 1;
+		}
+		if (up) {
+			coin.position.y += 0.01;
+		} else if (down) {
+			coin.position.y -= 0.01;
+		}
+
+		if (step % 120 == 0) {
+			if (dl == 1) {
+				dl = 0;
+				dr = 1;
+			} else {
+				dr = 0;
+				dl = 1;
+			}
+			dialogueL.position.y = dl == 0 ? 0 : 3;
+			dialogueR.position.y = dr == 0 ? 0 : 3;
+		}
 	}
 
 	function keyup(e) {
@@ -582,64 +618,111 @@ Ammo().then(function (Ammo) {
 		scene.add(woodenPole);
 	}
 
-	function addShape(shape, extrudeSettings, color, x, y, z, rx, ry, rz, s) {
+	function addShape(image, shape, extrudeSettings, color, x, y, z, rx, ry, rz, s, dx, dy) {
 		// extruded shape
-
 		var geometry = new THREE.ExtrudeBufferGeometry(shape, extrudeSettings);
+		var loader = new THREE.TextureLoader();
 
-		var material = new THREE.MeshBasicMaterial({
-			color: color,
-			transparent: true,
-			opacity: 0.7
-		});
+		if (image !== '') {
+			var texture = loader.load('textures/' + image + '.png', function (texture) {
+				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+				texture.offset.set(0, 0);
+				texture.repeat.set(dx, dy);
+			});
+			var materials = [
+				new THREE.MeshBasicMaterial({
+					color: color,
+					transparent: true,
+					opacity: 1,
+					map: texture,
+				}),
+				new THREE.MeshBasicMaterial({
+					color: color,
+					transparent: true,
+					opacity: 0.3
+				}),
+			];
+		} else {
+			var materials = new THREE.MeshBasicMaterial({
+				color: color,
+				transparent: true,
+				opacity: 0.3
+			});
+		}
 
-		var mesh = new THREE.Mesh(geometry, material);
+		var mesh = new THREE.Mesh(geometry, materials);
 		mesh.position.set(x, y, z);
 		mesh.rotation.set(rx, ry, rz);
 		mesh.scale.set(s, s, s);
 		return mesh;
 	}
 
+
+	function pointsAdd(n, x, y, z, dx, dy, dz) {
+		pointGeo = new THREE.Geometry();
+
+		for (let i = 0; i < n; i++) {
+			point = new THREE.Vector3(
+				Math.random() * x - dx,
+				Math.random() * y - dy,
+				Math.random() * z - dz
+			);
+			pointGeo.vertices.push(point);
+		}
+
+		let sprite = new THREE.TextureLoader().load('images/star.png');
+		let pointMaterial = new THREE.PointsMaterial({
+			color: 0x00ffff,
+			size: 0.01,
+			map: sprite
+		});
+
+		points = new THREE.Points(pointGeo, pointMaterial);
+		return points;
+	}
+
 	function holoBase() {
 		var geometry = new THREE.SphereBufferGeometry(1.6, 28, 28, Math.PI / 2, Math.PI * 2, 0, 1)
 		var material = new THREE.MeshBasicMaterial({
-			color: 0x00ffff,
 			transparent: true,
-			opacity: 0.7
+			opacity: 0.7,
+			color: 0x00fff2
 		});
+
 		var sphere = new THREE.Mesh(geometry, material);
 		sphere.position.y = -1;
 		return sphere;
 	}
 
+	function roundedRect(ctx, x, y, width, height, radius) {
+		//ceates rounded rectangle
+		ctx.moveTo(x, y + radius);
+		ctx.lineTo(x, y + height - radius);
+		ctx.quadraticCurveTo(x, y + height, x + radius, y + height);
+		ctx.lineTo(x + width - radius, y + height);
+		ctx.quadraticCurveTo(x + width, y + height, x + width, y + height - radius);
+		ctx.lineTo(x + width, y + radius);
+		ctx.quadraticCurveTo(x + width, y, x + width - radius, y);
+		ctx.lineTo(x + radius, y);
+		ctx.quadraticCurveTo(x, y, x, y + radius);
+	}
+
 	function phone() {
 		var extrudeSettings = { depth: 0.2, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 0.25, bevelThickness: 0.1 };
-		var roundedRectShape = new THREE.Shape();
+		var phoneShape = new THREE.Shape();
 
-		(function roundedRect(ctx, x, y, width, height, radius) {
+		roundedRect(phoneShape, 0, 0, 2, 4, 0.1);
 
-			ctx.moveTo(x, y + radius);
-			ctx.lineTo(x, y + height - radius);
-			ctx.quadraticCurveTo(x, y + height, x + radius, y + height);
-			ctx.lineTo(x + width - radius, y + height);
-			ctx.quadraticCurveTo(x + width, y + height, x + width, y + height - radius);
-			ctx.lineTo(x + width, y + radius);
-			ctx.quadraticCurveTo(x + width, y, x + width - radius, y);
-			ctx.lineTo(x + radius, y);
-			ctx.quadraticCurveTo(x, y, x, y + radius);
+		mobile = addShape('mobile', phoneShape, extrudeSettings, 0x00fff2, 4, 2, 0, 0, 0, 0, 1, 0.5, 0.25);
 
-		})(roundedRectShape, 0, 0, 2, 4, 0.1);
-
-		var mobile = addShape(roundedRectShape, extrudeSettings, 0x00FFFF, 4, 2, 0, 0, 0, 0, 1);
-		var base = holoBase();
+		base = holoBase();
 
 		//add godrays effect for holograph
-		// createEffect(base, 0.95, 0.5, 0.9);
-		let godraysEffect = new POSTPROCESSING.GodRaysEffect(camera, base, mobile, {
+		let godraysEffect = new POSTPROCESSING.GodRaysEffect(camera, base, {
 			resolutionScale: 1,
-			density: 0.9,
+			density: 1,
 			decay: 0.95,
-			weight: 0.5,
+			weight: 0.3,
 			samples: 100
 		});
 		let effectPass = new POSTPROCESSING.EffectPass(camera, godraysEffect);
@@ -649,16 +732,19 @@ Ammo().then(function (Ammo) {
 		base.position.y = -3;
 		base.position.x = 1;
 		mobile.add(base);
+		var points = pointsAdd(1000, 2.4, 4.4, 0.25, 0.2, 0.2, 0);
+		mobile.add(points);
+		mobile.position.set(0, 0, -100);
 		scene.add(mobile);
 	}
 
-	function blockchain() {
+	function addBlockchain() {
 
 		var blockGeo = new THREE.BoxBufferGeometry(1, 1, 1);
 		var material = new THREE.MeshBasicMaterial({
-			color: 0x00FFFF,
+			color: 0x00fff2,
 			transparent: true,
-			opacity: 0.7
+			opacity: 0.3
 		});
 
 		var block1 = new THREE.Mesh(blockGeo, material);
@@ -690,123 +776,218 @@ Ammo().then(function (Ammo) {
 		};
 		var path = new CustomSinCurve(0.8);
 
-		var group = new THREE.Group();
+		blockchain = new THREE.Group();
 
-		group.add(block1);
-		group.add(block2);
-		group.add(block3);
-		group.add(block4);
+		blockchain.add(block1);
+		blockchain.add(block2);
+		blockchain.add(block3);
+		blockchain.add(block4);
+
+		var points1 = pointsAdd(300, 1, 1, 1, 0.5, 0.5, 0.5);
+		var points2 = pointsAdd(300, 1, 1, 1, 0.5, 0.5, 0.5);
+		var points3 = pointsAdd(300, 1, 1, 1, 0.5, 0.5, 0.5);
+		var points4 = pointsAdd(300, 1, 1, 1, 0.5, 0.5, 0.5);
+
+		block1.add(points1);
+		block2.add(points2);
+		block3.add(points3);
+		block4.add(points4);
+
+		var edges = new THREE.EdgesGeometry(blockGeo);
+		var lineMaterial = new THREE.LineBasicMaterial({
+			color: 0x00fff2,
+			transparent: true,
+			opacity: 0.7
+		});
+		var line1 = new THREE.LineSegments(edges, lineMaterial);
+		var line2 = new THREE.LineSegments(edges, lineMaterial);
+		var line3 = new THREE.LineSegments(edges, lineMaterial);
+		var line4 = new THREE.LineSegments(edges, lineMaterial);
+		blockchain.add(line1);
+		blockchain.add(line2);
+		blockchain.add(line3);
+		blockchain.add(line4);
+		line1.position.copy(block1.position);
+		line2.position.copy(block2.position);
+		line3.position.copy(block3.position);
+		line4.position.copy(block4.position);
 
 		var chainGeo = new THREE.TubeBufferGeometry(path, 10, 0.1, 8, false);
 
 		var chain1 = new THREE.Mesh(chainGeo, material);
 		chain1.rotation.set(0, 0, Math.PI / 2);
 		chain1.position.set(0.6, 2, 0);
-		group.add(chain1);
+		blockchain.add(chain1);
 
 		var chain2 = new THREE.Mesh(chainGeo, material);
 		chain2.rotation.set(Math.PI / 2, 0, -Math.PI / 2);
 		chain2.position.set(-0.6, 2, 0);
-		group.add(chain2);
+		blockchain.add(chain2);
 
 		var chain3 = new THREE.Mesh(chainGeo, material);
 		chain3.rotation.set(0, Math.PI / 2, Math.PI / 2);
 		chain3.position.set(0, 2, -0.6);
-		group.add(chain3);
+		blockchain.add(chain3);
 
 		var chain4 = new THREE.Mesh(chainGeo, material);
 		chain4.rotation.set(Math.PI / 2, 0, Math.PI / 2);
 		chain4.position.set(0.6, 2, 0);
-		group.add(chain4);
+		blockchain.add(chain4);
 
 		var chain5 = new THREE.Mesh(chainGeo, material);
 		chain5.rotation.set(Math.PI / 2, 0, 0);
 		chain5.position.set(0, 2, -0.6);
-		group.add(chain5);
+		blockchain.add(chain5);
 
 		var chain6 = new THREE.Mesh(chainGeo, material);
 		chain6.rotation.set(0, -Math.PI / 2, Math.PI / 2);
 		chain6.position.set(0, 2, 0.6);
-		group.add(chain6);
+		blockchain.add(chain6);
 
 		var chain7 = new THREE.Mesh(chainGeo, material);
 		chain7.rotation.set(0, Math.PI, Math.PI / 2);
 		chain7.position.set(-0.6, 2, 0);
-		group.add(chain7);
+		blockchain.add(chain7);
 
 		var chain8 = new THREE.Mesh(chainGeo, material);
 		chain8.rotation.set(Math.PI / 2, Math.PI, Math.PI);
 		chain8.position.set(2, 0, 0.6);
-		group.add(chain8);
+		blockchain.add(chain8);
 
-		group.position.set(0, 2, 0);
+		blockchain.position.set(0, 0, -100);
+
+		var coinGeo = new THREE.CylinderBufferGeometry(0.5, 0.5, 0.15, 20);
+		var loader = new THREE.TextureLoader();
+		var texture = loader.load('textures/bitcoin.png');
+
+		var coinMat = [
+			new THREE.MeshBasicMaterial({
+				color: 0x00ffff,
+				transparent: true,
+				opacity: 0.3
+			}),
+			new THREE.MeshBasicMaterial({
+				map: texture,
+				color: 0x00ffff,
+				opacity: 0.7,
+				transparent: true,
+				side: THREE.DoubleSide
+			}),
+		];
+
+		coin = new THREE.Mesh(coinGeo, coinMat);
+		var edgesC = new THREE.EdgesGeometry(coinGeo);
+		var lineC = new THREE.LineSegments(edgesC, lineMaterial);
+		coin.add(lineC);
+		coin.position.set(0, 0, 0);
+		coin.rotation.set(Math.PI / 2, Math.PI / 2, 0);
+
+		blockchain.add(coin);
+
 		var base = holoBase();
 
-
-		let godraysEffect1 = new POSTPROCESSING.GodRaysEffect(camera, base, block1, block2, {
+		let godraysEffect1 = new POSTPROCESSING.GodRaysEffect(camera, base, {
 			resolutionScale: 1,
-			density: 0.9,
+			density: 1,
 			decay: 0.95,
-			weight: 0.5,
+			weight: 0.3,
 			samples: 100
 		});
 		let effectPass1 = new POSTPROCESSING.EffectPass(camera, godraysEffect1);
 		composer.addPass(effectPass1);
-		// effectPass1.renderToScreen = true;
 
 		base.position.y = -3;
-		group.add(base);
+		blockchain.add(base);
 
-		scene.add(group);
+		scene.add(blockchain);
 	}
 
 	function dialog() {
-		var cubeGeo = new THREE.BoxBufferGeometry(2, 2, 2);
-		var material = new THREE.MeshBasicMaterial({
-			color: 0x00FFFF,
+		var extrudeSettings = { depth: 0.25, bevelEnabled: false };
+
+		var lineMaterial = new THREE.LineBasicMaterial({
+			color: 0x00fff2,
 			transparent: true,
-			opacity: 0.5,
+			opacity: 0.7
 		});
 
-		var cube = new THREE.Mesh(cubeGeo, material);
+		var splinepts = [];
+		splinepts.push(new THREE.Vector2(3, 0));
+		splinepts.push(new THREE.Vector2(3, 2));
+		splinepts.push(new THREE.Vector2(-0.5, 2));
+		splinepts.push(new THREE.Vector2(-0.5, 0.2));
+		splinepts.push(new THREE.Vector2(-1, -0.5));
+		splinepts.push(new THREE.Vector2(0.2, 0));
 
-		var cone = new THREE.Mesh(new THREE.ConeBufferGeometry(0.4, 1, 10), material);
-		cone.rotation.set(Math.PI - Math.PI / 8, Math.PI / 2 - Math.PI / 6, -Math.PI / 4);
-		cone.position.set(0.8, -0.8, 1);
-		cube.add(cone);
-		cube.position.set(-3, 0, 0);
+		var splineShapeL = new THREE.Shape()
+			.moveTo(0.2, 0)
+			.splineThru(splinepts);
 
-		scene.add(cube);
+		dialogueL = addShape('', splineShapeL, extrudeSettings, 0x05a3ff, 0, 0, 0, 0, 0, 0, 1);
+
+		var splineptsR = [];
+		splineptsR.push(new THREE.Vector2(3.8, 0));
+		splineptsR.push(new THREE.Vector2(4.7, -0.5));
+		splineptsR.push(new THREE.Vector2(4.5, 0));
+		splineptsR.push(new THREE.Vector2(4.5, 1.5));
+		splineptsR.push(new THREE.Vector2(1.5, 2));
+		splineptsR.push(new THREE.Vector2(1.5, 0));
+
+		var splineShapeR = new THREE.Shape()
+			.moveTo(1.5, 0)
+			.splineThru(splineptsR);
+		dialogueR = addShape('', splineShapeR, extrudeSettings, 0x00fff2, 0, 0, 0, 0, 0, 0, 1);
+
+		//edges
+		var dialogGeoL = new THREE.ExtrudeBufferGeometry(splineShapeL, extrudeSettings);
+		var dialogGeoR = new THREE.ExtrudeBufferGeometry(splineShapeR, extrudeSettings);
+
+		var edgesL = new THREE.EdgesGeometry(dialogGeoL);
+		var edgesR = new THREE.EdgesGeometry(dialogGeoR);
+		var line1 = new THREE.LineSegments(edgesL, lineMaterial);
+		var line2 = new THREE.LineSegments(edgesR, lineMaterial);
+
+		dialogueL.add(line1);
+		dialogueR.add(line2);
+
+		var points1 = pointsAdd(300, 3.5, 2, 0.25, 0.5, 0, 0);
+		var points2 = pointsAdd(300, 3.4, 1.8, 0.25, 0, 0, 0);
+		points.position.x = 1.2;
+		dialogueL.add(points1);
+		dialogueR.add(points2);
+
+		var chat = new THREE.Group();
+		chat.add(dialogueL);
+		chat.add(dialogueR);
+		chat.position.set(0, 0, -100);
+		scene.add(chat);
 	}
 
 	function desktop() {
 		var extrudeSettings = { depth: 0.2, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 0.25, bevelThickness: 0.1 };
-		var roundedRectShape = new THREE.Shape();
+		var screenShape = new THREE.Shape();
 		var neckShape = new THREE.Shape();
 		var standShape = new THREE.Shape();
 
-		function roundedRect(ctx, x, y, width, height, radius) {
-
-			ctx.moveTo(x, y + radius);
-			ctx.lineTo(x, y + height - radius);
-			ctx.quadraticCurveTo(x, y + height, x + radius, y + height);
-			ctx.lineTo(x + width - radius, y + height);
-			ctx.quadraticCurveTo(x + width, y + height, x + width, y + height - radius);
-			ctx.lineTo(x + width, y + radius);
-			ctx.quadraticCurveTo(x + width, y, x + width - radius, y);
-			ctx.lineTo(x + radius, y);
-			ctx.quadraticCurveTo(x, y, x, y + radius);
-
-		}
-		roundedRect(roundedRectShape, 0, 1, 4, 3, 0.1);
+		roundedRect(screenShape, 0, 1, 4, 2.8, 0.1);
 		roundedRect(neckShape, 1.75, 0, 0.5, 1, 0.1);
 		roundedRect(standShape, 0.6, 0, 2.8, 1, 0.1);
 
-		var screen = addShape(roundedRectShape, extrudeSettings, 0x00FFFF, -2, 0, 0, 0, 0, 0, 1);
-		var neck = addShape(neckShape, extrudeSettings, 0x00FFFF, -2, 0, 0, 0, 0, 0, 1);
-		var stand = addShape(standShape, extrudeSettings, 0x00FFFF, -2, 0, 0, Math.PI / 2, 0, 0, 1);
+		var screen = addShape('desktop', screenShape, extrudeSettings, 0x00fff2, -2, 0, 0, 0, 0, 0, 1, 0.25, 0.2);
+		var neck = addShape('', neckShape, extrudeSettings, 0x00fff2, -2, 0, 0, 0, 0, 0, 1);
+		var stand = addShape('', standShape, extrudeSettings, 0x00fff2, -2, 0, 0, Math.PI / 2, 0, 0, 1);
 
-		var pc = new THREE.Group();
+		pc = new THREE.Group();
+		var pointsScreen = pointsAdd(1000, 4.4, 3.2, 0.25, 0.2, 0.2, 0);
+		var pointsNeck = pointsAdd(150, 0.9, 1.2, 0.25, 0.2, 0.2, 0);
+		var pointsStand = pointsAdd(200, 3.3, 0.25, 1.4, 0.2, 0, 1.2);
+		screen.add(pointsScreen);
+		neck.add(pointsNeck);
+		pointsScreen.position.y = 1;
+		pointsNeck.position.x = 1.8;
+		pointsStand.position.x = 0.6;
+		stand.add(pointsStand);
+		pointsStand.rotation.x = Math.PI / 2;
 		pc.add(screen);
 		pc.add(neck);
 		pc.add(stand);
@@ -815,10 +996,10 @@ Ammo().then(function (Ammo) {
 	}
 
 	function stock() {
-		var material = new THREE.LineBasicMaterial({
-			color: 0x00ffff,
+		var material = new THREE.LineDashedMaterial({
+			color: 0x00fff2,
 			transparent: true,
-			opacity: 0.7
+			opacity: 0.7,
 		});
 		var points = [];
 		points.push(new THREE.Vector3(0, 4, 0));
@@ -843,12 +1024,19 @@ Ammo().then(function (Ammo) {
 		points1.push(new THREE.Vector3(2.1, 2, 0));
 		points1.push(new THREE.Vector3(2.7, 3.5, 0));
 		var geometry1 = new THREE.BufferGeometry().setFromPoints(points1);
-		var trend = new THREE.Line(geometry1, material);
+
+		var material1 = new THREE.LineDashedMaterial({
+			color: 0x00fff2,
+			transparent: true,
+			opacity: 0.7,
+		});
+
+		var trend = new THREE.Line(geometry1, material1);
 
 		var graph = new THREE.Group();
 		graph.add(axes);
 		graph.add(trend);
-		graph.position.set(10, 10, -30);
+		// graph.position.set(10, 10, -30);
 		scene.add(graph);
 	}
 
@@ -858,7 +1046,7 @@ Ammo().then(function (Ammo) {
 		flagLoader();
 		signpostLoader();
 		phone();
-		blockchain();
+		addBlockchain()
 		dialog();
 		desktop();
 		stock();
