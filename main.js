@@ -10,9 +10,12 @@ Ammo().then(function (Ammo) {
 	// Graphics variables
 	var camera, controls, scene, renderer, renderPass, composer;
 	var clock = new THREE.Clock();
-	var mobile, pc, blockchain, coin, dialogueL, dialogueR;
+	var mobile, pc, blockchain, coin, dialogueL, dialogueR, trend;
 	var up = 1, down = 0;
 	var dl = 1, dr = 0, step = 0;
+	var trendBack = 1, trendFront = 0;
+	let gltfLoader = new THREE.GLTFLoader();
+	var textureLoader = new THREE.TextureLoader()
 
 	// Physics variables
 	var collisionConfiguration;
@@ -73,10 +76,6 @@ Ammo().then(function (Ammo) {
 		spotLight.shadow.camera.fov = 30;
 
 		scene.add(spotLight);
-
-		// var plight = new THREE.PointLight(0xff0000, 1, 0);
-		// plight.position.set(20, 20, 20);
-		// scene.add(plight);
 	}
 
 
@@ -133,18 +132,20 @@ Ammo().then(function (Ammo) {
 			camera.lookAt(chassisMesh.position);
 		controls.update(dt);
 
-		projectsAnimation(step);
+		// projectsAnimation(step);
 		step++;
 
 		composer.render(0.1);
-
 		renderer.render(scene, camera);
 	}
 
 	function projectsAnimation(step) {
+		//rotation of holographs
 		mobile.rotation.y += 0.01;
 		pc.rotation.y += 0.01;
 		blockchain.rotation.y += 0.01;
+
+		//coin animation
 		if (coin.position.y >= 3) {
 			down = 1;
 			up = 0;
@@ -158,6 +159,7 @@ Ammo().then(function (Ammo) {
 			coin.position.y -= 0.01;
 		}
 
+		//dialogflow animation
 		if (step % 120 == 0) {
 			if (dl == 1) {
 				dl = 0;
@@ -169,6 +171,27 @@ Ammo().then(function (Ammo) {
 			dialogueL.position.y = dl == 0 ? 0 : 3;
 			dialogueR.position.y = dr == 0 ? 0 : 3;
 		}
+
+		//stock graph animation
+		if (trendFront == 1) {
+			trend.position.z += 0.05;
+			if (trend.position.z >= 3) {
+				trend.rotation.y += 0.1;
+				if (trend.rotation.y % Math.PI >= Math.PI - 0.10) {
+					trendBack = 1;
+					trendFront = 0;
+				}
+			}
+		}
+		if (trendBack == 1) {
+			trend.position.z -= 0.05;
+			if (trend.position.z <= 0) {
+				trendBack = 0;
+				trendFront = 1;
+			}
+		}
+		trend.position.x = 1.5;
+		trend.position.y = 2;
 	}
 
 	function keyup(e) {
@@ -235,7 +258,7 @@ Ammo().then(function (Ammo) {
 	function createWheelMesh(radius, width) {
 		var t = new THREE.CylinderGeometry(radius, radius, width, 24, 1);
 		t.rotateZ(Math.PI / 2);
-		var sphmat = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('textures/metal.jpg') });
+		var sphmat = new THREE.MeshBasicMaterial({ map: textureLoader.load('textures/metal.jpg') });
 		var mesh = new THREE.Mesh(t, sphmat);
 		// var boxMat = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('textures/gold.jpg') });
 		// mesh.add(new THREE.Mesh(new THREE.BoxGeometry(width * 1.5, radius * 1.75, radius * .25, 1, 1, 1), boxMat));
@@ -459,7 +482,7 @@ Ammo().then(function (Ammo) {
 	//solar panel
 	function addPanel() {
 		var boxGeo = new THREE.BoxGeometry(3, 0.01, 1.8);
-		var boxMat = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('textures/solar_panel.jpg') });
+		var boxMat = new THREE.MeshBasicMaterial({ map: textureLoader.load('textures/solar_panel.jpg') });
 		var panel = new THREE.Mesh(boxGeo, boxMat);
 		panel.rotation.x = Math.PI / 2;
 		panel.rotation.z = Math.PI / 2;
@@ -470,7 +493,6 @@ Ammo().then(function (Ammo) {
 	}
 
 	function modelsLoader() {
-		let loader = new THREE.GLTFLoader();
 		loader.load('models3d/taj_mahal/scene.gltf', function (gltf) {
 			// console.log(gltf);
 			taj = gltf.scene.children[0];
@@ -493,8 +515,7 @@ Ammo().then(function (Ammo) {
 		var top = new THREE.Mesh(new THREE.SphereBufferGeometry(0.4, 10, 10), steelMaterial);
 		top.position.y = 5;
 		pole.add(top);
-		var loader = new THREE.TextureLoader();
-		var clothTexture = loader.load('textures/indian_flag.jpg');
+		var clothTexture = textureLoader.load('textures/indian_flag.jpg');
 		var clothMaterial = new THREE.MeshBasicMaterial({
 			map: clothTexture,
 			side: THREE.DoubleSide,
@@ -621,10 +642,9 @@ Ammo().then(function (Ammo) {
 	function addShape(image, shape, extrudeSettings, color, x, y, z, rx, ry, rz, s, dx, dy) {
 		// extruded shape
 		var geometry = new THREE.ExtrudeBufferGeometry(shape, extrudeSettings);
-		var loader = new THREE.TextureLoader();
 
 		if (image !== '') {
-			var texture = loader.load('textures/' + image + '.png', function (texture) {
+			var texture = textureLoader.load('textures/' + image + '.png', function (texture) {
 				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 				texture.offset.set(0, 0);
 				texture.repeat.set(dx, dy);
@@ -657,7 +677,6 @@ Ammo().then(function (Ammo) {
 		return mesh;
 	}
 
-
 	function pointsAdd(n, x, y, z, dx, dy, dz) {
 		pointGeo = new THREE.Geometry();
 
@@ -670,7 +689,7 @@ Ammo().then(function (Ammo) {
 			pointGeo.vertices.push(point);
 		}
 
-		let sprite = new THREE.TextureLoader().load('images/star.png');
+		let sprite = textureLoader.load('images/point.png');
 		let pointMaterial = new THREE.PointsMaterial({
 			color: 0x00ffff,
 			size: 0.01,
@@ -715,7 +734,7 @@ Ammo().then(function (Ammo) {
 
 		mobile = addShape('mobile', phoneShape, extrudeSettings, 0x00fff2, 4, 2, 0, 0, 0, 0, 1, 0.5, 0.25);
 
-		base = holoBase();
+		/* base = holoBase();
 
 		//add godrays effect for holograph
 		let godraysEffect = new POSTPROCESSING.GodRaysEffect(camera, base, {
@@ -731,7 +750,7 @@ Ammo().then(function (Ammo) {
 
 		base.position.y = -3;
 		base.position.x = 1;
-		mobile.add(base);
+		mobile.add(base); */
 		var points = pointsAdd(1000, 2.4, 4.4, 0.25, 0.2, 0.2, 0);
 		mobile.add(points);
 		mobile.position.set(0, 0, -100);
@@ -857,8 +876,7 @@ Ammo().then(function (Ammo) {
 		blockchain.position.set(0, 0, -100);
 
 		var coinGeo = new THREE.CylinderBufferGeometry(0.5, 0.5, 0.15, 20);
-		var loader = new THREE.TextureLoader();
-		var texture = loader.load('textures/bitcoin.png');
+		var texture = textureLoader.load('textures/bitcoin.png');
 
 		var coinMat = [
 			new THREE.MeshBasicMaterial({
@@ -884,7 +902,7 @@ Ammo().then(function (Ammo) {
 
 		blockchain.add(coin);
 
-		var base = holoBase();
+		/* var base = holoBase();
 
 		let godraysEffect1 = new POSTPROCESSING.GodRaysEffect(camera, base, {
 			resolutionScale: 1,
@@ -897,7 +915,7 @@ Ammo().then(function (Ammo) {
 		composer.addPass(effectPass1);
 
 		base.position.y = -3;
-		blockchain.add(base);
+		blockchain.add(base); */
 
 		scene.add(blockchain);
 	}
@@ -996,7 +1014,7 @@ Ammo().then(function (Ammo) {
 	}
 
 	function stock() {
-		var material = new THREE.LineDashedMaterial({
+		var material = new THREE.LineBasicMaterial({
 			color: 0x00fff2,
 			transparent: true,
 			opacity: 0.7,
@@ -1024,14 +1042,9 @@ Ammo().then(function (Ammo) {
 		points1.push(new THREE.Vector3(2.1, 2, 0));
 		points1.push(new THREE.Vector3(2.7, 3.5, 0));
 		var geometry1 = new THREE.BufferGeometry().setFromPoints(points1);
+		geometry1.applyMatrix4(new THREE.Matrix4().makeTranslation(-1.5, -2, 0));
 
-		var material1 = new THREE.LineDashedMaterial({
-			color: 0x00fff2,
-			transparent: true,
-			opacity: 0.7,
-		});
-
-		var trend = new THREE.Line(geometry1, material1);
+		trend = new THREE.Line(geometry1, material);
 
 		var graph = new THREE.Group();
 		graph.add(axes);
@@ -1040,19 +1053,31 @@ Ammo().then(function (Ammo) {
 		scene.add(graph);
 	}
 
+	function test() {
+		textureLoader.load('models3d/star/scene.gltf', function (gltf) {
+			star = gltf.scene.children[0];
+			star.scale.set(0.01, 0.01, 0.01);
+			/* pos = { x: 100, y: 1400, z: 10 };
+			quat = { x: 0, y: 0, z: 0, w: 1 };
+			createBox(gltf.scene, pos, quat, 100, 200, 50, 200000, 1); */
+			scene.add(gltf.scene);
+		});
+	}
+
 	function createObjects() {
 
-		loadMars();
+		/*loadMars();
 		flagLoader();
 		signpostLoader();
 		phone();
 		addBlockchain()
 		dialog();
 		desktop();
-		stock();
+		stock(); */
+		test();
 
 		// modelsLoader();
-		createVehicle(new THREE.Vector3(100, marsRadius - 5, 10), ZERO_QUATERNION);
+		// createVehicle(new THREE.Vector3(100, marsRadius - 5, 10), ZERO_QUATERNION);
 	}
 
 
