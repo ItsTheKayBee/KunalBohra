@@ -15,7 +15,9 @@ Ammo().then(function (Ammo) {
 	var dl = 1, dr = 0, step = 0;
 	var trendBack = 1, trendFront = 0;
 	let gltfLoader = new THREE.GLTFLoader();
-	var textureLoader = new THREE.TextureLoader()
+	var textureLoader = new THREE.TextureLoader();
+	var textLoader = new THREE.FontLoader();
+	var models3d = []
 
 	// Physics variables
 	var collisionConfiguration;
@@ -274,7 +276,7 @@ Ammo().then(function (Ammo) {
 		return mesh;
 	}
 
-	//loads the plain
+	//loads the plane
 	function loadMars() {
 		//three
 		marsGeom = new THREE.SphereGeometry(marsRadius, 32, 32);
@@ -492,19 +494,21 @@ Ammo().then(function (Ammo) {
 		return panel;
 	}
 
-	function modelsLoader() {
-		loader.load('models3d/taj_mahal/scene.gltf', function (gltf) {
-			// console.log(gltf);
-			taj = gltf.scene.children[0];
-			taj.scale.set(0.01, 0.01, 0.01);
-			/* pos = { x: 100, y: 1400, z: 10 };
-			quat = { x: 0, y: 0, z: 0, w: 1 };
-			createBox(gltf.scene, pos, quat, 100, 200, 50, 200000, 1); */
-			scene.add(gltf.scene);
+	function loadModel(path, pos, quat, rot, s, mass, w, h, l) {
+		let modelPromise = new Promise((resolve) => {
+			gltfLoader.load('models3d/' + path + '/scene.gltf', function (gltf) {
+				let object = gltf.scene.children[0];
+				object.scale.set(s, s, s);
+				object.rotation.set(rot.x, rot.y, rot.z);
+				createBox(gltf.scene, pos, quat, w, h, l, mass, 1);
+				models3d.push(gltf.scene);
+				resolve(gltf.scene);
+			});
 		});
+		return modelPromise;
 	}
 
-	function flagLoader() {
+	function createFlag() {
 		var steelMaterial = new THREE.MeshPhongMaterial({
 			flatShading: true,
 			color: 0x858482,
@@ -530,7 +534,7 @@ Ammo().then(function (Ammo) {
 		scene.add(pole);
 	}
 
-	function createText(font, texts, pos, quat, s, size, depth) {
+	function createText(font, texts, pos, quat, s, size, depth, color) {
 		var textGeometry = new THREE.TextBufferGeometry(texts, {
 			font: font,
 			size: size,
@@ -538,7 +542,7 @@ Ammo().then(function (Ammo) {
 			curveSegments: 2,
 			bevelEnabled: false,
 		});
-		var textMaterial = new THREE.MeshLambertMaterial({ color: 0x654321 });
+		var textMaterial = new THREE.MeshLambertMaterial({ color: color });
 		var text = new THREE.Mesh(textGeometry, textMaterial);
 		text.scale.set(s, s, s);
 		text.position.set(pos.x, pos.y, pos.z);
@@ -546,7 +550,7 @@ Ammo().then(function (Ammo) {
 		return text;
 	}
 
-	function signpostLoader() {
+	function createSignPost() {
 		//wooden material
 		var woodMaterial = new THREE.MeshLambertMaterial({
 			color: 0xcaa472,
@@ -594,16 +598,13 @@ Ammo().then(function (Ammo) {
 		triangleB.rotation.y = Math.PI / 4;
 
 		//creating text
-		var textLoader = new THREE.FontLoader();
 		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
 			var projectsText = createText(
 				font,
 				"PROJECTS",
 				{ x: -2, y: 0, z: 0.25 },
 				{ x: -Math.PI / 2, y: 0, z: 0, w: 1 },
-				0.5,
-				1,
-				0.3
+				0.5, 1, 0.3, 0x654321
 			);
 			projectsSign.add(projectsText);
 			var skillsText = createText(
@@ -611,9 +612,7 @@ Ammo().then(function (Ammo) {
 				"SKILLS",
 				{ x: -1, y: 0, z: 0.25 },
 				{ x: -Math.PI / 2, y: 0, z: 0, w: 1 },
-				0.5,
-				1,
-				0.3
+				0.5, 1, 0.3, 0x654321
 			);
 			skillsSign.add(skillsText);
 			var aboutText = createText(
@@ -621,9 +620,7 @@ Ammo().then(function (Ammo) {
 				"ABOUT ME",
 				{ x: -2, y: 0, z: 0.25 },
 				{ x: -Math.PI / 2, y: 0, z: 0, w: 1 },
-				0.5,
-				1,
-				0.3
+				0.5, 1, 0.3, 0x654321
 			);
 			aboutSign.add(aboutText);
 		});
@@ -677,7 +674,7 @@ Ammo().then(function (Ammo) {
 		return mesh;
 	}
 
-	function pointsAdd(n, x, y, z, dx, dy, dz) {
+	function addPoints(n, x, y, z, dx, dy, dz) {
 		pointGeo = new THREE.Geometry();
 
 		for (let i = 0; i < n; i++) {
@@ -700,7 +697,7 @@ Ammo().then(function (Ammo) {
 		return points;
 	}
 
-	function holoBase() {
+	function addHoloBase() {
 		var geometry = new THREE.SphereBufferGeometry(1.6, 28, 28, Math.PI / 2, Math.PI * 2, 0, 1)
 		var material = new THREE.MeshBasicMaterial({
 			transparent: true,
@@ -713,7 +710,7 @@ Ammo().then(function (Ammo) {
 		return sphere;
 	}
 
-	function roundedRect(ctx, x, y, width, height, radius) {
+	function createRoundedRect(ctx, x, y, width, height, radius) {
 		//ceates rounded rectangle
 		ctx.moveTo(x, y + radius);
 		ctx.lineTo(x, y + height - radius);
@@ -726,15 +723,15 @@ Ammo().then(function (Ammo) {
 		ctx.quadraticCurveTo(x, y, x, y + radius);
 	}
 
-	function phone() {
+	function addPhone() {
 		var extrudeSettings = { depth: 0.2, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 0.25, bevelThickness: 0.1 };
-		var phoneShape = new THREE.Shape();
+		var addPhoneShape = new THREE.Shape();
 
-		roundedRect(phoneShape, 0, 0, 2, 4, 0.1);
+		createRoundedRect(addPhoneShape, 0, 0, 2, 4, 0.1);
 
-		mobile = addShape('mobile', phoneShape, extrudeSettings, 0x00fff2, 4, 2, 0, 0, 0, 0, 1, 0.5, 0.25);
+		mobile = addShape('mobile', addPhoneShape, extrudeSettings, 0x00fff2, 4, 2, 0, 0, 0, 0, 1, 0.5, 0.25);
 
-		/* base = holoBase();
+		/* base = addHoloBase();
 
 		//add godrays effect for holograph
 		let godraysEffect = new POSTPROCESSING.GodRaysEffect(camera, base, {
@@ -751,7 +748,7 @@ Ammo().then(function (Ammo) {
 		base.position.y = -3;
 		base.position.x = 1;
 		mobile.add(base); */
-		var points = pointsAdd(1000, 2.4, 4.4, 0.25, 0.2, 0.2, 0);
+		var points = addPoints(1000, 2.4, 4.4, 0.25, 0.2, 0.2, 0);
 		mobile.add(points);
 		mobile.position.set(0, 0, -100);
 		scene.add(mobile);
@@ -802,10 +799,10 @@ Ammo().then(function (Ammo) {
 		blockchain.add(block3);
 		blockchain.add(block4);
 
-		var points1 = pointsAdd(300, 1, 1, 1, 0.5, 0.5, 0.5);
-		var points2 = pointsAdd(300, 1, 1, 1, 0.5, 0.5, 0.5);
-		var points3 = pointsAdd(300, 1, 1, 1, 0.5, 0.5, 0.5);
-		var points4 = pointsAdd(300, 1, 1, 1, 0.5, 0.5, 0.5);
+		var points1 = addPoints(300, 1, 1, 1, 0.5, 0.5, 0.5);
+		var points2 = addPoints(300, 1, 1, 1, 0.5, 0.5, 0.5);
+		var points3 = addPoints(300, 1, 1, 1, 0.5, 0.5, 0.5);
+		var points4 = addPoints(300, 1, 1, 1, 0.5, 0.5, 0.5);
 
 		block1.add(points1);
 		block2.add(points2);
@@ -902,7 +899,7 @@ Ammo().then(function (Ammo) {
 
 		blockchain.add(coin);
 
-		/* var base = holoBase();
+		/* var base = addHoloBase();
 
 		let godraysEffect1 = new POSTPROCESSING.GodRaysEffect(camera, base, {
 			resolutionScale: 1,
@@ -920,7 +917,7 @@ Ammo().then(function (Ammo) {
 		scene.add(blockchain);
 	}
 
-	function dialog() {
+	function addDialogFlow() {
 		var extrudeSettings = { depth: 0.25, bevelEnabled: false };
 
 		var lineMaterial = new THREE.LineBasicMaterial({
@@ -968,8 +965,8 @@ Ammo().then(function (Ammo) {
 		dialogueL.add(line1);
 		dialogueR.add(line2);
 
-		var points1 = pointsAdd(300, 3.5, 2, 0.25, 0.5, 0, 0);
-		var points2 = pointsAdd(300, 3.4, 1.8, 0.25, 0, 0, 0);
+		var points1 = addPoints(300, 3.5, 2, 0.25, 0.5, 0, 0);
+		var points2 = addPoints(300, 3.4, 1.8, 0.25, 0, 0, 0);
 		points.position.x = 1.2;
 		dialogueL.add(points1);
 		dialogueR.add(points2);
@@ -981,24 +978,24 @@ Ammo().then(function (Ammo) {
 		scene.add(chat);
 	}
 
-	function desktop() {
+	function addDesktop() {
 		var extrudeSettings = { depth: 0.2, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 0.25, bevelThickness: 0.1 };
 		var screenShape = new THREE.Shape();
 		var neckShape = new THREE.Shape();
 		var standShape = new THREE.Shape();
 
-		roundedRect(screenShape, 0, 1, 4, 2.8, 0.1);
-		roundedRect(neckShape, 1.75, 0, 0.5, 1, 0.1);
-		roundedRect(standShape, 0.6, 0, 2.8, 1, 0.1);
+		createRoundedRect(screenShape, 0, 1, 4, 2.8, 0.1);
+		createRoundedRect(neckShape, 1.75, 0, 0.5, 1, 0.1);
+		createRoundedRect(standShape, 0.6, 0, 2.8, 1, 0.1);
 
 		var screen = addShape('desktop', screenShape, extrudeSettings, 0x00fff2, -2, 0, 0, 0, 0, 0, 1, 0.25, 0.2);
 		var neck = addShape('', neckShape, extrudeSettings, 0x00fff2, -2, 0, 0, 0, 0, 0, 1);
 		var stand = addShape('', standShape, extrudeSettings, 0x00fff2, -2, 0, 0, Math.PI / 2, 0, 0, 1);
 
 		pc = new THREE.Group();
-		var pointsScreen = pointsAdd(1000, 4.4, 3.2, 0.25, 0.2, 0.2, 0);
-		var pointsNeck = pointsAdd(150, 0.9, 1.2, 0.25, 0.2, 0.2, 0);
-		var pointsStand = pointsAdd(200, 3.3, 0.25, 1.4, 0.2, 0, 1.2);
+		var pointsScreen = addPoints(1000, 4.4, 3.2, 0.25, 0.2, 0.2, 0);
+		var pointsNeck = addPoints(150, 0.9, 1.2, 0.25, 0.2, 0.2, 0);
+		var pointsStand = addPoints(200, 3.3, 0.25, 1.4, 0.2, 0, 1.2);
 		screen.add(pointsScreen);
 		neck.add(pointsNeck);
 		pointsScreen.position.y = 1;
@@ -1013,7 +1010,7 @@ Ammo().then(function (Ammo) {
 		scene.add(pc);
 	}
 
-	function stock() {
+	function addStock() {
 		var material = new THREE.LineBasicMaterial({
 			color: 0x00fff2,
 			transparent: true,
@@ -1053,38 +1050,373 @@ Ammo().then(function (Ammo) {
 		scene.add(graph);
 	}
 
-	function test() {
-		textureLoader.load('models3d/star/scene.gltf', function (gltf) {
-			star = gltf.scene.children[0];
-			star.scale.set(0.01, 0.01, 0.01);
-			/* pos = { x: 100, y: 1400, z: 10 };
-			quat = { x: 0, y: 0, z: 0, w: 1 };
-			createBox(gltf.scene, pos, quat, 100, 200, 50, 200000, 1); */
-			scene.add(gltf.scene);
+	function addBlockchainSkill() {
+		var bcSkillGroup = new THREE.Group();
+		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
+			var blockchainText = createText(
+				font,
+				"BLOCKCHAIN",
+				{ x: -1.5, y: 0, z: 0 },
+				ZERO_QUATERNION,
+				0.5,
+				2,
+				0.7,
+				0xffffff
+			);
+			bcSkillGroup.add(blockchainText);
 		});
+		var rot = { x: 0, y: 0, z: 0 };
+		loadModel(
+			'star',
+			{ x: 0, y: 2, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.005, 0, 0.5, 0.5, 0.1
+		).then((model) => bcSkillGroup.add(model));
+		loadModel(
+			'star',
+			{ x: 3, y: 3, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.005, 0, 0.5, 0.5, 0.1
+		).then((model) => bcSkillGroup.add(model));
+		loadModel(
+			'star',
+			{ x: 6, y: 2, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.005, 0, 0.5, 0.5, 0.1
+		).then((model) => bcSkillGroup.add(model));
+		scene.add(bcSkillGroup);
 	}
+
+	function addPHPSkill() {
+		var phpSkillGroup = new THREE.Group();
+		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
+			var phpText = createText(
+				font,
+				"PHP",
+				{ x: 0, y: 0, z: 0 },
+				ZERO_QUATERNION,
+				0.5,
+				3,
+				0.7,
+				0xffffff
+			);
+			phpSkillGroup.add(phpText);
+		});
+		var rot = { x: Math.PI / 2, y: Math.PI, z: 0 };
+		loadModel(
+			'pizza',
+			{ x: 0.5, y: 2, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.01, 0, 0.5, 0.5, 0.1
+		).then((model) => phpSkillGroup.add(model));
+		loadModel(
+			'pizza',
+			{ x: 1.5, y: 3, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.01, 0, 0.5, 0.5, 0.1
+		).then((model) => phpSkillGroup.add(model));
+		loadModel(
+			'pizza',
+			{ x: 2.7, y: 3, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.01, 0, 0.5, 0.5, 0.1
+		).then((model) => phpSkillGroup.add(model));
+		loadModel(
+			'pizza',
+			{ x: 3.6, y: 2, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.01, 0, 0.5, 0.5, 0.1
+		).then((model) => phpSkillGroup.add(model));
+		scene.add(phpSkillGroup);
+	}
+
+	function addAndroidSkill() {
+		var androidSkillGroup = new THREE.Group();
+		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
+			var androidText = createText(
+				font,
+				"ANDROID",
+				{ x: 0, y: 0, z: 0 },
+				ZERO_QUATERNION,
+				0.5,
+				3,
+				0.7,
+				0xffffff
+			);
+			androidSkillGroup.add(androidText);
+		});
+		var rot = { x: Math.PI / 2, y: Math.PI, z: Math.PI };
+		loadModel(
+			'android',
+			{ x: 1.2, y: 3, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.5, 0, 0.5, 0.5, 0.1
+		).then((model) => androidSkillGroup.add(model));
+		loadModel(
+			'android',
+			{ x: 3.2, y: 4, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.5, 0, 0.5, 0.5, 0.1
+		).then((model) => androidSkillGroup.add(model));
+		loadModel(
+			'android',
+			{ x: 6.2, y: 4, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.5, 0, 0.5, 0.5, 0.1
+		).then((model) => androidSkillGroup.add(model));
+		loadModel(
+			'android',
+			{ x: 8.2, y: 3, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.5, 0, 0.5, 0.5, 0.1
+		).then((model) => androidSkillGroup.add(model));
+		scene.add(androidSkillGroup);
+	}
+
+	function addPythonSkill() {
+		var pythonSkillGroup = new THREE.Group();
+		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
+			var pyText = createText(
+				font,
+				"PYTHON",
+				{ x: 0, y: 0, z: 0 },
+				ZERO_QUATERNION,
+				0.5,
+				3,
+				0.7,
+				0xffffff
+			);
+			pythonSkillGroup.add(pyText);
+		});
+		var rot = { x: Math.PI / 2, y: Math.PI, z: Math.PI };
+		loadModel(
+			'fries',
+			{ x: 1.5, y: 3, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.25, 0, 0.5, 0.5, 0.1
+		).then((model) => pythonSkillGroup.add(model));
+		loadModel(
+			'fries',
+			{ x: 4.25, y: 4, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.25, 0, 0.5, 0.5, 0.1
+		).then((model) => pythonSkillGroup.add(model));
+		loadModel(
+			'fries',
+			{ x: 7, y: 3, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.25, 0, 0.5, 0.5, 0.1
+		).then((model) => pythonSkillGroup.add(model));
+		scene.add(pythonSkillGroup);
+	}
+
+	function addWebSkill() {
+		var webSkillGroup = new THREE.Group();
+		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
+			var htmlText = createText(
+				font,
+				"HTML",
+				{ x: 0, y: 0, z: 0 },
+				ZERO_QUATERNION,
+				0.5,
+				3,
+				0.7,
+				0xffffff
+			);
+			webSkillGroup.add(htmlText);
+		});
+		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
+			var cssText = createText(
+				font,
+				"CSS",
+				{ x: 0.5, y: 1.45, z: 0 },
+				ZERO_QUATERNION,
+				0.5,
+				3,
+				0.7,
+				0xffffff
+			);
+			webSkillGroup.add(cssText);
+		});
+		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
+			var jsText = createText(
+				font,
+				"JS",
+				{ x:1.5, y: 2.8, z: 0 },
+				ZERO_QUATERNION,
+				0.5,
+				3,
+				0.7,
+				0xffffff
+			);
+			webSkillGroup.add(jsText);
+		});
+		var rot = { x: Math.PI / 2, y: Math.PI, z: Math.PI };
+		loadModel(
+			'ice_cream',
+			{ x: 0.7, y: 3.5, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.25, 0, 0.5, 0.5, 0.1
+		).then((model) => webSkillGroup.add(model));
+		loadModel(
+			'ice_cream',
+			{ x: 2, y: 5, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.25, 0, 0.5, 0.5, 0.1
+		).then((model) => webSkillGroup.add(model));
+		loadModel(
+			'ice_cream',
+			{ x: 3.5, y: 5, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.25, 0, 0.5, 0.5, 0.1
+		).then((model) => webSkillGroup.add(model));
+		loadModel(
+			'ice_cream',
+			{ x: 4.85, y: 3.5, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.25, 0, 0.5, 0.5, 0.1
+		).then((model) => webSkillGroup.add(model));
+		scene.add(webSkillGroup);
+	}
+
+	function addJavaSkill() {
+		var javaSkillGroup = new THREE.Group();
+		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
+			var javaText = createText(
+				font,
+				"JAVA",
+				{ x: 0, y: 0, z: 0 },
+				ZERO_QUATERNION,
+				0.5,
+				3,
+				0.7,
+				0xffffff
+			);
+			javaSkillGroup.add(javaText);
+		});
+		var rot = { x: 0, y: 0, z: 0 };
+		loadModel(
+			'chocolate_chip_cookie',
+			{ x: 1.2, y: 3, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.75, 0, 0.5, 0.5, 0.1
+		).then((model) => javaSkillGroup.add(model));
+		loadModel(
+			'chocolate_chip_cookie',
+			{ x: 2.2, y: 4, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.75, 0, 0.5, 0.5, 0.1
+		).then((model) => javaSkillGroup.add(model));
+		loadModel(
+			'chocolate_chip_cookie',
+			{ x: 3.5, y: 4, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.75, 0, 0.5, 0.5, 0.1
+		).then((model) => javaSkillGroup.add(model));
+		loadModel(
+			'chocolate_chip_cookie',
+			{ x: 4.5, y: 3, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.75, 0, 0.5, 0.5, 0.1
+		).then((model) => javaSkillGroup.add(model));
+		scene.add(javaSkillGroup);
+	}
+
+	function addMySQLSkill() {
+		var mysqlSkillGroup = new THREE.Group();
+		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
+			var javaText = createText(
+				font,
+				"MySQL",
+				{ x: 0, y: 0, z: 0 },
+				ZERO_QUATERNION,
+				0.5,
+				3,
+				0.7,
+				0xffffff
+			);
+			mysqlSkillGroup.add(javaText);
+		});
+		var rot = { x: -Math.PI/2, y: 0, z: 0 };
+		loadModel(
+			'burger',
+			{ x: 1, y: 3, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.45, 0, 0.5, 0.5, 0.1
+		).then((model) => mysqlSkillGroup.add(model));
+		loadModel(
+			'burger',
+			{ x: 2.5, y: 5, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.45, 0, 0.5, 0.5, 0.1
+		).then((model) => mysqlSkillGroup.add(model));
+		loadModel(
+			'burger',
+			{ x: 4.5, y: 5, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.45, 0, 0.5, 0.5, 0.1
+		).then((model) => mysqlSkillGroup.add(model));
+		loadModel(
+			'burger',
+			{ x: 6, y: 3, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.45, 0, 0.5, 0.5, 0.1
+		).then((model) => mysqlSkillGroup.add(model));
+		scene.add(mysqlSkillGroup);
+	}
+
 
 	function createObjects() {
 
 		/*loadMars();
-		flagLoader();
-		signpostLoader();
-		phone();
+		createFlag();
+		createSignPost();
+		addPhone();
 		addBlockchain()
-		dialog();
-		desktop();
-		stock(); */
-		test();
+		addDialogFlow();
+		addDesktop();
+		addStock(); */
+		// addBlockchainSkill();
+		// addPHPSkill();
+		// addAndroidSkill();
+		// addPythonSkill();
+		// addJavaSkill();
+		// addMySQLSkill();
+		// addWebSkill();
 
-		// modelsLoader();
+
 		// createVehicle(new THREE.Vector3(100, marsRadius - 5, 10), ZERO_QUATERNION);
 	}
-
 
 	// - Init -
 	initGraphics();
 	initPhysics();
 	createObjects();
 	animate();
-
 });

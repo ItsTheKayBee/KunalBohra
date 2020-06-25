@@ -1,0 +1,376 @@
+{
+  "accessors": [
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 8160,
+      "max": [
+        1.0972390174865723,
+        1.0979419946670532,
+        1.0686719417572021
+      ],
+      "min": [
+        -1.0983419418334961,
+        -1.0979369878768921,
+        -3.9629840850830078
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 97920,
+      "componentType": 5126,
+      "count": 8160,
+      "max": [
+        0.99999529123306274,
+        0.99991309642791748,
+        0.99997299909591675
+      ],
+      "min": [
+        -0.9999966025352478,
+        -0.99991071224212646,
+        -0.99975907802581787
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 8160,
+      "max": [
+        0.925118088722229,
+        0.96122050285339355
+      ],
+      "min": [
+        0.095678381621837616,
+        0.030009320005774498
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 48948,
+      "max": [
+        8159
+      ],
+      "min": [
+        0
+      ],
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 195840,
+      "componentType": 5126,
+      "count": 4284,
+      "max": [
+        1.3000890016555786,
+        1.368224024772644,
+        2.1911940574645996
+      ],
+      "min": [
+        -1.3268430233001709,
+        -1.354591965675354,
+        0.099878370761871338
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 247248,
+      "componentType": 5126,
+      "count": 4284,
+      "max": [
+        0.99987590312957764,
+        0.99988359212875366,
+        1
+      ],
+      "min": [
+        -0.99994099140167236,
+        -0.9991225004196167,
+        -0.99999779462814331
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 65280,
+      "componentType": 5126,
+      "count": 4284,
+      "max": [
+        0.63010567426681519,
+        0.94138270616531372
+      ],
+      "min": [
+        0.37606289982795715,
+        0.48728311061859131
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 195792,
+      "componentType": 5125,
+      "count": 23868,
+      "max": [
+        4283
+      ],
+      "min": [
+        0
+      ],
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "mellydeeis (https://sketchfab.com/mellydeeis)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/3d-models/chocolate-ice-cream-cone-f1bba0e162084385b7f3961dcf8dfdba",
+      "title": "Chocolate Ice Cream Cone"
+    },
+    "generator": "Sketchfab-7.68.0",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 291264,
+      "byteOffset": 0,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 99552,
+      "byteOffset": 291264,
+      "byteStride": 8,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 298656,
+      "byteOffset": 390816,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 689472,
+      "uri": "scene.bin"
+    }
+  ],
+  "images": [
+    {
+      "uri": "textures/icecream_baseColor.jpeg"
+    },
+    {
+      "uri": "textures/icecream_metallicRoughness.png"
+    },
+    {
+      "uri": "textures/material_baseColor.jpeg"
+    }
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "emissiveFactor": [
+        0,
+        0,
+        0
+      ],
+      "name": "icecream",
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.55345911949685533,
+          0.55345911949685533,
+          0.55345911949685533,
+          1
+        ],
+        "baseColorTexture": {
+          "index": 0,
+          "texCoord": 0
+        },
+        "metallicFactor": 0.20754716981132076,
+        "metallicRoughnessTexture": {
+          "index": 1,
+          "texCoord": 0
+        },
+        "roughnessFactor": 0.37735849056603776
+      }
+    },
+    {
+      "doubleSided": true,
+      "emissiveFactor": [
+        0,
+        0,
+        0
+      ],
+      "name": "material",
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "baseColorTexture": {
+          "index": 2,
+          "texCoord": 0
+        },
+        "metallicFactor": 0,
+        "roughnessFactor": 0.59999999999999998
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "ice_cream_cone_material-material",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0,
+            "TEXCOORD_0": 2
+          },
+          "indices": 3,
+          "material": 1,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "icecream_choco_material-material",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 5,
+            "POSITION": 4,
+            "TEXCOORD_0": 6
+          },
+          "indices": 7,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [
+        1
+      ],
+      "name": "RootNode (gltf orientation matrix)",
+      "rotation": [
+        -0.70710678118654746,
+        -0,
+        -0,
+        0.70710678118654757
+      ]
+    },
+    {
+      "children": [
+        2
+      ],
+      "name": "RootNode (model correction matrix)"
+    },
+    {
+      "children": [
+        3,
+        5
+      ],
+      "name": "Collada visual scene group"
+    },
+    {
+      "children": [
+        4
+      ],
+      "matrix": [
+        0.9797593,
+        0,
+        0,
+        0,
+        0,
+        0.9797593,
+        0,
+        0,
+        0,
+        0,
+        0.9797593,
+        0,
+        0.01585431,
+        0,
+        1.2866379999999999,
+        1
+      ],
+      "name": "ice"
+    },
+    {
+      "mesh": 0,
+      "name": "ice_cream_cone_material-material"
+    },
+    {
+      "children": [
+        6
+      ],
+      "matrix": [
+        0.36499429999999999,
+        -0.9688483,
+        0,
+        0,
+        0.9688483,
+        0.36499429999999999,
+        0,
+        0,
+        0,
+        0,
+        1.03532,
+        0,
+        0.0284318,
+        0.022974930000000001,
+        1.727935,
+        1
+      ],
+      "name": "Icecream"
+    },
+    {
+      "mesh": 1,
+      "name": "icecream_choco_material-material"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "OSG_Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    },
+    {
+      "sampler": 0,
+      "source": 2
+    }
+  ]
+}
+
