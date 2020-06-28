@@ -52,16 +52,16 @@ Ammo().then(function (Ammo) {
 
 	function lights() {
 		//ambient light
-		hlight = new THREE.AmbientLight(0xffffff, 0.);
+		hlight = new THREE.AmbientLight(0xffffff, 1);
 		scene.add(hlight);
 
 		//directional light
-		directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+		directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
 		directionalLight.position.set(100, 1010, 10);
 		directionalLight.castShadow = true;
 		scene.add(directionalLight);
 
-		//hemisphere light
+		/* //hemisphere light
 		var hemilight = new THREE.HemisphereLight(0xffffbb, 0x080820, 1);
 		scene.add(hemilight);
 
@@ -77,7 +77,7 @@ Ammo().then(function (Ammo) {
 		spotLight.shadow.camera.far = 4000;
 		spotLight.shadow.camera.fov = 30;
 
-		scene.add(spotLight);
+		scene.add(spotLight); */
 	}
 
 
@@ -314,9 +314,11 @@ Ammo().then(function (Ammo) {
 	}
 
 	//add vehicle and movements
-	function createVehicle(pos, quat) {
+	function createVehicle() {
 
 		// Vehicle contants
+		var pos = new THREE.Vector3(100, marsRadius - 5, 10);
+		var quat = ZERO_QUATERNION;
 
 		var chassisWidth = 2.5;
 		var chassisHeight = .4;
@@ -732,7 +734,7 @@ Ammo().then(function (Ammo) {
 		mobile = addShape('mobile', addPhoneShape, extrudeSettings, 0x00fff2, 4, 2, 0, 0, 0, 0, 1, 0.5, 0.25);
 
 		/* base = addHoloBase();
-
+	
 		//add godrays effect for holograph
 		let godraysEffect = new POSTPROCESSING.GodRaysEffect(camera, base, {
 			resolutionScale: 1,
@@ -742,9 +744,9 @@ Ammo().then(function (Ammo) {
 			samples: 100
 		});
 		let effectPass = new POSTPROCESSING.EffectPass(camera, godraysEffect);
-
+	
 		composer.addPass(effectPass);
-
+	
 		base.position.y = -3;
 		base.position.x = 1;
 		mobile.add(base); */
@@ -900,7 +902,7 @@ Ammo().then(function (Ammo) {
 		blockchain.add(coin);
 
 		/* var base = addHoloBase();
-
+	
 		let godraysEffect1 = new POSTPROCESSING.GodRaysEffect(camera, base, {
 			resolutionScale: 1,
 			density: 1,
@@ -910,7 +912,7 @@ Ammo().then(function (Ammo) {
 		});
 		let effectPass1 = new POSTPROCESSING.EffectPass(camera, godraysEffect1);
 		composer.addPass(effectPass1);
-
+	
 		base.position.y = -3;
 		blockchain.add(base); */
 
@@ -1065,7 +1067,7 @@ Ammo().then(function (Ammo) {
 			);
 			bcSkillGroup.add(blockchainText);
 		});
-		var rot = { x: 0, y: 0, z: 0 };
+		var rot = { x: -Math.PI / 2, y: 0, z: 0 };
 		loadModel(
 			'star',
 			{ x: 0, y: 2, z: 0 },
@@ -1256,7 +1258,7 @@ Ammo().then(function (Ammo) {
 			var jsText = createText(
 				font,
 				"JS",
-				{ x:1.5, y: 2.8, z: 0 },
+				{ x: 1.5, y: 2.8, z: 0 },
 				ZERO_QUATERNION,
 				0.5,
 				3,
@@ -1359,7 +1361,7 @@ Ammo().then(function (Ammo) {
 			);
 			mysqlSkillGroup.add(javaText);
 		});
-		var rot = { x: -Math.PI/2, y: 0, z: 0 };
+		var rot = { x: -Math.PI / 2, y: 0, z: 0 };
 		loadModel(
 			'burger',
 			{ x: 1, y: 3, z: 0 },
@@ -1391,27 +1393,145 @@ Ammo().then(function (Ammo) {
 		scene.add(mysqlSkillGroup);
 	}
 
+	function addCppSkill() {
+		var cppSkillGroup = new THREE.Group();
+		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
+			var cppText = createText(
+				font,
+				"C++",
+				{ x: 0, y: 0, z: 0 },
+				ZERO_QUATERNION,
+				0.5,
+				3.25,
+				0.7,
+				0xffffff
+			);
+			cppSkillGroup.add(cppText);
+		});
+		var rot = { x: Math.PI / 2, y: Math.PI, z: Math.PI };
+		loadModel(
+			'cupcake',
+			{ x: 0.75, y: 2.5, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.005, 0, 0.5, 0.5, 0.1
+		).then((model) => cppSkillGroup.add(model));
+		loadModel(
+			'cupcake',
+			{ x: 2, y: 3.5, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.005, 0, 0.5, 0.5, 0.1
+		).then((model) => cppSkillGroup.add(model));
+		loadModel(
+			'cupcake',
+			{ x: 3.25, y: 2.5, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			0.005, 0, 0.5, 0.5, 0.1
+		).then((model) => cppSkillGroup.add(model));
+		scene.add(cppSkillGroup);
+	}
+
+	function starGen() {
+		starGeo.vertices.forEach(p => {
+			p.velocity += p.acceleration
+			p.z += p.velocity;
+
+			if (p.z > 200) {
+				p.z = -200;
+				p.velocity = 0;
+			}
+		});
+		starGeo.verticesNeedUpdate = true;
+	}
+
+	function test() {
+		var ufo = new THREE.Object3D();
+		var rot = { x: -Math.PI / 2, y: 0, z: 0 };
+		loadModel(
+			'ufo',
+			{ x: 0, y: 0, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			1, 0, 0.5, 0.5, 0.1
+		).then((model) => ufo.add(model));
+
+	/* 	var logo = textureLoader.load('images/github.png');
+		logo.wrapS = logo.wrapT = THREE.RepeatWrapping;
+		logo.offset.set(0, 0);
+		logo.repeat.set(1, 1);
+
+		var logoMat = new THREE.MeshBasicMaterial({
+			map: logo,
+			transparent: true,
+			side: THREE.DoubleSide
+		});
+
+		var plate = new THREE.SphereBufferGeometry(0.7, 10, 10, 2, 0.8, 1, 0.6);
+		var plateMesh = new THREE.Mesh(plate, logoMat);
+
+		ufo.add(plateMesh);
+		plateMesh.scale.set(1.5, 1.5, 1.5);
+		plateMesh.position.set(0, 1, 0); */
+
+		scene.add(ufo);
+		ufo.scale.set(2, 2, 2);
+
+		var ufoLightMaterial = new THREE.MeshBasicMaterial({
+			color: 0x009eff,
+			transparent: true,
+			opacity: 0.7
+		});
+		var ufoLightMesh = new THREE.Mesh(new THREE.CylinderBufferGeometry(0.5, 1.1, 5, 32), ufoLightMaterial);
+		ufoLightMesh.position.y = -3;
+
+		let godraysEffect = new POSTPROCESSING.GodRaysEffect(camera, ufoLightMesh, {
+			resolutionScale: 1,
+			density: 1,
+			decay: 0.95,
+			weight: 0.1,
+			samples: 100
+		});
+		let effectPass = new POSTPROCESSING.EffectPass(camera, godraysEffect);
+
+		composer.addPass(effectPass);
+		effectPass.renderToScreen = true;
+
+		ufo.add(ufoLightMesh);
+
+		ufo.position.y = 5;
+	}
+
 
 	function createObjects() {
 
-		/*loadMars();
+		loadMars();
 		createFlag();
 		createSignPost();
-		addPhone();
+
+		//projects 
+		/* addPhone();
 		addBlockchain()
 		addDialogFlow();
 		addDesktop();
 		addStock(); */
-		// addBlockchainSkill();
-		// addPHPSkill();
-		// addAndroidSkill();
-		// addPythonSkill();
-		// addJavaSkill();
-		// addMySQLSkill();
-		// addWebSkill();
+
+		//skills
+		/* addBlockchainSkill();
+		addPHPSkill();
+		addAndroidSkill();
+		addPythonSkill();
+		addJavaSkill();
+		addMySQLSkill();
+		addWebSkill();
+		addCppSkill(); */
+
+		// createVehicle();
+
+		test();
 
 
-		// createVehicle(new THREE.Vector3(100, marsRadius - 5, 10), ZERO_QUATERNION);
 	}
 
 	// - Init -
