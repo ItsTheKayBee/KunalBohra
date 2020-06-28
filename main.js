@@ -10,6 +10,7 @@ Ammo().then(function (Ammo) {
 	// Graphics variables
 	var camera, controls, scene, renderer, renderPass, composer;
 	var clock = new THREE.Clock();
+	var githubUfo, linkedinUfo, mailUfo;
 	var mobile, pc, blockchain, coin, dialogueL, dialogueR, trend;
 	var up = 1, down = 0;
 	var dl = 1, dr = 0, step = 0;
@@ -1446,18 +1447,19 @@ Ammo().then(function (Ammo) {
 		starGeo.verticesNeedUpdate = true;
 	}
 
-	function test() {
-		var ufo = new THREE.Object3D();
+	function createGithubUfo() {
+		githubUfo = new THREE.Object3D();
 		var rot = { x: -Math.PI / 2, y: 0, z: 0 };
+
 		loadModel(
-			'ufo',
+			'github_ufo',
 			{ x: 0, y: 0, z: 0 },
 			ZERO_QUATERNION,
 			rot,
 			1, 0, 0.5, 0.5, 0.1
-		).then((model) => ufo.add(model));
+		).then((model) => githubUfo.add(model));
 
-	/* 	var logo = textureLoader.load('images/github.png');
+		var logo = textureLoader.load('images/github.png');
 		logo.wrapS = logo.wrapT = THREE.RepeatWrapping;
 		logo.offset.set(0, 0);
 		logo.repeat.set(1, 1);
@@ -1471,12 +1473,11 @@ Ammo().then(function (Ammo) {
 		var plate = new THREE.SphereBufferGeometry(0.7, 10, 10, 2, 0.8, 1, 0.6);
 		var plateMesh = new THREE.Mesh(plate, logoMat);
 
-		ufo.add(plateMesh);
+		githubUfo.add(plateMesh);
 		plateMesh.scale.set(1.5, 1.5, 1.5);
-		plateMesh.position.set(0, 1, 0); */
+		plateMesh.position.set(0, 1, 0);
 
-		scene.add(ufo);
-		ufo.scale.set(2, 2, 2);
+		githubUfo.scale.set(2, 2, 2);
 
 		var ufoLightMaterial = new THREE.MeshBasicMaterial({
 			color: 0x009eff,
@@ -1498,11 +1499,132 @@ Ammo().then(function (Ammo) {
 		composer.addPass(effectPass);
 		effectPass.renderToScreen = true;
 
-		ufo.add(ufoLightMesh);
+		githubUfo.add(ufoLightMesh);
 
-		ufo.position.y = 5;
+		githubUfo.position.y = 5;
+
+		scene.add(githubUfo);
+		githubUfo.position.set(10, 10, -10);
 	}
 
+	function createLinkedinUfo(){
+		linkedinUfo = new THREE.Object3D();
+		var rot = { x: -Math.PI / 2, y: 0, z: 0 };
+
+		loadModel(
+			'linkedin_ufo',
+			{ x: 0, y: 0, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			1, 0, 0.5, 0.5, 0.1
+		).then((model) => linkedinUfo.add(model));
+
+		var logo = textureLoader.load('images/linkedin.png');
+		logo.wrapS = logo.wrapT = THREE.RepeatWrapping;
+		logo.offset.set(0, 0);
+		logo.repeat.set(1, 1);
+
+		var logoMat = new THREE.MeshBasicMaterial({
+			map: logo,
+			transparent: true,
+			side: THREE.DoubleSide
+		});
+
+		var plate = new THREE.SphereBufferGeometry(0.7, 10, 10, 2, 0.8, 1, 0.6);
+		var plateMesh = new THREE.Mesh(plate, logoMat);
+
+		linkedinUfo.add(plateMesh);
+		plateMesh.scale.set(1.5, 1.5, 1.5);
+		plateMesh.position.set(0, 1, 0);
+
+		linkedinUfo.scale.set(2, 2, 2);
+
+		var ufoLightMaterial = new THREE.MeshBasicMaterial({
+			color: 0x009eff,
+			transparent: true,
+			opacity: 0.7
+		});
+		var ufoLightMesh = new THREE.Mesh(new THREE.CylinderBufferGeometry(0.5, 1.1, 5, 32), ufoLightMaterial);
+		ufoLightMesh.position.y = -3;
+
+		let godraysEffect = new POSTPROCESSING.GodRaysEffect(camera, ufoLightMesh, {
+			resolutionScale: 1,
+			density: 1,
+			decay: 0.95,
+			weight: 0.1,
+			samples: 100
+		});
+		let effectPass = new POSTPROCESSING.EffectPass(camera, godraysEffect);
+
+		composer.addPass(effectPass);
+		effectPass.renderToScreen = true;
+
+		linkedinUfo.add(ufoLightMesh);
+
+		linkedinUfo.position.y = 5;
+
+		scene.add(linkedinUfo);
+	}
+
+	function createMailUfo() {
+		mailUfo = new THREE.Object3D();
+		var rot = { x: -Math.PI / 2, y: 0, z: 0 };
+
+		loadModel(
+			'mail_ufo',
+			{ x: 0, y: 0, z: 0 },
+			ZERO_QUATERNION,
+			rot,
+			1, 0, 0.5, 0.5, 0.1
+		).then((model) => mailUfo.add(model));
+
+		var logo = textureLoader.load('images/gmail.png');
+		logo.wrapS = logo.wrapT = THREE.RepeatWrapping;
+		logo.offset.set(0, 0);
+		logo.repeat.set(1, 1);
+
+		var logoMat = new THREE.MeshBasicMaterial({
+			map: logo,
+			transparent: true,
+			side: THREE.DoubleSide
+		});
+
+		var plate = new THREE.SphereBufferGeometry(0.7, 10, 10, 2, 0.8, 1, 0.6);
+		var plateMesh = new THREE.Mesh(plate, logoMat);
+
+		mailUfo.add(plateMesh);
+		plateMesh.scale.set(1.5, 1.5, 1.5);
+		plateMesh.position.set(0, 1, 0);
+
+		mailUfo.scale.set(2, 2, 2);
+
+		var ufoLightMaterial = new THREE.MeshBasicMaterial({
+			color: 0x009eff,
+			transparent: true,
+			opacity: 0.7
+		});
+		var ufoLightMesh = new THREE.Mesh(new THREE.CylinderBufferGeometry(0.5, 1.1, 5, 32), ufoLightMaterial);
+		ufoLightMesh.position.y = -3;
+
+		let godraysEffect = new POSTPROCESSING.GodRaysEffect(camera, ufoLightMesh, {
+			resolutionScale: 1,
+			density: 1,
+			decay: 0.95,
+			weight: 0.1,
+			samples: 100
+		});
+		let effectPass = new POSTPROCESSING.EffectPass(camera, godraysEffect);
+
+		composer.addPass(effectPass);
+		effectPass.renderToScreen = true;
+
+		mailUfo.add(ufoLightMesh);
+
+		mailUfo.position.y = 5;
+
+		scene.add(mailUfo);
+		mailUfo.position.set(-10, 0, - 10);
+	}
 
 	function createObjects() {
 
@@ -1529,7 +1651,9 @@ Ammo().then(function (Ammo) {
 
 		// createVehicle();
 
-		test();
+		/* createGithubUfo();
+		createMailUfo();
+		createLinkedinUfo(); */
 
 
 	}
