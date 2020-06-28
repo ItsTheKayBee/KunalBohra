@@ -12,12 +12,14 @@ Ammo().then(function (Ammo) {
 	var clock = new THREE.Clock();
 	var githubUfo, linkedinUfo, mailUfo;
 	var mobile, pc, blockchain, coin, dialogueL, dialogueR, trend;
+	var pad;
 	var up = 1, down = 0;
 	var dl = 1, dr = 0, step = 0;
 	var trendBack = 1, trendFront = 0;
 	let gltfLoader = new THREE.GLTFLoader();
 	var textureLoader = new THREE.TextureLoader();
 	var textLoader = new THREE.FontLoader();
+	var mixer;
 	var models3d = []
 
 	// Physics variables
@@ -47,7 +49,7 @@ Ammo().then(function (Ammo) {
 
 	function cam() {
 		camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
-		camera.position.set(10, 10, 10);
+		camera.position.set(20, 30, 0);
 		camera.lookAt(scene.position);
 	}
 
@@ -57,7 +59,7 @@ Ammo().then(function (Ammo) {
 		scene.add(hlight);
 
 		//directional light
-		directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+		directionalLight = new THREE.DirectionalLight(0xffffff, 0);
 		directionalLight.position.set(100, 1010, 10);
 		directionalLight.castShadow = true;
 		scene.add(directionalLight);
@@ -137,6 +139,10 @@ Ammo().then(function (Ammo) {
 
 		// projectsAnimation(step);
 		step++;
+
+		if (mixer) mixer.update(dt);
+
+		if (pad) pad.position.y += 0.05;
 
 		composer.render(0.1);
 		renderer.render(scene, camera);
@@ -569,9 +575,12 @@ Ammo().then(function (Ammo) {
 		var projectsSignGeometry = new THREE.BoxBufferGeometry(4, 0.25, 1.25);
 		var skillsSignGeometry = new THREE.BoxBufferGeometry(4, 0.25, 1.25);
 		var aboutSignGeometry = new THREE.BoxBufferGeometry(4, 0.25, 1.25);
+		var experienceSignGeometry = new THREE.BoxBufferGeometry(5, 0.25, 1.25);
 		var projectsSign = new THREE.Mesh(projectsSignGeometry, woodMaterial);
 		var skillsSign = new THREE.Mesh(skillsSignGeometry, woodMaterial);
 		var aboutSign = new THREE.Mesh(aboutSignGeometry, woodMaterial);
+		var experienceSign = new THREE.Mesh(experienceSignGeometry, woodMaterial);
+
 		projectsSign.position.y = 4.375;
 		projectsSign.position.x = -2;
 		projectsSign.rotation.x = Math.PI / 2;
@@ -585,20 +594,29 @@ Ammo().then(function (Ammo) {
 		aboutSign.rotation.x = Math.PI / 2;
 		aboutSign.rotation.z = -Math.PI / 2;
 
+		experienceSign.rotation.set(Math.PI / 2, 0, -Math.PI / 2);
+		experienceSign.position.set(0, 3, -2);
+
 
 		//pointy directionheads
 		var triGeo = new THREE.BoxBufferGeometry(1, 0.25, 1);
 		var triangleL = new THREE.Mesh(triGeo, woodMaterial);
 		var triangleR = new THREE.Mesh(triGeo, woodMaterial);
 		var triangleB = new THREE.Mesh(triGeo, woodMaterial);
+		var triangleU = new THREE.Mesh(triGeo, woodMaterial);
+
 		triangleL.position.x = -2;
 
 		triangleR.position.x = 2;
 
 		triangleB.position.x = -2;
+
+		triangleU.position.x = 2.5;
+
 		triangleL.rotation.y = Math.PI / 4;
 		triangleR.rotation.y = Math.PI / 4;
 		triangleB.rotation.y = Math.PI / 4;
+		triangleU.rotation.y = Math.PI / 4;
 
 		//creating text
 		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
@@ -626,15 +644,25 @@ Ammo().then(function (Ammo) {
 				0.5, 1, 0.3, 0x654321
 			);
 			aboutSign.add(aboutText);
+			var experienceText = createText(
+				font,
+				"EXPERIENCE",
+				{ x: -1.6, y: 0, z: 0.25 },
+				{ x: -Math.PI / 2, y: 0, z: 0, w: 1 },
+				0.5, 1, 0.3, 0x654321
+			);
+			experienceSign.add(experienceText);
 		});
 
 		//adding to parents
 		projectsSign.add(triangleL);
 		skillsSign.add(triangleR);
 		aboutSign.add(triangleB);
+		experienceSign.add(triangleU);
 		woodenPole.add(projectsSign);
 		woodenPole.add(skillsSign);
 		woodenPole.add(aboutSign);
+		woodenPole.add(experienceSign);
 		woodenPole.position.set(-10, 20, -10);
 		scene.add(woodenPole);
 	}
@@ -1507,7 +1535,7 @@ Ammo().then(function (Ammo) {
 		githubUfo.position.set(10, 10, -10);
 	}
 
-	function createLinkedinUfo(){
+	function createLinkedinUfo() {
 		linkedinUfo = new THREE.Object3D();
 		var rot = { x: -Math.PI / 2, y: 0, z: 0 };
 
@@ -1626,6 +1654,30 @@ Ammo().then(function (Ammo) {
 		mailUfo.position.set(-10, 0, - 10);
 	}
 
+	function test() {
+		pos = { x: 0, y: 0, z: 0 };
+		quat = ZERO_QUATERNION;
+		w = 0.5;
+		h = 0.5;
+		l = 0.1;
+		gltfLoader.load('models3d/pad/scene.gltf', function (gltf) {
+			createBox(gltf.scene, pos, quat, w, h, l, 0, 1);
+			models3d.push(gltf.scene);
+			var mesh = gltf.scene;
+			mesh.scale.set(2, 2, 2);
+			mixer = new THREE.AnimationMixer(mesh);
+			var takeOffAction = mixer.clipAction(gltf.animations[1]);
+			var hoverAction = mixer.clipAction(gltf.animations[0]);
+			takeOffAction.clampWhenFinished = true;
+			takeOffAction.setLoop(THREE.LoopOnce);
+			takeOffAction.play();
+
+			hoverAction.play();
+			pad = mesh;
+			scene.add(mesh);
+		});
+	}
+
 	function createObjects() {
 
 		loadMars();
@@ -1655,6 +1707,7 @@ Ammo().then(function (Ammo) {
 		createMailUfo();
 		createLinkedinUfo(); */
 
+		test();
 
 	}
 
