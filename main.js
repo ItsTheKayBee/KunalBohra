@@ -59,7 +59,7 @@ Ammo().then(function (Ammo) {
 		scene.add(hlight);
 
 		//directional light
-		directionalLight = new THREE.DirectionalLight(0xffffff, 0);
+		directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 		directionalLight.position.set(100, 1010, 10);
 		directionalLight.castShadow = true;
 		scene.add(directionalLight);
@@ -1684,6 +1684,7 @@ Ammo().then(function (Ammo) {
 		w = 0.5;
 		h = 0.5;
 		l = 0.1;
+
 		gltfLoader.load('models3d/arcon/scene.gltf', function (gltf) {
 			createBox(gltf.scene, pos, quat, w, h, l, 0, 1);
 			models3d.push(gltf.scene);
@@ -1692,10 +1693,36 @@ Ammo().then(function (Ammo) {
 			var rotation = mixer.clipAction(gltf.animations[0]);
 			rotation.play();
 
+			mesh.rotation.y = -Math.PI / 6;
+
 			arcon = mesh;
 			scene.add(mesh);
 		});
 	}
+
+	function createGreEdgeExperience() {
+		pos = { x: 0, y: 0, z: 0 };
+		quat = ZERO_QUATERNION;
+		w = 0.5;
+		h = 0.5;
+		l = 0.1;
+
+		gltfLoader.load('models3d/gre_edge/scene.gltf', function (gltf) {
+			createBox(gltf.scene, pos, quat, w, h, l, 0, 1);
+			models3d.push(gltf.scene);
+			var mesh = gltf.scene;
+			mixer = new THREE.AnimationMixer(mesh);
+			var rotation = mixer.clipAction(gltf.animations[0]);
+			rotation.play();
+
+			mesh.rotation.y = -Math.PI / 6;
+
+			arcon = mesh;
+			scene.add(mesh);
+		});
+	}
+
+
 
 	function createObjects() {
 
@@ -1728,7 +1755,9 @@ Ammo().then(function (Ammo) {
 
 		// createPad();
 
-		createExperience();
+		// createExperience();
+		// createGreEdgeExperience();
+
 
 	}
 
