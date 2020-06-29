@@ -12,7 +12,7 @@ Ammo().then(function (Ammo) {
 	var clock = new THREE.Clock();
 	var githubUfo, linkedinUfo, mailUfo;
 	var mobile, pc, blockchain, coin, dialogueL, dialogueR, trend;
-	var pad;
+	var pad, arcon;
 	var up = 1, down = 0;
 	var dl = 1, dr = 0, step = 0;
 	var trendBack = 1, trendFront = 0;
@@ -49,7 +49,7 @@ Ammo().then(function (Ammo) {
 
 	function cam() {
 		camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
-		camera.position.set(20, 30, 0);
+		camera.position.set(10, 10, 10);
 		camera.lookAt(scene.position);
 	}
 
@@ -1654,7 +1654,7 @@ Ammo().then(function (Ammo) {
 		mailUfo.position.set(-10, 0, - 10);
 	}
 
-	function test() {
+	function createPad() {
 		pos = { x: 0, y: 0, z: 0 };
 		quat = ZERO_QUATERNION;
 		w = 0.5;
@@ -1674,6 +1674,25 @@ Ammo().then(function (Ammo) {
 
 			hoverAction.play();
 			pad = mesh;
+			scene.add(mesh);
+		});
+	}
+
+	function createExperience() {
+		pos = { x: 0, y: 0, z: 0 };
+		quat = ZERO_QUATERNION;
+		w = 0.5;
+		h = 0.5;
+		l = 0.1;
+		gltfLoader.load('models3d/arcon/scene.gltf', function (gltf) {
+			createBox(gltf.scene, pos, quat, w, h, l, 0, 1);
+			models3d.push(gltf.scene);
+			var mesh = gltf.scene;
+			mixer = new THREE.AnimationMixer(mesh);
+			var rotation = mixer.clipAction(gltf.animations[0]);
+			rotation.play();
+
+			arcon = mesh;
 			scene.add(mesh);
 		});
 	}
@@ -1707,7 +1726,9 @@ Ammo().then(function (Ammo) {
 		createMailUfo();
 		createLinkedinUfo(); */
 
-		test();
+		// createPad();
+
+		createExperience();
 
 	}
 
