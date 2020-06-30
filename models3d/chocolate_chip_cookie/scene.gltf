@@ -1,235 +1,268 @@
 {
-  "accessors": [
-    {
-      "bufferView": 1,
-      "componentType": 5126,
-      "count": 7313,
-      "max": [
-        0.58219563961029053,
-        0.20590400695800781,
-        0.09786379337310791
-      ],
-      "min": [
-        -0.52754956483840942,
-        -0.12996673583984375,
-        -1.0585231781005859
-      ],
-      "type": "VEC3"
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v1.2.75",
+        "version" : "2.0"
     },
-    {
-      "bufferView": 1,
-      "byteOffset": 87756,
-      "componentType": 5126,
-      "count": 7313,
-      "max": [
-        0.9942854642868042,
-        0.99996352195739746,
-        0.99980169534683228
-      ],
-      "min": [
-        -0.99973464012145996,
-        -0.99997425079345703,
-        -0.99999773502349854
-      ],
-      "type": "VEC3"
-    },
-    {
-      "bufferView": 2,
-      "componentType": 5126,
-      "count": 7313,
-      "max": [
-        0.88235294818878174,
-        0.78823530673980713,
-        0.65098041296005249,
-        1
-      ],
-      "min": [
-        0.24313725531101227,
-        0.070588238537311554,
-        0,
-        1
-      ],
-      "type": "VEC4"
-    },
-    {
-      "bufferView": 0,
-      "componentType": 5125,
-      "count": 43866,
-      "max": [
-        7312
-      ],
-      "min": [
-        0
-      ],
-      "type": "SCALAR"
-    }
-  ],
-  "asset": {
-    "extras": {
-      "author": "alecz1k (https://sketchfab.com/alecz1k)",
-      "license": "CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)",
-      "source": "https://sketchfab.com/models/aa2eb2881606467d8176c360f459a9d4",
-      "title": "Chocolate chip cookie"
-    },
-    "generator": "Sketchfab-4.30.3",
-    "version": "2.0"
-  },
-  "bufferViews": [
-    {
-      "buffer": 0,
-      "byteLength": 175464,
-      "byteOffset": 0,
-      "name": "floatBufferViews",
-      "target": 34963
-    },
-    {
-      "buffer": 0,
-      "byteLength": 175512,
-      "byteOffset": 175464,
-      "byteStride": 12,
-      "name": "floatBufferViews",
-      "target": 34962
-    },
-    {
-      "buffer": 0,
-      "byteLength": 117008,
-      "byteOffset": 350976,
-      "byteStride": 16,
-      "name": "floatBufferViews",
-      "target": 34962
-    }
-  ],
-  "buffers": [
-    {
-      "byteLength": 467984,
-      "uri": "scene.bin"
-    }
-  ],
-  "extensionsUsed": [
-    "KHR_materials_unlit"
-  ],
-  "materials": [
-    {
-      "doubleSided": true,
-      "extensions": {
-        "KHR_materials_unlit": {}
-      },
-      "name": "Scene_-_Root",
-      "pbrMetallicRoughness": {
-        "baseColorFactor": [
-          1,
-          1,
-          1,
-          1
-        ],
-        "metallicFactor": 0,
-        "roughnessFactor": 1
-      }
-    }
-  ],
-  "meshes": [
-    {
-      "name": "Layer_4__0",
-      "primitives": [
+    "scene" : 0,
+    "scenes" : [
         {
-          "attributes": {
-            "COLOR_0": 2,
-            "NORMAL": 1,
-            "POSITION": 0
-          },
-          "indices": 3,
-          "material": 0,
-          "mode": 4
+            "name" : "Scene",
+            "nodes" : [
+                5,
+                6,
+                7
+            ]
         }
-      ]
-    }
-  ],
-  "nodes": [
-    {
-      "children": [
-        1
-      ],
-      "name": "RootNode (gltf orientation matrix)",
-      "rotation": [
-        -0.70710678118654746,
-        -0,
-        -0,
-        0.70710678118654757
-      ]
-    },
-    {
-      "children": [
-        2
-      ],
-      "matrix": [
-        0.98274415731430054,
-        -0.01594209112226963,
-        -0.18428175151348114,
-        0,
-        0.18425750732421875,
-        -0.0029890283476561308,
-        0.98287343978881836,
-        0,
-        -0.016219882294535637,
-        -0.99986845254898071,
-        0,
-        0,
-        0.015258379280567169,
-        0.44261997938156128,
-        0.52268320322036743,
-        1
-      ],
-      "name": "RootNode (model correction matrix)"
-    },
-    {
-      "children": [
-        3
-      ],
-      "matrix": [
-        1,
-        0,
-        0,
-        0,
-        0,
-        -1,
-        0,
-        0,
-        0,
-        0,
-        -1,
-        0,
-        0,
-        0,
-        0,
-        1
-      ],
-      "name": "e8b3e2fbd6df411f8b5d9c676fbbb1f1.fbx"
-    },
-    {
-      "children": [
-        4
-      ],
-      "name": "RootNode"
-    },
-    {
-      "children": [
-        5
-      ],
-      "name": "Layer_4"
-    },
-    {
-      "mesh": 0,
-      "name": "Layer_4__0"
-    }
-  ],
-  "scene": 0,
-  "scenes": [
-    {
-      "name": "OSG_Scene",
-      "nodes": [
-        0
-      ]
-    }
-  ]
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "cookie"
+        },
+        {
+            "children" : [
+                0
+            ],
+            "name" : "Layer_4"
+        },
+        {
+            "children" : [
+                1
+            ],
+            "name" : "RootNode"
+        },
+        {
+            "children" : [
+                2
+            ],
+            "name" : "e8b3e2fbd6df411f8b5d9c676fbbb1f1.fbx",
+            "rotation" : [
+                1,
+                0,
+                0,
+                0
+            ]
+        },
+        {
+            "children" : [
+                3
+            ],
+            "name" : "RootNode (model correction matrix)",
+            "rotation" : [
+                0.7045802474021912,
+                0.05972188338637352,
+                -0.07114224135875702,
+                0.7035189270973206
+            ],
+            "translation" : [
+                0.01525837928056717,
+                0.4426199793815613,
+                0.5226832032203674
+            ]
+        },
+        {
+            "children" : [
+                4
+            ],
+            "name" : "RootNode (gltf orientation matrix)",
+            "rotation" : [
+                -0.7071067690849304,
+                0,
+                0,
+                0.7071067690849304
+            ]
+        },
+        {
+            "name" : "Light",
+            "rotation" : [
+                0.16907575726509094,
+                0.7558803558349609,
+                -0.27217137813568115,
+                0.570947527885437
+            ],
+            "translation" : [
+                4.076245307922363,
+                5.903861999511719,
+                -1.0054539442062378
+            ]
+        },
+        {
+            "name" : "Camera",
+            "rotation" : [
+                0.483536034822464,
+                0.33687159419059753,
+                -0.20870360732078552,
+                0.7804827094078064
+            ],
+            "translation" : [
+                7.358891487121582,
+                4.958309173583984,
+                6.925790786743164
+            ]
+        }
+    ],
+    "animations" : [
+        {
+            "channels" : [
+                {
+                    "sampler" : 0,
+                    "target" : {
+                        "node" : 0,
+                        "path" : "translation"
+                    }
+                },
+                {
+                    "sampler" : 1,
+                    "target" : {
+                        "node" : 0,
+                        "path" : "rotation"
+                    }
+                }
+            ],
+            "name" : "cookieAction",
+            "samplers" : [
+                {
+                    "input" : 4,
+                    "interpolation" : "LINEAR",
+                    "output" : 5
+                },
+                {
+                    "input" : 4,
+                    "interpolation" : "LINEAR",
+                    "output" : 6
+                }
+            ]
+        }
+    ],
+    "materials" : [
+        {
+            "doubleSided" : true,
+            "emissiveFactor" : [
+                1,
+                1,
+                1
+            ],
+            "name" : "Scene_-_Root",
+            "pbrMetallicRoughness" : {}
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "Layer_4__0",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1,
+                        "COLOR_0" : 2
+                    },
+                    "indices" : 3,
+                    "material" : 0
+                }
+            ]
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 43866,
+            "max" : [
+                0.5821956396102905,
+                0.2059040069580078,
+                0.09786379337310791
+            ],
+            "min" : [
+                -0.5275495648384094,
+                -0.12996673583984375,
+                -1.058523178100586
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 43866,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 43866,
+            "type" : "VEC4"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5123,
+            "count" : 43866,
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 4,
+            "componentType" : 5126,
+            "count" : 241,
+            "max" : [
+                10
+            ],
+            "min" : [
+                0
+            ],
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 5,
+            "componentType" : 5126,
+            "count" : 241,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 6,
+            "componentType" : 5126,
+            "count" : 241,
+            "type" : "VEC4"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 526392,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 526392,
+            "byteOffset" : 526392
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 701856,
+            "byteOffset" : 1052784
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 87732,
+            "byteOffset" : 1754640
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 964,
+            "byteOffset" : 1842372
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 2892,
+            "byteOffset" : 1843336
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 3856,
+            "byteOffset" : 1846228
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 1850084,
+            "uri" : "scene.bin"
+        }
+    ]
 }
-

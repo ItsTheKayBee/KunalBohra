@@ -1081,6 +1081,7 @@ Ammo().then(function (Ammo) {
 		scene.add(graph);
 	}
 
+	//3 stars skill
 	function addBlockchainSkill() {
 		var bcSkillGroup = new THREE.Group();
 		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
@@ -1121,6 +1122,7 @@ Ammo().then(function (Ammo) {
 		scene.add(bcSkillGroup);
 	}
 
+	//4 stars skill
 	function addPHPSkill() {
 		var phpSkillGroup = new THREE.Group();
 		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
@@ -1168,6 +1170,7 @@ Ammo().then(function (Ammo) {
 		scene.add(phpSkillGroup);
 	}
 
+	//4 stars skill	
 	function addAndroidSkill() {
 		var androidSkillGroup = new THREE.Group();
 		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
@@ -1215,6 +1218,7 @@ Ammo().then(function (Ammo) {
 		scene.add(androidSkillGroup);
 	}
 
+	//3 stars skill
 	function addPythonSkill() {
 		var pythonSkillGroup = new THREE.Group();
 		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
@@ -1255,6 +1259,7 @@ Ammo().then(function (Ammo) {
 		scene.add(pythonSkillGroup);
 	}
 
+	//4 stars skill
 	function addWebSkill() {
 		var webSkillGroup = new THREE.Group();
 		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
@@ -1328,6 +1333,7 @@ Ammo().then(function (Ammo) {
 		scene.add(webSkillGroup);
 	}
 
+	//4 stars skill
 	function addJavaSkill() {
 		var javaSkillGroup = new THREE.Group();
 		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
@@ -1375,6 +1381,7 @@ Ammo().then(function (Ammo) {
 		scene.add(javaSkillGroup);
 	}
 
+	//4 stars skill
 	function addMySQLSkill() {
 		var mysqlSkillGroup = new THREE.Group();
 		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
@@ -1422,6 +1429,7 @@ Ammo().then(function (Ammo) {
 		scene.add(mysqlSkillGroup);
 	}
 
+	//3 stars skill
 	function addCppSkill() {
 		var cppSkillGroup = new THREE.Group();
 		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
@@ -1698,9 +1706,7 @@ Ammo().then(function (Ammo) {
 			arcon = mesh;
 			scene.add(mesh);
 		});
-	}
 
-	function createGreEdgeExperience() {
 		pos = { x: 0, y: 0, z: 0 };
 		quat = ZERO_QUATERNION;
 		w = 0.5;
@@ -1722,11 +1728,32 @@ Ammo().then(function (Ammo) {
 		});
 	}
 
+	function test() {
+		pos = { x: 0, y: 0, z: 0 };
+		quat = ZERO_QUATERNION;
+		w = 0.5;
+		h = 0.5;
+		l = 0.1;
 
+		gltfLoader.load('models3d/chocolate_chip_cookie/scene.gltf', function (gltf) {
+			createBox(gltf.scene, pos, quat, w, h, l, 0, 1);
+			models3d.push(gltf.scene);
+			var mesh = gltf.scene;
+			mixer = new THREE.AnimationMixer(mesh);
+			var rotation = mixer.clipAction(gltf.animations[0]);
+			rotation.play();
+
+			mesh.rotation.y = -Math.PI / 6;
+
+			arcon = mesh;
+			scene.add(mesh);
+		});
+	}
+		
 
 	function createObjects() {
 
-		loadMars();
+		// loadMars();
 		createFlag();
 		createSignPost();
 
@@ -1756,8 +1783,8 @@ Ammo().then(function (Ammo) {
 		// createPad();
 
 		// createExperience();
-		// createGreEdgeExperience();
 
+		test();
 
 	}
 
