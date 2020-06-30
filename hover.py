@@ -6,6 +6,7 @@ ob = bpy.data.objects["star"]
 ob.rotation_mode = 'XYZ'
 frame_no = 0 
 
+# start frame
 bpy.context.scene.frame_set(frame_no)
 bpy.context.scene.frame_set(frame_no)
 ob.location = (0,0,0)
@@ -14,6 +15,7 @@ ob.rotation_euler = (0,0,0)
 ob.keyframe_insert(data_path="rotation_euler", index=-1)
 frame_no+=20 
 
+# middle animation
 for i in range(0,11):
     x = random.uniform(-1,1)
     y = random.uniform(-1,1)
@@ -28,6 +30,7 @@ for i in range(0,11):
     ob.keyframe_insert(data_path="rotation_euler", index=-1)
     frame_no+=20
     
+# end animation
 bpy.context.scene.frame_set(frame_no)
 ob.location = (0,0,0)
 ob.keyframe_insert(data_path="location", index=-1)

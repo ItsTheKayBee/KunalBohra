@@ -19,8 +19,9 @@ Ammo().then(function (Ammo) {
 	let gltfLoader = new THREE.GLTFLoader();
 	var textureLoader = new THREE.TextureLoader();
 	var textLoader = new THREE.FontLoader();
-	var mixer;
-	var models3d = []
+	var mixers = [];
+	var models3d = [];
+	var foods = [];
 
 	// Physics variables
 	var collisionConfiguration;
@@ -99,7 +100,6 @@ Ammo().then(function (Ammo) {
 		scenes();
 		cam();
 		lights();
-		// orbCont();
 
 		controls = new THREE.OrbitControls(camera, renderer.domElement);
 
@@ -107,7 +107,6 @@ Ammo().then(function (Ammo) {
 		window.addEventListener('keydown', keydown);
 		window.addEventListener('keyup', keyup);
 	}
-
 
 	function onWindowResize() {
 
@@ -135,17 +134,31 @@ Ammo().then(function (Ammo) {
 		physicsWorld.stepSimulation(dt, 10);
 		if (chassisMesh)
 			camera.lookAt(chassisMesh.position);
+
 		controls.update(dt);
 
 		// projectsAnimation(step);
 		step++;
 
-		if (mixer) mixer.update(dt);
+		updateMixers(dt);
+
+		for (var i = 0; i < foods.length; i++) {
+			foods[i].rotation.x = -Math.PI / 2;
+		}
+
 
 		if (pad) pad.position.y += 0.05;
 
 		composer.render(0.1);
 		renderer.render(scene, camera);
+	}
+
+	function updateMixers(dt) {
+
+		//update mixers
+		for (var i = 0; i < mixers.length; i++) {
+			mixers[i].update(dt);
+		}
 	}
 
 	function projectsAnimation(step) {
@@ -507,10 +520,21 @@ Ammo().then(function (Ammo) {
 		let modelPromise = new Promise((resolve) => {
 			gltfLoader.load('models3d/' + path + '/scene.gltf', function (gltf) {
 				let object = gltf.scene.children[0];
+
+				//adjustments
 				object.scale.set(s, s, s);
 				object.rotation.set(rot.x, rot.y, rot.z);
+
+				//physics
 				createBox(gltf.scene, pos, quat, w, h, l, mass, 1);
 				models3d.push(gltf.scene);
+
+				//animation 
+				var mixer = new THREE.AnimationMixer(gltf.scene);
+				var hover = mixer.clipAction(gltf.animations[0]);
+				hover.play();
+				mixers.push(mixer);
+
 				resolve(gltf.scene);
 			});
 		});
@@ -1104,21 +1128,34 @@ Ammo().then(function (Ammo) {
 			ZERO_QUATERNION,
 			rot,
 			0.005, 0, 0.5, 0.5, 0.1
-		).then((model) => bcSkillGroup.add(model));
-		loadModel(
-			'star',
-			{ x: 3, y: 3, z: 0 },
-			ZERO_QUATERNION,
-			rot,
-			0.005, 0, 0.5, 0.5, 0.1
-		).then((model) => bcSkillGroup.add(model));
-		loadModel(
-			'star',
-			{ x: 6, y: 2, z: 0 },
-			ZERO_QUATERNION,
-			rot,
-			0.005, 0, 0.5, 0.5, 0.1
-		).then((model) => bcSkillGroup.add(model));
+		).then((model) => {
+			bcSkillGroup.add(model);
+			model.scale.set(0.025, 0.025, 0.025);
+		});
+		setTimeout(() => {
+			loadModel(
+				'star',
+				{ x: 3, y: 3, z: 0 },
+				ZERO_QUATERNION,
+				rot,
+				0.05, 0, 0.5, 0.5, 0.1
+			).then((model) => {
+				bcSkillGroup.add(model);
+				model.scale.set(0.025, 0.025, 0.025);
+			});
+		}, 500);
+		setTimeout(() => {
+			loadModel(
+				'star',
+				{ x: 6, y: 2, z: 0 },
+				ZERO_QUATERNION,
+				rot,
+				0.005, 0, 0.5, 0.5, 0.1
+			).then((model) => {
+				bcSkillGroup.add(model);
+				model.scale.set(0.025, 0.025, 0.025);
+			});
+		}, 1000);
 		scene.add(bcSkillGroup);
 	}
 
@@ -1138,35 +1175,42 @@ Ammo().then(function (Ammo) {
 			);
 			phpSkillGroup.add(phpText);
 		});
-		var rot = { x: Math.PI / 2, y: Math.PI, z: 0 };
+		var rot = { x: Math.PI / 2, y: Math.PI, z: Math.PI };
 		loadModel(
 			'pizza',
 			{ x: 0.5, y: 2, z: 0 },
 			ZERO_QUATERNION,
 			rot,
-			0.01, 0, 0.5, 0.5, 0.1
+			0.1, 0, 0.5, 0.5, 0.1
 		).then((model) => phpSkillGroup.add(model));
-		loadModel(
-			'pizza',
-			{ x: 1.5, y: 3, z: 0 },
-			ZERO_QUATERNION,
-			rot,
-			0.01, 0, 0.5, 0.5, 0.1
-		).then((model) => phpSkillGroup.add(model));
-		loadModel(
-			'pizza',
-			{ x: 2.7, y: 3, z: 0 },
-			ZERO_QUATERNION,
-			rot,
-			0.01, 0, 0.5, 0.5, 0.1
-		).then((model) => phpSkillGroup.add(model));
-		loadModel(
-			'pizza',
-			{ x: 3.6, y: 2, z: 0 },
-			ZERO_QUATERNION,
-			rot,
-			0.01, 0, 0.5, 0.5, 0.1
-		).then((model) => phpSkillGroup.add(model));
+		setTimeout(() => {
+			loadModel(
+				'pizza',
+				{ x: 1.5, y: 3, z: 0 },
+				ZERO_QUATERNION,
+				rot,
+				0.1, 0, 0.5, 0.5, 0.1
+			).then((model) => phpSkillGroup.add(model));
+		}, 500);
+		setTimeout(() => {
+			loadModel(
+				'pizza',
+				{ x: 2.7, y: 3, z: 0 },
+				ZERO_QUATERNION,
+				rot,
+				0.1, 0, 0.5, 0.5, 0.1
+			).then((model) => phpSkillGroup.add(model));
+		}, 1000);
+		setTimeout(() => {
+			loadModel(
+				'pizza',
+				{ x: 3.6, y: 2, z: 0 },
+				ZERO_QUATERNION,
+				rot,
+				0.1, 0, 0.5, 0.5, 0.1
+			).then((model) => phpSkillGroup.add(model));
+		}, 1500);
+
 		scene.add(phpSkillGroup);
 	}
 
@@ -1186,35 +1230,54 @@ Ammo().then(function (Ammo) {
 			);
 			androidSkillGroup.add(androidText);
 		});
-		var rot = { x: Math.PI / 2, y: Math.PI, z: Math.PI };
+		var rot = { x: 0, y: 0, z: 0 };
 		loadModel(
 			'android',
 			{ x: 1.2, y: 3, z: 0 },
 			ZERO_QUATERNION,
 			rot,
 			0.5, 0, 0.5, 0.5, 0.1
-		).then((model) => androidSkillGroup.add(model));
-		loadModel(
-			'android',
-			{ x: 3.2, y: 4, z: 0 },
-			ZERO_QUATERNION,
-			rot,
-			0.5, 0, 0.5, 0.5, 0.1
-		).then((model) => androidSkillGroup.add(model));
-		loadModel(
-			'android',
-			{ x: 6.2, y: 4, z: 0 },
-			ZERO_QUATERNION,
-			rot,
-			0.5, 0, 0.5, 0.5, 0.1
-		).then((model) => androidSkillGroup.add(model));
-		loadModel(
-			'android',
-			{ x: 8.2, y: 3, z: 0 },
-			ZERO_QUATERNION,
-			rot,
-			0.5, 0, 0.5, 0.5, 0.1
-		).then((model) => androidSkillGroup.add(model));
+		).then((model) => {
+			androidSkillGroup.add(model);
+			foods.push(model);
+		});
+		setTimeout(() => {
+			loadModel(
+				'android',
+				{ x: 3.2, y: 4, z: 0 },
+				ZERO_QUATERNION,
+				rot,
+				0.5, 0, 0.5, 0.5, 0.1
+			).then((model) => {
+				androidSkillGroup.add(model);
+				foods.push(model);
+			});
+		}, 500);
+		setTimeout(() => {
+			loadModel(
+				'android',
+				{ x: 6.2, y: 4, z: 0 },
+				ZERO_QUATERNION,
+				rot,
+				0.5, 0, 0.5, 0.5, 0.1
+			).then((model) => {
+				androidSkillGroup.add(model);
+				foods.push(model);
+			});
+		}, 1000);
+		setTimeout(() => {
+			loadModel(
+				'android',
+				{ x: 8.2, y: 3, z: 0 },
+				ZERO_QUATERNION,
+				rot,
+				0.5, 0, 0.5, 0.5, 0.1
+			).then((model) => {
+				androidSkillGroup.add(model);
+				foods.push(model);
+			});
+		}, 1500);
+
 		scene.add(androidSkillGroup);
 	}
 
@@ -1242,20 +1305,25 @@ Ammo().then(function (Ammo) {
 			rot,
 			0.25, 0, 0.5, 0.5, 0.1
 		).then((model) => pythonSkillGroup.add(model));
-		loadModel(
-			'fries',
-			{ x: 4.25, y: 4, z: 0 },
-			ZERO_QUATERNION,
-			rot,
-			0.25, 0, 0.5, 0.5, 0.1
-		).then((model) => pythonSkillGroup.add(model));
-		loadModel(
-			'fries',
-			{ x: 7, y: 3, z: 0 },
-			ZERO_QUATERNION,
-			rot,
-			0.25, 0, 0.5, 0.5, 0.1
-		).then((model) => pythonSkillGroup.add(model));
+		setTimeout(() => {
+			loadModel(
+				'fries',
+				{ x: 4.25, y: 4, z: 0 },
+				ZERO_QUATERNION,
+				rot,
+				0.25, 0, 0.5, 0.5, 0.1
+			).then((model) => pythonSkillGroup.add(model));
+		}, 500);
+		setTimeout(() => {
+			loadModel(
+				'fries',
+				{ x: 7, y: 3, z: 0 },
+				ZERO_QUATERNION,
+				rot,
+				0.25, 0, 0.5, 0.5, 0.1
+			).then((model) => pythonSkillGroup.add(model));
+		}, 1000);
+
 		scene.add(pythonSkillGroup);
 	}
 
@@ -1301,35 +1369,54 @@ Ammo().then(function (Ammo) {
 			);
 			webSkillGroup.add(jsText);
 		});
-		var rot = { x: Math.PI / 2, y: Math.PI, z: Math.PI };
+		var rot = { x: Math.PI, y: Math.PI, z: Math.PI };
 		loadModel(
 			'ice_cream',
 			{ x: 0.7, y: 3.5, z: 0 },
 			ZERO_QUATERNION,
 			rot,
 			0.25, 0, 0.5, 0.5, 0.1
-		).then((model) => webSkillGroup.add(model));
-		loadModel(
-			'ice_cream',
-			{ x: 2, y: 5, z: 0 },
-			ZERO_QUATERNION,
-			rot,
-			0.25, 0, 0.5, 0.5, 0.1
-		).then((model) => webSkillGroup.add(model));
-		loadModel(
-			'ice_cream',
-			{ x: 3.5, y: 5, z: 0 },
-			ZERO_QUATERNION,
-			rot,
-			0.25, 0, 0.5, 0.5, 0.1
-		).then((model) => webSkillGroup.add(model));
-		loadModel(
-			'ice_cream',
-			{ x: 4.85, y: 3.5, z: 0 },
-			ZERO_QUATERNION,
-			rot,
-			0.25, 0, 0.5, 0.5, 0.1
-		).then((model) => webSkillGroup.add(model));
+		).then((model) => {
+			webSkillGroup.add(model);
+			foods.push(model);
+		});
+		setTimeout(() => {
+			loadModel(
+				'ice_cream',
+				{ x: 2, y: 5, z: 0 },
+				ZERO_QUATERNION,
+				rot,
+				0.25, 0, 0.5, 0.5, 0.1
+			).then((model) => {
+				webSkillGroup.add(model);
+				foods.push(model);
+			});
+		}, 500);
+		setTimeout(() => {
+			loadModel(
+				'ice_cream',
+				{ x: 3.5, y: 5, z: 0 },
+				ZERO_QUATERNION,
+				rot,
+				0.25, 0, 0.5, 0.5, 0.1
+			).then((model) => {
+				webSkillGroup.add(model);
+				foods.push(model);
+			});
+		}, 1000);
+		setTimeout(() => {
+			loadModel(
+				'ice_cream',
+				{ x: 4.85, y: 3.5, z: 0 },
+				ZERO_QUATERNION,
+				rot,
+				0.25, 0, 0.5, 0.5, 0.1
+			).then((model) => {
+				webSkillGroup.add(model);
+				foods.push(model);
+			});
+		}, 1500);
+
 		scene.add(webSkillGroup);
 	}
 
@@ -1355,29 +1442,36 @@ Ammo().then(function (Ammo) {
 			{ x: 1.2, y: 3, z: 0 },
 			ZERO_QUATERNION,
 			rot,
-			0.75, 0, 0.5, 0.5, 0.1
+			2, 0, 0.5, 0.5, 0.1
 		).then((model) => javaSkillGroup.add(model));
-		loadModel(
-			'chocolate_chip_cookie',
-			{ x: 2.2, y: 4, z: 0 },
-			ZERO_QUATERNION,
-			rot,
-			0.75, 0, 0.5, 0.5, 0.1
-		).then((model) => javaSkillGroup.add(model));
-		loadModel(
-			'chocolate_chip_cookie',
-			{ x: 3.5, y: 4, z: 0 },
-			ZERO_QUATERNION,
-			rot,
-			0.75, 0, 0.5, 0.5, 0.1
-		).then((model) => javaSkillGroup.add(model));
-		loadModel(
-			'chocolate_chip_cookie',
-			{ x: 4.5, y: 3, z: 0 },
-			ZERO_QUATERNION,
-			rot,
-			0.75, 0, 0.5, 0.5, 0.1
-		).then((model) => javaSkillGroup.add(model));
+		setTimeout(() => {
+			loadModel(
+				'chocolate_chip_cookie',
+				{ x: 2.2, y: 4, z: 0 },
+				ZERO_QUATERNION,
+				rot,
+				2, 0, 0.5, 0.5, 0.1
+			).then((model) => javaSkillGroup.add(model));
+		}, 500);
+		setTimeout(() => {
+			loadModel(
+				'chocolate_chip_cookie',
+				{ x: 3.5, y: 4, z: 0 },
+				ZERO_QUATERNION,
+				rot,
+				2, 0, 0.5, 0.5, 0.1
+			).then((model) => javaSkillGroup.add(model));
+		}, 1000);
+		setTimeout(() => {
+			loadModel(
+				'chocolate_chip_cookie',
+				{ x: 4.5, y: 3, z: 0 },
+				ZERO_QUATERNION,
+				rot,
+				2, 0, 0.5, 0.5, 0.1
+			).then((model) => javaSkillGroup.add(model));
+		}, 1500);
+
 		scene.add(javaSkillGroup);
 	}
 
@@ -1397,35 +1491,54 @@ Ammo().then(function (Ammo) {
 			);
 			mysqlSkillGroup.add(javaText);
 		});
-		var rot = { x: -Math.PI / 2, y: 0, z: 0 };
+		var rot = { x: 0, y: 0, z: 0 };
 		loadModel(
 			'burger',
 			{ x: 1, y: 3, z: 0 },
 			ZERO_QUATERNION,
 			rot,
 			0.45, 0, 0.5, 0.5, 0.1
-		).then((model) => mysqlSkillGroup.add(model));
-		loadModel(
-			'burger',
-			{ x: 2.5, y: 5, z: 0 },
-			ZERO_QUATERNION,
-			rot,
-			0.45, 0, 0.5, 0.5, 0.1
-		).then((model) => mysqlSkillGroup.add(model));
-		loadModel(
-			'burger',
-			{ x: 4.5, y: 5, z: 0 },
-			ZERO_QUATERNION,
-			rot,
-			0.45, 0, 0.5, 0.5, 0.1
-		).then((model) => mysqlSkillGroup.add(model));
-		loadModel(
-			'burger',
-			{ x: 6, y: 3, z: 0 },
-			ZERO_QUATERNION,
-			rot,
-			0.45, 0, 0.5, 0.5, 0.1
-		).then((model) => mysqlSkillGroup.add(model));
+		).then((model) => {
+			mysqlSkillGroup.add(model);
+			foods.push(model);
+		});
+		setTimeout(() => {
+			loadModel(
+				'burger',
+				{ x: 2.5, y: 5, z: 0 },
+				ZERO_QUATERNION,
+				rot,
+				0.45, 0, 0.5, 0.5, 0.1
+			).then((model) => {
+				mysqlSkillGroup.add(model);
+				foods.push(model);
+			});
+		}, 500);
+		setTimeout(() => {
+			loadModel(
+				'burger',
+				{ x: 4.5, y: 5, z: 0 },
+				ZERO_QUATERNION,
+				rot,
+				0.45, 0, 0.5, 0.5, 0.1
+			).then((model) => {
+				mysqlSkillGroup.add(model);
+				foods.push(model);
+			});
+		}, 1000);
+		setTimeout(() => {
+			loadModel(
+				'burger',
+				{ x: 6, y: 3, z: 0 },
+				ZERO_QUATERNION,
+				rot,
+				0.45, 0, 0.5, 0.5, 0.1
+			).then((model) => {
+				mysqlSkillGroup.add(model);
+				foods.push(model);
+			});
+		}, 1500);
+
 		scene.add(mysqlSkillGroup);
 	}
 
@@ -1452,21 +1565,35 @@ Ammo().then(function (Ammo) {
 			ZERO_QUATERNION,
 			rot,
 			0.005, 0, 0.5, 0.5, 0.1
-		).then((model) => cppSkillGroup.add(model));
-		loadModel(
-			'cupcake',
-			{ x: 2, y: 3.5, z: 0 },
-			ZERO_QUATERNION,
-			rot,
-			0.005, 0, 0.5, 0.5, 0.1
-		).then((model) => cppSkillGroup.add(model));
-		loadModel(
-			'cupcake',
-			{ x: 3.25, y: 2.5, z: 0 },
-			ZERO_QUATERNION,
-			rot,
-			0.005, 0, 0.5, 0.5, 0.1
-		).then((model) => cppSkillGroup.add(model));
+		).then((model) => {
+			cppSkillGroup.add(model);
+			foods.push(model);
+		});
+		setTimeout(() => {
+			loadModel(
+				'cupcake',
+				{ x: 2, y: 3.5, z: 0 },
+				ZERO_QUATERNION,
+				rot,
+				0.005, 0, 0.5, 0.5, 0.1
+			).then((model) => {
+				cppSkillGroup.add(model);
+				foods.push(model);
+			});
+		}, 500);
+		setTimeout(() => {
+			loadModel(
+				'cupcake',
+				{ x: 3.25, y: 2.5, z: 0 },
+				ZERO_QUATERNION,
+				rot,
+				0.005, 0, 0.5, 0.5, 0.1
+			).then((model) => {
+				cppSkillGroup.add(model);
+				foods.push(model);
+			});
+		}, 1000);
+
 		scene.add(cppSkillGroup);
 	}
 
@@ -1740,16 +1867,26 @@ Ammo().then(function (Ammo) {
 			models3d.push(gltf.scene);
 			var mesh = gltf.scene;
 			mixer = new THREE.AnimationMixer(mesh);
-			var rotation = mixer.clipAction(gltf.animations[0]);
-			rotation.play();
+			var hover = mixer.clipAction(gltf.animations[0]);
+			hover.play();
 
-			mesh.rotation.y = -Math.PI / 6;
-
-			arcon = mesh;
 			scene.add(mesh);
 		});
+
+		gltfLoader.load('models3d/pizza/scene.gltf', function (gltf) {
+			createBox(gltf.scene, pos, quat, w, h, l, 0, 1);
+			models3d.push(gltf.scene);
+			var mesh = gltf.scene;
+			mixer1 = new THREE.AnimationMixer(mesh);
+			var hover = mixer1.clipAction(gltf.animations[0]);
+			hover.play();
+
+			scene.add(mesh);
+		});
+
+
 	}
-		
+
 
 	function createObjects() {
 
@@ -1765,14 +1902,14 @@ Ammo().then(function (Ammo) {
 		addStock(); */
 
 		//skills
-		/* addBlockchainSkill();
-		addPHPSkill();
-		addAndroidSkill();
-		addPythonSkill();
-		addJavaSkill();
-		addMySQLSkill();
-		addWebSkill();
-		addCppSkill(); */
+		// addBlockchainSkill();
+		// addPHPSkill();
+		// addAndroidSkill();
+		// addPythonSkill();
+		// addJavaSkill();
+		// addMySQLSkill();
+		// addWebSkill();
+		addCppSkill();
 
 		// createVehicle();
 
@@ -1784,7 +1921,7 @@ Ammo().then(function (Ammo) {
 
 		// createExperience();
 
-		test();
+		// test();
 
 	}
 
