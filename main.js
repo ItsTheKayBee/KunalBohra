@@ -12,7 +12,8 @@ Ammo().then(function (Ammo) {
 	var clock = new THREE.Clock();
 	var githubUfo, linkedinUfo, mailUfo;
 	var mobile, pc, blockchain, coin, dialogueL, dialogueR, trend;
-	var pad, arcon;
+	var pad, arcon, takeOffAction = [], hoverAction;
+	var force_vec = new Ammo.btVector3();
 	var up = 1, down = 0;
 	var dl = 1, dr = 0, step = 0;
 	var trendBack = 1, trendFront = 0;
@@ -22,6 +23,10 @@ Ammo().then(function (Ammo) {
 	var mixers = [];
 	var models3d = [];
 	var foods = [];
+	var closeAction = [];
+	var openAction = [];
+	// var groundLimit = 0;
+	var padMesh;
 
 	// Physics variables
 	var collisionConfiguration;
@@ -38,7 +43,10 @@ Ammo().then(function (Ammo) {
 		"ArrowUp": 'acceleration',
 		"ArrowDown": 'braking',
 		"ArrowLeft": 'left',
-		"ArrowRight": 'right'
+		"ArrowRight": 'right',
+		"KeyW": "up",
+		"KeyS": "down",
+		"KeyE": "out"
 	};
 
 	function scenes() {
@@ -50,8 +58,7 @@ Ammo().then(function (Ammo) {
 
 	function cam() {
 		camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
-		camera.position.set(10, 10, 10);
-		camera.lookAt(scene.position);
+		camera.position.set(10, 1010, 0);
 	}
 
 	function lights() {
@@ -60,8 +67,8 @@ Ammo().then(function (Ammo) {
 		scene.add(hlight);
 
 		//directional light
-		directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-		directionalLight.position.set(100, 1010, 10);
+		directionalLight = new THREE.DirectionalLight(0xffffff, 0.1);
+		directionalLight.position.set(10, 1010, 10);
 		directionalLight.castShadow = true;
 		scene.add(directionalLight);
 
@@ -146,8 +153,9 @@ Ammo().then(function (Ammo) {
 			foods[i].rotation.x = -Math.PI / 2;
 		}
 
+		if (pad) padMovement();
 
-		if (pad) pad.position.y += 0.05;
+		if (padMesh) camera.lookAt(padMesh.position);
 
 		composer.render(0.1);
 		renderer.render(scene, camera);
@@ -216,6 +224,7 @@ Ammo().then(function (Ammo) {
 		trend.position.y = 2;
 	}
 
+	//function to set event listeners to false
 	function keyup(e) {
 		if (keysActions[e.code]) {
 			actions[keysActions[e.code]] = false;
@@ -224,6 +233,8 @@ Ammo().then(function (Ammo) {
 			return false;
 		}
 	}
+
+	//function to set event listeners to true
 	function keydown(e) {
 		if (keysActions[e.code]) {
 			actions[keysActions[e.code]] = true;
@@ -275,6 +286,7 @@ Ammo().then(function (Ammo) {
 
 			syncList.push(sync);
 		}
+		return body;
 	}
 
 	function createWheelMesh(radius, width) {
@@ -534,6 +546,9 @@ Ammo().then(function (Ammo) {
 				var hover = mixer.clipAction(gltf.animations[0]);
 				hover.play();
 				mixers.push(mixer);
+
+				gltf.scene.castShadow = gltf.scene.receiveShadow = true;
+
 
 				resolve(gltf.scene);
 			});
@@ -1790,25 +1805,51 @@ Ammo().then(function (Ammo) {
 	}
 
 	function createPad() {
-		pos = { x: 0, y: 0, z: 0 };
+		pos = { x: 10, y: 1013, z: 10 };
 		quat = ZERO_QUATERNION;
-		w = 0.5;
-		h = 0.5;
-		l = 0.1;
+		w = 10;
+		h = 20;
+		l = 10;
+
+		var texture = textureLoader.load('textures/outer_texture.jpg');
+		texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+		texture.flipY = false;
+
 		gltfLoader.load('models3d/pad/scene.gltf', function (gltf) {
-			createBox(gltf.scene, pos, quat, w, h, l, 0, 1);
+			pad = createBox(gltf.scene, pos, quat, w, h, l, 100, 1);
 			models3d.push(gltf.scene);
 			var mesh = gltf.scene;
-			mesh.scale.set(2, 2, 2);
+			mesh.scale.set(15, 15, 15);
 			mixer = new THREE.AnimationMixer(mesh);
-			var takeOffAction = mixer.clipAction(gltf.animations[1]);
-			var hoverAction = mixer.clipAction(gltf.animations[0]);
-			takeOffAction.clampWhenFinished = true;
-			takeOffAction.setLoop(THREE.LoopOnce);
-			takeOffAction.play();
+			mixers.push(mixer);
+			for (var i = 0; i < 4; i++) {
+				var action = mixer.clipAction(gltf.animations[i]);
+				takeOffAction.push(action);
+				action.clampWhenFinished = true;
+				action.setLoop(THREE.LoopOnce);
+			}
+			for (var i = 6; i < 13; i += 2) {
+				var caction = mixer.clipAction(gltf.animations[i]);
+				caction.setLoop(THREE.LoopOnce);
+				caction.clampWhenFinished = true;
+				closeAction.push(caction);
 
+				var oaction = mixer.clipAction(gltf.animations[i + 1]);
+				oaction.setLoop(THREE.LoopOnce);
+				openAction.clampWhenFinished = true;
+				openAction.push(oaction);
+			}
+
+
+			hoverAction = mixer.clipAction(gltf.animations[4]);
 			hoverAction.play();
-			pad = mesh;
+
+			var outer = mesh.children[1].children[4];
+			outer.material.map = texture;
+
+			mesh.castShadow = mesh.receiveShadow = true;
+			console.log(gltf);
+			padMesh = mesh;
 			scene.add(mesh);
 		});
 	}
@@ -1855,44 +1896,46 @@ Ammo().then(function (Ammo) {
 		});
 	}
 
-	function test() {
-		pos = { x: 0, y: 0, z: 0 };
-		quat = ZERO_QUATERNION;
-		w = 0.5;
-		h = 0.5;
-		l = 0.1;
 
-		gltfLoader.load('models3d/chocolate_chip_cookie/scene.gltf', function (gltf) {
-			createBox(gltf.scene, pos, quat, w, h, l, 0, 1);
-			models3d.push(gltf.scene);
-			var mesh = gltf.scene;
-			mixer = new THREE.AnimationMixer(mesh);
-			var hover = mixer.clipAction(gltf.animations[0]);
-			hover.play();
+	function padMovement() {
 
-			scene.add(mesh);
-		});
-
-		gltfLoader.load('models3d/pizza/scene.gltf', function (gltf) {
-			createBox(gltf.scene, pos, quat, w, h, l, 0, 1);
-			models3d.push(gltf.scene);
-			var mesh = gltf.scene;
-			mixer1 = new THREE.AnimationMixer(mesh);
-			var hover = mixer1.clipAction(gltf.animations[0]);
-			hover.play();
-
-			scene.add(mesh);
-		});
-
-
+		var velocity = 0;
+		if (actions.up) {
+			velocity = 10;
+			for (var i = 0; i < 4; i++) {
+				takeOffAction[i].play();
+				closeAction[i].play();
+			}
+		} else if (actions.down) {
+			velocity = -10;
+			for (var i = 0; i < 4; i++) {
+				takeOffAction[i].stop();
+			}
+		} else if (actions.out) {
+			for (var i = 0; i < 4; i++) {
+				openAction[i].play();
+			}
+			setTimeout(() => {
+				for (var i = 0; i < 4; i++) {
+					openAction[i].timeScale = 0;
+				}
+			}, 3300);
+		} else {
+			for (var i = 0; i < 4; i++) {
+				takeOffAction[i].stop();
+			}
+		}
+		force_vec.setValue(0, velocity, 0);
+		pad.setLinearVelocity(force_vec);
 	}
+
 
 
 	function createObjects() {
 
-		// loadMars();
-		createFlag();
-		createSignPost();
+		loadMars();
+		// createFlag();
+		// createSignPost();
 
 		//projects 
 		/* addPhone();
@@ -1909,7 +1952,7 @@ Ammo().then(function (Ammo) {
 		// addJavaSkill();
 		// addMySQLSkill();
 		// addWebSkill();
-		addCppSkill();
+		// addCppSkill();
 
 		// createVehicle();
 
@@ -1917,7 +1960,7 @@ Ammo().then(function (Ammo) {
 		createMailUfo();
 		createLinkedinUfo(); */
 
-		// createPad();
+		createPad();
 
 		// createExperience();
 
