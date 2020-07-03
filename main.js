@@ -714,7 +714,7 @@ Ammo().then(function (Ammo) {
 		woodenPole.add(skillsSign);
 		woodenPole.add(aboutSign);
 		woodenPole.add(experienceSign);
-		woodenPole.position.set(0, 3.5, 0);
+		woodenPole.position.set(0, 4.5, 0);
 		woodenPole.castShadow = true;
 		woodenPole.receiveShadow = true;
 		scene.add(woodenPole);
@@ -1111,6 +1111,7 @@ Ammo().then(function (Ammo) {
 				model.scale.set(0.025, 0.025, 0.025);
 			});
 		}, 1000);
+		bcSkillGroup.position.set(40, -1, 0);
 		scene.add(bcSkillGroup);
 	}
 
@@ -1166,6 +1167,7 @@ Ammo().then(function (Ammo) {
 			).then((model) => phpSkillGroup.add(model));
 		}, 1500);
 
+		phpSkillGroup.position.set(50, -1, 0);
 		scene.add(phpSkillGroup);
 	}
 
@@ -1233,6 +1235,7 @@ Ammo().then(function (Ammo) {
 			});
 		}, 1500);
 
+		androidSkillGroup.position.set(58, -1, 0);
 		scene.add(androidSkillGroup);
 	}
 
@@ -1279,6 +1282,7 @@ Ammo().then(function (Ammo) {
 			).then((model) => pythonSkillGroup.add(model));
 		}, 1000);
 
+		pythonSkillGroup.position.set(72, -1, 0);
 		scene.add(pythonSkillGroup);
 	}
 
@@ -1372,6 +1376,7 @@ Ammo().then(function (Ammo) {
 			});
 		}, 1500);
 
+		webSkillGroup.position.set(95, -1, 0);
 		scene.add(webSkillGroup);
 	}
 
@@ -1427,6 +1432,7 @@ Ammo().then(function (Ammo) {
 			).then((model) => javaSkillGroup.add(model));
 		}, 1500);
 
+		javaSkillGroup.position.set(85, -1, 0);
 		scene.add(javaSkillGroup);
 	}
 
@@ -1494,6 +1500,7 @@ Ammo().then(function (Ammo) {
 			});
 		}, 1500);
 
+		mysqlSkillGroup.position.set(105, -0.75, 0);
 		scene.add(mysqlSkillGroup);
 	}
 
@@ -1549,6 +1556,7 @@ Ammo().then(function (Ammo) {
 			});
 		}, 1000);
 
+		cppSkillGroup.position.set(115, -1, 0);
 		scene.add(cppSkillGroup);
 	}
 
@@ -1941,14 +1949,14 @@ Ammo().then(function (Ammo) {
 
 	function addAllSkills() {
 		//skills
-		// addBlockchainSkill();
-		// addPHPSkill();
-		// addAndroidSkill();
-		// addPythonSkill();
-		// addJavaSkill();
-		// addMySQLSkill();
-		// addWebSkill();
-		// addCppSkill();
+		addBlockchainSkill();
+		addPHPSkill();
+		addAndroidSkill();
+		addPythonSkill();
+		addJavaSkill();
+		addMySQLSkill();
+		addWebSkill();
+		addCppSkill();
 	}
 
 	function createObjects() {
