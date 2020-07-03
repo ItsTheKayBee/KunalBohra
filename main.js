@@ -58,7 +58,8 @@ Ammo().then(function (Ammo) {
 
 	function cam() {
 		camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
-		camera.position.set(10, 20, 10);
+		camera.position.set(10, 10, 10);
+		camera.lookAt(scene.position);
 	}
 
 	function lights() {
@@ -136,7 +137,7 @@ Ammo().then(function (Ammo) {
 
 		controls.update(dt);
 
-		// projectsAnimation(step);
+		projectsAnimation(step);
 		step++;
 
 		updateMixers(dt);
@@ -162,13 +163,14 @@ Ammo().then(function (Ammo) {
 	}
 
 	function projectsAnimation(step) {
+
 		//rotation of holographs
 		mobile.rotation.y += 0.01;
 		pc.rotation.y += 0.01;
 		blockchain.rotation.y += 0.01;
 
 		//coin animation
-		if (coin.position.y >= 3) {
+		if (coin.position.y >= 4) {
 			down = 1;
 			up = 0;
 		} else if (coin.position.y <= 1) {
@@ -176,13 +178,13 @@ Ammo().then(function (Ammo) {
 			up = 1;
 		}
 		if (up) {
-			coin.position.y += 0.01;
+			coin.position.y += 0.02;
 		} else if (down) {
-			coin.position.y -= 0.01;
+			coin.position.y -= 0.02;
 		}
 
 		//dialogflow animation
-		if (step % 120 == 0) {
+		if (step % 90 == 0) {
 			if (dl == 1) {
 				dl = 0;
 				dr = 1;
@@ -712,7 +714,9 @@ Ammo().then(function (Ammo) {
 		woodenPole.add(skillsSign);
 		woodenPole.add(aboutSign);
 		woodenPole.add(experienceSign);
-		woodenPole.position.set(-10, 20, -10);
+		woodenPole.position.set(0, 3.5, 0);
+		woodenPole.castShadow = true;
+		woodenPole.receiveShadow = true;
 		scene.add(woodenPole);
 	}
 
@@ -755,33 +759,9 @@ Ammo().then(function (Ammo) {
 		return mesh;
 	}
 
-	//creates a set of random vertices
-	function addPoints(n, x, y, z, dx, dy, dz) {
-		pointGeo = new THREE.Geometry();
-
-		for (let i = 0; i < n; i++) {
-			point = new THREE.Vector3(
-				Math.random() * x - dx,
-				Math.random() * y - dy,
-				Math.random() * z - dz
-			);
-			pointGeo.vertices.push(point);
-		}
-
-		let sprite = textureLoader.load('images/point.png');
-		let pointMaterial = new THREE.PointsMaterial({
-			color: 0x00ffff,
-			size: 0.01,
-			map: sprite
-		});
-
-		points = new THREE.Points(pointGeo, pointMaterial);
-		return points;
-	}
-
 	//for adding hologram base
 	function addHoloBase() {
-		var geometry = new THREE.SphereBufferGeometry(1.6, 28, 28, Math.PI / 2, Math.PI * 2, 0, 1)
+		var geometry = new THREE.SphereBufferGeometry(2, 28, 28, Math.PI / 2, Math.PI * 2, 0, 1)
 		var material = new THREE.MeshBasicMaterial({
 			transparent: true,
 			opacity: 0.7,
@@ -789,7 +769,6 @@ Ammo().then(function (Ammo) {
 		});
 
 		var sphere = new THREE.Mesh(geometry, material);
-		sphere.position.y = -1;
 		return sphere;
 	}
 
@@ -816,26 +795,7 @@ Ammo().then(function (Ammo) {
 
 		mobile = addShape('mobile', addPhoneShape, extrudeSettings, 0x00fff2, 4, 2, 0, 0, 0, 0, 1, 0.5, 0.25);
 
-		/* base = addHoloBase();
-	
-		//add godrays effect for holograph
-		let godraysEffect = new POSTPROCESSING.GodRaysEffect(camera, base, {
-			resolutionScale: 1,
-			density: 1,
-			decay: 0.95,
-			weight: 0.3,
-			samples: 100
-		});
-		let effectPass = new POSTPROCESSING.EffectPass(camera, godraysEffect);
-	
-		composer.addPass(effectPass);
-	
-		base.position.y = -3;
-		base.position.x = 1;
-		mobile.add(base); */
-		var points = addPoints(1000, 2.4, 4.4, 0.25, 0.2, 0.2, 0);
-		mobile.add(points);
-		mobile.position.set(0, 0, -100);
+		mobile.position.set(-40, 1, 0);
 		scene.add(mobile);
 	}
 
@@ -885,15 +845,6 @@ Ammo().then(function (Ammo) {
 		blockchain.add(block3);
 		blockchain.add(block4);
 
-		var points1 = addPoints(300, 1, 1, 1, 0.5, 0.5, 0.5);
-		var points2 = addPoints(300, 1, 1, 1, 0.5, 0.5, 0.5);
-		var points3 = addPoints(300, 1, 1, 1, 0.5, 0.5, 0.5);
-		var points4 = addPoints(300, 1, 1, 1, 0.5, 0.5, 0.5);
-
-		block1.add(points1);
-		block2.add(points2);
-		block3.add(points3);
-		block4.add(points4);
 
 		var edges = new THREE.EdgesGeometry(blockGeo);
 		var lineMaterial = new THREE.LineBasicMaterial({
@@ -956,7 +907,7 @@ Ammo().then(function (Ammo) {
 		chain8.position.set(2, 0, 0.6);
 		blockchain.add(chain8);
 
-		blockchain.position.set(0, 0, -100);
+		blockchain.position.set(-60, 1, 0);
 
 		var coinGeo = new THREE.CylinderBufferGeometry(0.5, 0.5, 0.15, 20);
 		var texture = textureLoader.load('textures/bitcoin.png');
@@ -984,21 +935,6 @@ Ammo().then(function (Ammo) {
 		coin.rotation.set(Math.PI / 2, Math.PI / 2, 0);
 
 		blockchain.add(coin);
-
-		/* var base = addHoloBase();
-	
-		let godraysEffect1 = new POSTPROCESSING.GodRaysEffect(camera, base, {
-			resolutionScale: 1,
-			density: 1,
-			decay: 0.95,
-			weight: 0.3,
-			samples: 100
-		});
-		let effectPass1 = new POSTPROCESSING.EffectPass(camera, godraysEffect1);
-		composer.addPass(effectPass1);
-	
-		base.position.y = -3;
-		blockchain.add(base); */
 
 		scene.add(blockchain);
 	}
@@ -1052,16 +988,10 @@ Ammo().then(function (Ammo) {
 		dialogueL.add(line1);
 		dialogueR.add(line2);
 
-		var points1 = addPoints(300, 3.5, 2, 0.25, 0.5, 0, 0);
-		var points2 = addPoints(300, 3.4, 1.8, 0.25, 0, 0, 0);
-		points.position.x = 1.2;
-		dialogueL.add(points1);
-		dialogueR.add(points2);
-
 		var chat = new THREE.Group();
 		chat.add(dialogueL);
 		chat.add(dialogueR);
-		chat.position.set(0, 0, -100);
+		chat.position.set(-82, 2, 0);
 		scene.add(chat);
 	}
 
@@ -1081,20 +1011,11 @@ Ammo().then(function (Ammo) {
 		var stand = addShape('', standShape, extrudeSettings, 0x00fff2, -2, 0, 0, Math.PI / 2, 0, 0, 1);
 
 		pc = new THREE.Group();
-		var pointsScreen = addPoints(1000, 4.4, 3.2, 0.25, 0.2, 0.2, 0);
-		var pointsNeck = addPoints(150, 0.9, 1.2, 0.25, 0.2, 0.2, 0);
-		var pointsStand = addPoints(200, 3.3, 0.25, 1.4, 0.2, 0, 1.2);
-		screen.add(pointsScreen);
-		neck.add(pointsNeck);
-		pointsScreen.position.y = 1;
-		pointsNeck.position.x = 1.8;
-		pointsStand.position.x = 0.6;
-		stand.add(pointsStand);
-		pointsStand.rotation.x = Math.PI / 2;
+		
 		pc.add(screen);
 		pc.add(neck);
 		pc.add(stand);
-		pc.position.set(10, 10, 10)
+		pc.position.set(-100, 1, 0)
 		scene.add(pc);
 	}
 
@@ -1135,7 +1056,7 @@ Ammo().then(function (Ammo) {
 		var graph = new THREE.Group();
 		graph.add(axes);
 		graph.add(trend);
-		// graph.position.set(10, 10, -30);
+		graph.position.set(-121, 2, 0);
 		scene.add(graph);
 	}
 
@@ -1874,7 +1795,6 @@ Ammo().then(function (Ammo) {
 				}
 			});
 
-			// console.log(gltf);
 			padMesh = mesh;
 			scene.add(mesh);
 		});
@@ -1964,19 +1884,62 @@ Ammo().then(function (Ammo) {
 		mesh.castShadow = true;
 	}
 
-	function createObjects() {
+	function addGodrays(base) {
+		//add godrays effect for holograph
+		var godraysEffect = new POSTPROCESSING.GodRaysEffect(camera, base, {
+			resolutionScale: 1,
+			density: 1,
+			decay: 0.95,
+			weight: 0.3,
+			samples: 100
+		});
+		var effectPass = new POSTPROCESSING.EffectPass(camera, godraysEffect);
 
-		loadMars();
-		// createFlag();
-		createSignPost();
+		composer.addPass(effectPass);
+	}
 
+	function addAllProjects() {
 		//projects 
-		/* addPhone();
-		addBlockchain()
-		addDialogFlow();
-		addDesktop();
-		addStock(); */
 
+		let base1 = addHoloBase();
+
+		addGodrays(base1);
+
+		base1.position.set(-40, -2, 0);
+		scene.add(base1);
+
+		addPhone();
+
+		let base2 = addHoloBase();
+		addGodrays(base2);
+		base2.position.set(-60, -2, 0);
+		scene.add(base2);
+
+		addBlockchain()
+
+		let base3 = addHoloBase();
+		addGodrays(base3);
+		base3.position.set(-80, -2, 0);
+		scene.add(base3);
+
+		addDialogFlow();
+
+		let base4 = addHoloBase();
+		addGodrays(base4);
+		base4.position.set(-100, -2, 0);
+		scene.add(base4);
+
+		addDesktop();
+
+		let base5 = addHoloBase();
+		addGodrays(base5);
+		base5.position.set(-120, -2, 0);
+		scene.add(base5);
+
+		addStock();
+	}
+
+	function addAllSkills() {
 		//skills
 		// addBlockchainSkill();
 		// addPHPSkill();
@@ -1986,6 +1949,17 @@ Ammo().then(function (Ammo) {
 		// addMySQLSkill();
 		// addWebSkill();
 		// addCppSkill();
+	}
+
+	function createObjects() {
+
+		loadMars();
+		// createFlag();
+		createSignPost();
+
+		addAllProjects();
+
+		addAllSkills();
 
 		// createVehicle();
 
