@@ -709,15 +709,15 @@
         {
             "doubleSided" : true,
             "emissiveFactor" : [
-                0,
-                0.46432337164878845,
-                1
+                0.0925169438123703,
+                1,
+                0.9803643822669983
             ],
             "name" : "fire",
             "pbrMetallicRoughness" : {
                 "baseColorFactor" : [
-                    1,
-                    1,
+                    0.0022688794415444136,
+                    0.37242984771728516,
                     1,
                     1
                 ],

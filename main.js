@@ -4,7 +4,7 @@ Ammo().then(function (Ammo) {
 	var DISABLE_DEACTIVATION = 4;
 	var TRANSFORM_AUX = new Ammo.btTransform();
 	var ZERO_QUATERNION = new THREE.Quaternion(0, 0, 0, 1);
-	var marsRadius = 1000;
+	var marsRadius = 10000;
 	var chassisMesh;
 
 	// Graphics variables
@@ -58,42 +58,34 @@ Ammo().then(function (Ammo) {
 
 	function cam() {
 		camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
-		camera.position.set(10, 1010, 0);
+		camera.position.set(10, 20, 10);
 	}
 
 	function lights() {
 		//ambient light
 		hlight = new THREE.AmbientLight(0xffffff, 1);
+		hlight.castShadow = true;
 		scene.add(hlight);
 
 		//directional light
-		directionalLight = new THREE.DirectionalLight(0xffffff, 0.1);
-		directionalLight.position.set(10, 1010, 10);
-		directionalLight.castShadow = true;
-		scene.add(directionalLight);
+		var dirLight = new THREE.DirectionalLight(0xffffff, 1);
+		dirLight.position.set(- 3, 10, - 10);
+		dirLight.castShadow = true;
+		dirLight.shadow.camera.top = 2;
+		dirLight.shadow.camera.bottom = - 2;
+		dirLight.shadow.camera.left = - 2;
+		dirLight.shadow.camera.right = 2;
+		dirLight.shadow.camera.near = 0.1;
+		dirLight.shadow.camera.far = 40;
+		scene.add(dirLight);
 
-		/* //hemisphere light
-		var hemilight = new THREE.HemisphereLight(0xffffbb, 0x080820, 1);
-		scene.add(hemilight);
-
-		var spotLight = new THREE.SpotLight(0xffffff);
-		spotLight.position.set(90, 1010, 10);
-
-		spotLight.castShadow = true;
-
-		spotLight.shadow.mapSize.width = 1024;
-		spotLight.shadow.mapSize.height = 1024;
-
-		spotLight.shadow.camera.near = 500;
-		spotLight.shadow.camera.far = 4000;
-		spotLight.shadow.camera.fov = 30;
-
-		scene.add(spotLight); */
 	}
-
 
 	function rend() {
 		renderer = new THREE.WebGLRenderer({ antialias: true });
+		renderer.shadowMap.type = THREE.BasicShadowMap;
+		renderer.shadowMap.enabled = true;
+		console.log(renderer);
 		renderPass = new POSTPROCESSING.RenderPass(scene, camera);
 		composer = new POSTPROCESSING.EffectComposer(renderer);
 		composer.addPass(renderPass);
@@ -294,6 +286,7 @@ Ammo().then(function (Ammo) {
 		t.rotateZ(Math.PI / 2);
 		var sphmat = new THREE.MeshBasicMaterial({ map: textureLoader.load('textures/metal.jpg') });
 		var mesh = new THREE.Mesh(t, sphmat);
+		mesh.castShadow = true;
 		// var boxMat = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('textures/gold.jpg') });
 		// mesh.add(new THREE.Mesh(new THREE.BoxGeometry(width * 1.5, radius * 1.75, radius * .25, 1, 1, 1), boxMat));
 		scene.add(mesh);
@@ -305,28 +298,34 @@ Ammo().then(function (Ammo) {
 		var boxMat = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('textures/gold.jpg') });
 		var mesh = new THREE.Mesh(shape, boxMat);
 		scene.add(mesh);
+		mesh.castShadow = true;
 		return mesh;
 	}
 
 	//loads the plane
 	function loadMars() {
-		//three
-		marsGeom = new THREE.SphereGeometry(marsRadius, 32, 32);
-		buildTerrain();
-		var marsMaterial = new THREE.MeshLambertMaterial({ color: 0xffff00 });
+		//three.js
+		marsGeom = new THREE.PlaneBufferGeometry(marsRadius, marsRadius);
+		// buildTerrain();
+		var marsMaterial = new THREE.MeshLambertMaterial({
+			color: 0xffffff,
+			side: THREE.DoubleSide
+		});
 		mars = new THREE.Mesh(marsGeom, marsMaterial);
-		mars.receiveShadow = mars.castShadow = true;
+		mars.position.y = -1;
+		mars.rotation.x = Math.PI / 2;
+		mars.receiveShadow = true;
 		scene.add(mars);
 
 		//ammo
-		var marsShape = new Ammo.btSphereShape(marsRadius);
+		var marsShape = new Ammo.btBoxShape(new Ammo.btVector3(marsRadius * .5, 1 * .5, marsRadius * .5));
 		marsShape.setMargin(margin);
 		var groundMass = 0;
 		var groundLocalInertia = new Ammo.btVector3(0, 0, 0);
 		marsShape.calculateLocalInertia(groundMass, groundLocalInertia);
 		var groundTransform = new Ammo.btTransform();
 		groundTransform.setIdentity();
-		groundTransform.setOrigin(new Ammo.btVector3(0, 0, 0));
+		groundTransform.setOrigin(new Ammo.btVector3(0, -1, 0));
 		groundTransform.setRotation(new Ammo.btQuaternion(0, 0, 0, 1));
 		var groundMotionState = new Ammo.btDefaultMotionState(groundTransform);
 		var groundBody = new Ammo.btRigidBody(new Ammo.btRigidBodyConstructionInfo(groundMass, groundMotionState, marsShape, groundLocalInertia));
@@ -339,7 +338,7 @@ Ammo().then(function (Ammo) {
 		for (var i = 0; i < marsGeom.vertices.length; i++) {
 			var vertex = marsGeom.vertices[i];
 			value = noise.simplex2(vertex.x / 100, vertex.y / 100);
-			vertex.z += Math.abs(value) * 75;
+			vertex.z += Math.abs(value) * 25;
 		}
 		marsGeom.computeFaceNormals();
 		marsGeom.computeVertexNormals();
@@ -349,7 +348,7 @@ Ammo().then(function (Ammo) {
 	function createVehicle() {
 
 		// Vehicle contants
-		var pos = new THREE.Vector3(100, marsRadius - 5, 10);
+		var pos = new THREE.Vector3(0, 10, 0);
 		var quat = ZERO_QUATERNION;
 
 		var chassisWidth = 2.5;
@@ -378,7 +377,7 @@ Ammo().then(function (Ammo) {
 
 		var steeringIncrement = .04;
 		var steeringClamp = .5;
-		var maxEngineForce = 500;
+		var maxEngineForce = 5000;
 		var maxBreakingForce = 100;
 
 		// Chassis
@@ -446,10 +445,11 @@ Ammo().then(function (Ammo) {
 		function sync(dt) {
 
 			var speed = vehicle.getCurrentSpeedKmHour();
-			// console.log(speed);
 
 			breakingForce = 0;
 			engineForce = 0;
+			// console.log(speed);
+
 
 			if (actions.acceleration) {
 				if (speed < -1)
@@ -520,6 +520,7 @@ Ammo().then(function (Ammo) {
 		var boxGeo = new THREE.BoxGeometry(3, 0.01, 1.8);
 		var boxMat = new THREE.MeshBasicMaterial({ map: textureLoader.load('textures/solar_panel.jpg') });
 		var panel = new THREE.Mesh(boxGeo, boxMat);
+		panel.castShadow = true;
 		panel.rotation.x = Math.PI / 2;
 		panel.rotation.z = Math.PI / 2;
 		panel.rotation.y = Math.PI / 4;
@@ -528,6 +529,7 @@ Ammo().then(function (Ammo) {
 		return panel;
 	}
 
+	//helper function for loading gtlf models
 	function loadModel(path, pos, quat, rot, s, mass, w, h, l) {
 		let modelPromise = new Promise((resolve) => {
 			gltfLoader.load('models3d/' + path + '/scene.gltf', function (gltf) {
@@ -547,8 +549,13 @@ Ammo().then(function (Ammo) {
 				hover.play();
 				mixers.push(mixer);
 
-				gltf.scene.castShadow = gltf.scene.receiveShadow = true;
+				gltf.scene.traverse(function (node) {
 
+					if (node.isMesh) {
+						node.castShadow = true;
+						node.receiveShadow = true;
+					}
+				});
 
 				resolve(gltf.scene);
 			});
@@ -556,6 +563,7 @@ Ammo().then(function (Ammo) {
 		return modelPromise;
 	}
 
+	//creates indian flag
 	function createFlag() {
 		var steelMaterial = new THREE.MeshPhongMaterial({
 			flatShading: true,
@@ -582,6 +590,7 @@ Ammo().then(function (Ammo) {
 		scene.add(pole);
 	}
 
+	//returns 3D text 
 	function createText(font, texts, pos, quat, s, size, depth, color) {
 		var textGeometry = new THREE.TextBufferGeometry(texts, {
 			font: font,
@@ -598,6 +607,7 @@ Ammo().then(function (Ammo) {
 		return text;
 	}
 
+	//creates direction sign post
 	function createSignPost() {
 		//wooden material
 		var woodMaterial = new THREE.MeshLambertMaterial({
@@ -706,6 +716,7 @@ Ammo().then(function (Ammo) {
 		scene.add(woodenPole);
 	}
 
+	//for creating irregular shapes
 	function addShape(image, shape, extrudeSettings, color, x, y, z, rx, ry, rz, s, dx, dy) {
 		// extruded shape
 		var geometry = new THREE.ExtrudeBufferGeometry(shape, extrudeSettings);
@@ -744,6 +755,7 @@ Ammo().then(function (Ammo) {
 		return mesh;
 	}
 
+	//creates a set of random vertices
 	function addPoints(n, x, y, z, dx, dy, dz) {
 		pointGeo = new THREE.Geometry();
 
@@ -767,6 +779,7 @@ Ammo().then(function (Ammo) {
 		return points;
 	}
 
+	//for adding hologram base
 	function addHoloBase() {
 		var geometry = new THREE.SphereBufferGeometry(1.6, 28, 28, Math.PI / 2, Math.PI * 2, 0, 1)
 		var material = new THREE.MeshBasicMaterial({
@@ -780,6 +793,7 @@ Ammo().then(function (Ammo) {
 		return sphere;
 	}
 
+	//to create rounded rectangle shape
 	function createRoundedRect(ctx, x, y, width, height, radius) {
 		//ceates rounded rectangle
 		ctx.moveTo(x, y + radius);
@@ -793,6 +807,7 @@ Ammo().then(function (Ammo) {
 		ctx.quadraticCurveTo(x, y, x, y + radius);
 	}
 
+	//instanote project
 	function addPhone() {
 		var extrudeSettings = { depth: 0.2, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 0.25, bevelThickness: 0.1 };
 		var addPhoneShape = new THREE.Shape();
@@ -824,6 +839,7 @@ Ammo().then(function (Ammo) {
 		scene.add(mobile);
 	}
 
+	//FundEasy project
 	function addBlockchain() {
 
 		var blockGeo = new THREE.BoxBufferGeometry(1, 1, 1);
@@ -987,6 +1003,7 @@ Ammo().then(function (Ammo) {
 		scene.add(blockchain);
 	}
 
+	//EssentialsKart project
 	function addDialogFlow() {
 		var extrudeSettings = { depth: 0.25, bevelEnabled: false };
 
@@ -1048,6 +1065,7 @@ Ammo().then(function (Ammo) {
 		scene.add(chat);
 	}
 
+	//FacultyManagementSystem project
 	function addDesktop() {
 		var extrudeSettings = { depth: 0.2, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 0.25, bevelThickness: 0.1 };
 		var screenShape = new THREE.Shape();
@@ -1080,6 +1098,7 @@ Ammo().then(function (Ammo) {
 		scene.add(pc);
 	}
 
+	//xervixx project
 	function addStock() {
 		var material = new THREE.LineBasicMaterial({
 			color: 0x00fff2,
@@ -1625,6 +1644,7 @@ Ammo().then(function (Ammo) {
 		starGeo.verticesNeedUpdate = true;
 	}
 
+
 	function createGithubUfo() {
 		githubUfo = new THREE.Object3D();
 		var rot = { x: -Math.PI / 2, y: 0, z: 0 };
@@ -1805,11 +1825,11 @@ Ammo().then(function (Ammo) {
 	}
 
 	function createPad() {
-		pos = { x: 10, y: 1013, z: 10 };
+		pos = { x: 10, y: 3, z: 10 };
 		quat = ZERO_QUATERNION;
-		w = 10;
-		h = 20;
-		l = 10;
+		w = 2;
+		h = 4.5;
+		l = 2;
 
 		var texture = textureLoader.load('textures/outer_texture.jpg');
 		texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
@@ -1819,7 +1839,7 @@ Ammo().then(function (Ammo) {
 			pad = createBox(gltf.scene, pos, quat, w, h, l, 100, 1);
 			models3d.push(gltf.scene);
 			var mesh = gltf.scene;
-			mesh.scale.set(15, 15, 15);
+			mesh.scale.set(4, 4, 4);
 			mixer = new THREE.AnimationMixer(mesh);
 			mixers.push(mixer);
 			for (var i = 0; i < 4; i++) {
@@ -1840,15 +1860,21 @@ Ammo().then(function (Ammo) {
 				openAction.push(oaction);
 			}
 
-
 			hoverAction = mixer.clipAction(gltf.animations[4]);
 			hoverAction.play();
 
 			var outer = mesh.children[1].children[4];
 			outer.material.map = texture;
 
-			mesh.castShadow = mesh.receiveShadow = true;
-			console.log(gltf);
+			gltf.scene.traverse(function (node) {
+
+				if (node.isMesh) {
+					node.castShadow = true;
+					node.receiveShadow = true;
+				}
+			});
+
+			// console.log(gltf);
 			padMesh = mesh;
 			scene.add(mesh);
 		});
@@ -1895,10 +1921,9 @@ Ammo().then(function (Ammo) {
 			scene.add(mesh);
 		});
 	}
-
+	var padpos = 0;
 
 	function padMovement() {
-
 		var velocity = 0;
 		if (actions.up) {
 			velocity = 10;
@@ -1920,6 +1945,7 @@ Ammo().then(function (Ammo) {
 					openAction[i].timeScale = 0;
 				}
 			}, 3300);
+			padpos = 1.5;
 		} else {
 			for (var i = 0; i < 4; i++) {
 				takeOffAction[i].stop();
@@ -1927,15 +1953,22 @@ Ammo().then(function (Ammo) {
 		}
 		force_vec.setValue(0, velocity, 0);
 		pad.setLinearVelocity(force_vec);
+		padMesh.position.y -= padpos;
 	}
 
-
+	function test() {
+		var geometry = new THREE.SphereBufferGeometry(1, 17, 17);
+		var mesh = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ color: 0xff0000 }));
+		scene.add(mesh);
+		mesh.position.set(-10, 2, 10);
+		mesh.castShadow = true;
+	}
 
 	function createObjects() {
 
 		loadMars();
 		// createFlag();
-		// createSignPost();
+		createSignPost();
 
 		//projects 
 		/* addPhone();
@@ -1960,7 +1993,7 @@ Ammo().then(function (Ammo) {
 		createMailUfo();
 		createLinkedinUfo(); */
 
-		createPad();
+		// createPad();
 
 		// createExperience();
 
