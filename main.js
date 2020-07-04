@@ -12,7 +12,7 @@ Ammo().then(function (Ammo) {
 	var clock = new THREE.Clock();
 	var githubUfo, linkedinUfo, mailUfo;
 	var mobile, pc, blockchain, coin, dialogueL, dialogueR, trend;
-	var pad, arcon, takeOffAction = [], hoverAction;
+	var pad, takeOffAction = [], hoverAction, closeAction = [], openAction = [];
 	var force_vec = new Ammo.btVector3();
 	var up = 1, down = 0;
 	var dl = 1, dr = 0, step = 0;
@@ -23,8 +23,6 @@ Ammo().then(function (Ammo) {
 	var mixers = [];
 	var models3d = [];
 	var foods = [];
-	var closeAction = [];
-	var openAction = [];
 	// var groundLimit = 0;
 	var padMesh;
 
@@ -58,14 +56,13 @@ Ammo().then(function (Ammo) {
 
 	function cam() {
 		camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
-		camera.position.set(10, 10, 10);
+		camera.position.set(0, 110, -40);
 		camera.lookAt(scene.position);
 	}
 
 	function lights() {
 		//ambient light
 		hlight = new THREE.AmbientLight(0xffffff, 1);
-		hlight.castShadow = true;
 		scene.add(hlight);
 
 		//directional light
@@ -79,14 +76,13 @@ Ammo().then(function (Ammo) {
 		dirLight.shadow.camera.near = 0.1;
 		dirLight.shadow.camera.far = 40;
 		scene.add(dirLight);
-
 	}
 
 	function rend() {
 		renderer = new THREE.WebGLRenderer({ antialias: true });
 		renderer.shadowMap.type = THREE.BasicShadowMap;
 		renderer.shadowMap.enabled = true;
-		console.log(renderer);
+		// console.log(renderer);
 		renderPass = new POSTPROCESSING.RenderPass(scene, camera);
 		composer = new POSTPROCESSING.EffectComposer(renderer);
 		composer.addPass(renderPass);
@@ -132,8 +128,6 @@ Ammo().then(function (Ammo) {
 		for (var i = 0; i < syncList.length; i++)
 			syncList[i](dt);
 		physicsWorld.stepSimulation(dt, 10);
-		if (chassisMesh)
-			camera.lookAt(chassisMesh.position);
 
 		controls.update(dt);
 
@@ -148,7 +142,9 @@ Ammo().then(function (Ammo) {
 
 		if (pad) padMovement();
 
-		if (padMesh) camera.lookAt(padMesh.position);
+		// if (chassisMesh) camera.lookAt(chassisMesh.position);
+		// if (padMesh) camera.lookAt(padMesh.position);
+		if (arcon) camera.lookAt(arcon.position);
 
 		composer.render(0.1);
 		renderer.render(scene, camera);
@@ -307,7 +303,7 @@ Ammo().then(function (Ammo) {
 	//loads the plane
 	function loadMars() {
 		//three.js
-		marsGeom = new THREE.PlaneBufferGeometry(marsRadius, marsRadius);
+		marsGeom = new THREE.PlaneGeometry(marsRadius, marsRadius);
 		// buildTerrain();
 		var marsMaterial = new THREE.MeshLambertMaterial({
 			color: 0xffffff,
@@ -340,7 +336,7 @@ Ammo().then(function (Ammo) {
 		for (var i = 0; i < marsGeom.vertices.length; i++) {
 			var vertex = marsGeom.vertices[i];
 			value = noise.simplex2(vertex.x / 100, vertex.y / 100);
-			vertex.z += Math.abs(value) * 25;
+			vertex.z = Math.abs(value) * 25;
 		}
 		marsGeom.computeFaceNormals();
 		marsGeom.computeVertexNormals();
@@ -467,20 +463,18 @@ Ammo().then(function (Ammo) {
 				if (vehicleSteering < steeringClamp)
 					vehicleSteering += steeringIncrement;
 			}
+			if (actions.right) {
+				if (vehicleSteering > -steeringClamp)
+					vehicleSteering -= steeringIncrement;
+			}
 			else {
-				if (actions.right) {
-					if (vehicleSteering > -steeringClamp)
-						vehicleSteering -= steeringIncrement;
-				}
+				if (vehicleSteering < -steeringIncrement)
+					vehicleSteering += steeringIncrement;
 				else {
-					if (vehicleSteering < -steeringIncrement)
-						vehicleSteering += steeringIncrement;
+					if (vehicleSteering > steeringIncrement)
+						vehicleSteering -= steeringIncrement;
 					else {
-						if (vehicleSteering > steeringIncrement)
-							vehicleSteering -= steeringIncrement;
-						else {
-							vehicleSteering = 0;
-						}
+						vehicleSteering = 0;
 					}
 				}
 			}
@@ -535,23 +529,26 @@ Ammo().then(function (Ammo) {
 	function loadModel(path, pos, quat, rot, s, mass, w, h, l) {
 		let modelPromise = new Promise((resolve) => {
 			gltfLoader.load('models3d/' + path + '/scene.gltf', function (gltf) {
-				let object = gltf.scene.children[0];
+				let mesh = gltf.scene;
+				let object = mesh.children[0];
 
 				//adjustments
 				object.scale.set(s, s, s);
 				object.rotation.set(rot.x, rot.y, rot.z);
 
 				//physics
-				createBox(gltf.scene, pos, quat, w, h, l, mass, 1);
-				models3d.push(gltf.scene);
+				createBox(mesh, pos, quat, w, h, l, mass, 1);
+				models3d.push(mesh);
 
 				//animation 
-				var mixer = new THREE.AnimationMixer(gltf.scene);
-				var hover = mixer.clipAction(gltf.animations[0]);
-				hover.play();
-				mixers.push(mixer);
+				if (gltf.animations[0]) {
+					let mixer = new THREE.AnimationMixer(mesh);
+					let hover = mixer.clipAction(gltf.animations[0]);
+					hover.play();
+					mixers.push(mixer);
+				}
 
-				gltf.scene.traverse(function (node) {
+				mesh.traverse(function (node) {
 
 					if (node.isMesh) {
 						node.castShadow = true;
@@ -559,7 +556,7 @@ Ammo().then(function (Ammo) {
 					}
 				});
 
-				resolve(gltf.scene);
+				resolve(mesh);
 			});
 		});
 		return modelPromise;
@@ -588,7 +585,7 @@ Ammo().then(function (Ammo) {
 		flag.position.x = -3.25;
 		pole.add(flag);
 		pole.rotation.y = Math.PI / 2;
-		pole.position.set(20, 20, 0);
+		pole.position.set(0, 4, 60);
 		scene.add(pole);
 	}
 
@@ -1011,7 +1008,7 @@ Ammo().then(function (Ammo) {
 		var stand = addShape('', standShape, extrudeSettings, 0x00fff2, -2, 0, 0, Math.PI / 2, 0, 0, 1);
 
 		pc = new THREE.Group();
-		
+
 		pc.add(screen);
 		pc.add(neck);
 		pc.add(stand);
@@ -1612,7 +1609,7 @@ Ammo().then(function (Ammo) {
 			opacity: 0.7
 		});
 		var ufoLightMesh = new THREE.Mesh(new THREE.CylinderBufferGeometry(0.5, 1.1, 5, 32), ufoLightMaterial);
-		ufoLightMesh.position.y = -3;
+		ufoLightMesh.position.y = -2.5;
 
 		let godraysEffect = new POSTPROCESSING.GodRaysEffect(camera, ufoLightMesh, {
 			resolutionScale: 1,
@@ -1624,14 +1621,11 @@ Ammo().then(function (Ammo) {
 		let effectPass = new POSTPROCESSING.EffectPass(camera, godraysEffect);
 
 		composer.addPass(effectPass);
-		effectPass.renderToScreen = true;
 
 		githubUfo.add(ufoLightMesh);
 
-		githubUfo.position.y = 5;
-
+		githubUfo.position.set(0, 10, 100);
 		scene.add(githubUfo);
-		githubUfo.position.set(10, 10, -10);
 	}
 
 	function createLinkedinUfo() {
@@ -1672,7 +1666,7 @@ Ammo().then(function (Ammo) {
 			opacity: 0.7
 		});
 		var ufoLightMesh = new THREE.Mesh(new THREE.CylinderBufferGeometry(0.5, 1.1, 5, 32), ufoLightMaterial);
-		ufoLightMesh.position.y = -3;
+		ufoLightMesh.position.y = -2.5;
 
 		let godraysEffect = new POSTPROCESSING.GodRaysEffect(camera, ufoLightMesh, {
 			resolutionScale: 1,
@@ -1684,11 +1678,10 @@ Ammo().then(function (Ammo) {
 		let effectPass = new POSTPROCESSING.EffectPass(camera, godraysEffect);
 
 		composer.addPass(effectPass);
-		effectPass.renderToScreen = true;
 
 		linkedinUfo.add(ufoLightMesh);
 
-		linkedinUfo.position.y = 5;
+		linkedinUfo.position.set(15, 10, 95);
 
 		scene.add(linkedinUfo);
 	}
@@ -1731,7 +1724,7 @@ Ammo().then(function (Ammo) {
 			opacity: 0.7
 		});
 		var ufoLightMesh = new THREE.Mesh(new THREE.CylinderBufferGeometry(0.5, 1.1, 5, 32), ufoLightMaterial);
-		ufoLightMesh.position.y = -3;
+		ufoLightMesh.position.y = -2.5;
 
 		let godraysEffect = new POSTPROCESSING.GodRaysEffect(camera, ufoLightMesh, {
 			resolutionScale: 1,
@@ -1747,29 +1740,28 @@ Ammo().then(function (Ammo) {
 
 		mailUfo.add(ufoLightMesh);
 
-		mailUfo.position.y = 5;
-
 		scene.add(mailUfo);
-		mailUfo.position.set(-10, 0, - 10);
+		mailUfo.position.set(-15, 10, 95);
 	}
 
 	function createPad() {
-		pos = { x: 10, y: 3, z: 10 };
-		quat = ZERO_QUATERNION;
-		w = 2;
-		h = 4.5;
-		l = 2;
+		let pos = { x: 0, y: 3, z: -60 };
+		let quat = ZERO_QUATERNION;
+		let w = 2;
+		let h = 4.5;
+		let l = 2;
 
 		var texture = textureLoader.load('textures/outer_texture.jpg');
 		texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 		texture.flipY = false;
 
 		gltfLoader.load('models3d/pad/scene.gltf', function (gltf) {
-			pad = createBox(gltf.scene, pos, quat, w, h, l, 100, 1);
-			models3d.push(gltf.scene);
 			var mesh = gltf.scene;
-			mesh.scale.set(4, 4, 4);
-			mixer = new THREE.AnimationMixer(mesh);
+			pad = createBox(mesh, pos, quat, w, h, l, 100, 1);
+			models3d.push(mesh);
+			let object = mesh.children[0];
+			object.scale.set(10, 10, 10);
+			let mixer = new THREE.AnimationMixer(mesh);
 			mixers.push(mixer);
 			for (var i = 0; i < 4; i++) {
 				var action = mixer.clipAction(gltf.animations[i]);
@@ -1795,7 +1787,7 @@ Ammo().then(function (Ammo) {
 			var outer = mesh.children[1].children[4];
 			outer.material.map = texture;
 
-			gltf.scene.traverse(function (node) {
+			mesh.traverse(function (node) {
 
 				if (node.isMesh) {
 					node.castShadow = true;
@@ -1804,48 +1796,51 @@ Ammo().then(function (Ammo) {
 			});
 
 			padMesh = mesh;
+			mesh.position.set(0, 3, -60);
 			scene.add(mesh);
 		});
 	}
 
+	var arcon;
+
 	function createExperience() {
-		pos = { x: 0, y: 0, z: 0 };
-		quat = ZERO_QUATERNION;
-		w = 0.5;
-		h = 0.5;
-		l = 0.1;
+		let pos = { x: 10, y: 100, z: -60 };
+		let quat = ZERO_QUATERNION;
+		let w = 4;
+		let h = 4;
+		let l = 4;
 
 		gltfLoader.load('models3d/arcon/scene.gltf', function (gltf) {
-			createBox(gltf.scene, pos, quat, w, h, l, 0, 1);
-			models3d.push(gltf.scene);
-			var mesh = gltf.scene;
-			mixer = new THREE.AnimationMixer(mesh);
-			var rotation = mixer.clipAction(gltf.animations[0]);
+			let mesh = gltf.scene;
+			createBox(mesh, pos, quat, w, h, l, 0, 1);
+			models3d.push(mesh);
+			let mixer = new THREE.AnimationMixer(mesh);
+			mixers.push(mixer);
+			let rotation = mixer.clipAction(gltf.animations[0]);
 			rotation.play();
 
-			mesh.rotation.y = -Math.PI / 6;
+			mesh.rotation.y = -1.1 * Math.PI / 2;
+			mesh.position.set(10, 100, -60);
 
 			arcon = mesh;
+
 			scene.add(mesh);
 		});
 
-		pos = { x: 0, y: 0, z: 0 };
-		quat = ZERO_QUATERNION;
-		w = 0.5;
-		h = 0.5;
-		l = 0.1;
+		pos = { x: -10, y: 110, z: -60 };
 
 		gltfLoader.load('models3d/gre_edge/scene.gltf', function (gltf) {
-			createBox(gltf.scene, pos, quat, w, h, l, 0, 1);
-			models3d.push(gltf.scene);
-			var mesh = gltf.scene;
-			mixer = new THREE.AnimationMixer(mesh);
-			var rotation = mixer.clipAction(gltf.animations[0]);
+			let mesh = gltf.scene;
+			createBox(mesh, pos, quat, w, h, l, 0, 1);
+			models3d.push(mesh);
+			let mixer = new THREE.AnimationMixer(mesh);
+			mixers.push(mixer);
+			let rotation = mixer.clipAction(gltf.animations[0]);
 			rotation.play();
 
-			mesh.rotation.y = -Math.PI / 6;
+			mesh.rotation.y = -1.1 * Math.PI / 2;
+			mesh.position.set(-10, 150, -60);
 
-			arcon = mesh;
 			scene.add(mesh);
 		});
 	}
@@ -1959,25 +1954,33 @@ Ammo().then(function (Ammo) {
 		addCppSkill();
 	}
 
+	function addAllAboutMe() {
+		createFlag();
+		createGithubUfo();
+		createMailUfo();
+		createLinkedinUfo();
+	}
+
+	function addAllExperiences() {
+
+		createPad();
+		createExperience();
+	}
+
 	function createObjects() {
 
 		loadMars();
-		// createFlag();
 		createSignPost();
 
 		addAllProjects();
 
 		addAllSkills();
 
+		addAllAboutMe();
+
+		addAllExperiences();
+
 		// createVehicle();
-
-		/* createGithubUfo();
-		createMailUfo();
-		createLinkedinUfo(); */
-
-		// createPad();
-
-		// createExperience();
 
 		// test();
 
