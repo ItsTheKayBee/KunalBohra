@@ -4,7 +4,7 @@ Ammo().then(function (Ammo) {
 	var DISABLE_DEACTIVATION = 4;
 	var TRANSFORM_AUX = new Ammo.btTransform();
 	var ZERO_QUATERNION = new THREE.Quaternion(0, 0, 0, 1);
-	var marsRadius = 10000;
+	var marsLength = 1000;
 	var chassisMesh;
 
 	// Graphics variables
@@ -41,7 +41,11 @@ Ammo().then(function (Ammo) {
 		"ArrowUp": 'acceleration',
 		"ArrowDown": 'braking',
 		"ArrowLeft": 'left',
-		"ArrowRight": 'right',
+		"ArrowRight": 'right'
+	};
+
+	var flyActions = {};
+	var flyKeysActions = {
 		"KeyW": "up",
 		"KeyS": "down",
 		"KeyE": "out"
@@ -56,7 +60,7 @@ Ammo().then(function (Ammo) {
 
 	function cam() {
 		camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
-		camera.position.set(0, 110, -40);
+		camera.position.set(10, 10, 10);
 		camera.lookAt(scene.position);
 	}
 
@@ -142,9 +146,8 @@ Ammo().then(function (Ammo) {
 
 		if (pad) padMovement();
 
-		// if (chassisMesh) camera.lookAt(chassisMesh.position);
+		if (chassisMesh) camera.lookAt(chassisMesh.position);
 		// if (padMesh) camera.lookAt(padMesh.position);
-		if (arcon) camera.lookAt(arcon.position);
 
 		composer.render(0.1);
 		renderer.render(scene, camera);
@@ -222,12 +225,24 @@ Ammo().then(function (Ammo) {
 			e.stopPropagation();
 			return false;
 		}
+		else if (flyKeysActions[e.code]) {
+			flyActions[keysActions[e.code]] = false;
+			e.preventDefault();
+			e.stopPropagation();
+			return false;
+		}
 	}
 
 	//function to set event listeners to true
 	function keydown(e) {
 		if (keysActions[e.code]) {
 			actions[keysActions[e.code]] = true;
+			e.preventDefault();
+			e.stopPropagation();
+			return false;
+		}
+		else if (flyKeysActions[e.code]) {
+			flyActions[keysActions[e.code]] = true;
 			e.preventDefault();
 			e.stopPropagation();
 			return false;
@@ -303,32 +318,19 @@ Ammo().then(function (Ammo) {
 	//loads the plane
 	function loadMars() {
 		//three.js
-		marsGeom = new THREE.PlaneGeometry(marsRadius, marsRadius);
+		marsGeom = new THREE.PlaneGeometry(marsLength, marsLength);
 		// buildTerrain();
 		var marsMaterial = new THREE.MeshLambertMaterial({
 			color: 0xffffff,
 			side: THREE.DoubleSide
 		});
 		mars = new THREE.Mesh(marsGeom, marsMaterial);
-		mars.position.y = -1;
-		mars.rotation.x = Math.PI / 2;
+		// mars.position.y = -1;
 		mars.receiveShadow = true;
-		scene.add(mars);
+		createBox(mars, new THREE.Vector3(0, -0.5, 0), ZERO_QUATERNION, marsLength, 1, marsLength, 0, 2);
 
-		//ammo
-		var marsShape = new Ammo.btBoxShape(new Ammo.btVector3(marsRadius * .5, 1 * .5, marsRadius * .5));
-		marsShape.setMargin(margin);
-		var groundMass = 0;
-		var groundLocalInertia = new Ammo.btVector3(0, 0, 0);
-		marsShape.calculateLocalInertia(groundMass, groundLocalInertia);
-		var groundTransform = new Ammo.btTransform();
-		groundTransform.setIdentity();
-		groundTransform.setOrigin(new Ammo.btVector3(0, -1, 0));
-		groundTransform.setRotation(new Ammo.btQuaternion(0, 0, 0, 1));
-		var groundMotionState = new Ammo.btDefaultMotionState(groundTransform);
-		var groundBody = new Ammo.btRigidBody(new Ammo.btRigidBodyConstructionInfo(groundMass, groundMotionState, marsShape, groundLocalInertia));
-		groundBody.setFriction(1);
-		physicsWorld.addRigidBody(groundBody);
+		mars.rotation.x = Math.PI / 2;
+
 	}
 
 	//creates noisy terrain
@@ -343,11 +345,7 @@ Ammo().then(function (Ammo) {
 	}
 
 	//add vehicle and movements
-	function createVehicle() {
-
-		// Vehicle contants
-		var pos = new THREE.Vector3(0, 10, 0);
-		var quat = ZERO_QUATERNION;
+	function createVehicle(pos, quat) {
 
 		var chassisWidth = 2.5;
 		var chassisHeight = .4;
@@ -366,7 +364,7 @@ Ammo().then(function (Ammo) {
 		var wheelRadiusFront = .35;
 		var wheelWidthFront = .2;
 
-		var friction = 1000;
+		var friction = 10000;
 		var suspensionStiffness = 20.0;
 		var suspensionDamping = 2.3;
 		var suspensionCompression = 4.4;
@@ -375,7 +373,7 @@ Ammo().then(function (Ammo) {
 
 		var steeringIncrement = .04;
 		var steeringClamp = .5;
-		var maxEngineForce = 5000;
+		var maxEngineForce = 500;
 		var maxBreakingForce = 100;
 
 		// Chassis
@@ -388,7 +386,7 @@ Ammo().then(function (Ammo) {
 		var localInertia = new Ammo.btVector3(0, 0, 0);
 		geometry.calculateLocalInertia(massVehicle, localInertia);
 		var body = new Ammo.btRigidBody(new Ammo.btRigidBodyConstructionInfo(massVehicle, motionState, geometry, localInertia));
-		body.setActivationState(4);
+		body.setActivationState(DISABLE_DEACTIVATION);
 		physicsWorld.addRigidBody(body);
 		chassisMesh = createChassisMesh(chassisWidth, chassisHeight, chassisLength);
 
@@ -448,7 +446,6 @@ Ammo().then(function (Ammo) {
 			engineForce = 0;
 			// console.log(speed);
 
-
 			if (actions.acceleration) {
 				if (speed < -1)
 					breakingForce = maxBreakingForce;
@@ -463,21 +460,30 @@ Ammo().then(function (Ammo) {
 				if (vehicleSteering < steeringClamp)
 					vehicleSteering += steeringIncrement;
 			}
-			if (actions.right) {
-				if (vehicleSteering > -steeringClamp)
-					vehicleSteering -= steeringIncrement;
-			}
 			else {
-				if (vehicleSteering < -steeringIncrement)
-					vehicleSteering += steeringIncrement;
-				else {
-					if (vehicleSteering > steeringIncrement)
+				if (actions.right) {
+					if (vehicleSteering > -steeringClamp)
 						vehicleSteering -= steeringIncrement;
+				}
+				else {
+					if (speed > 1 && engineForce != maxEngineForce)
+						breakingForce = maxBreakingForce;
+					else if (speed < 0 && breakingForce != maxBreakingForce)
+						engineForce = maxEngineForce/2;
+
+					if (vehicleSteering < -steeringIncrement)
+						vehicleSteering += steeringIncrement;
 					else {
-						vehicleSteering = 0;
+						if (vehicleSteering > steeringIncrement)
+							vehicleSteering -= steeringIncrement;
+						else {
+							vehicleSteering = 0;
+						}
 					}
 				}
 			}
+
+			console.log(speed, breakingForce);
 
 			vehicle.applyEngineForce(engineForce, BACK_LEFT);
 			vehicle.applyEngineForce(engineForce, BACK_RIGHT);
@@ -1848,18 +1854,18 @@ Ammo().then(function (Ammo) {
 
 	function padMovement() {
 		var velocity = 0;
-		if (actions.up) {
+		if (flyActions.up) {
 			velocity = 10;
 			for (var i = 0; i < 4; i++) {
 				takeOffAction[i].play();
 				closeAction[i].play();
 			}
-		} else if (actions.down) {
+		} else if (flyActions.down) {
 			velocity = -10;
 			for (var i = 0; i < 4; i++) {
 				takeOffAction[i].stop();
 			}
-		} else if (actions.out) {
+		} else if (flyActions.out) {
 			for (var i = 0; i < 4; i++) {
 				openAction[i].play();
 			}
@@ -1980,7 +1986,7 @@ Ammo().then(function (Ammo) {
 
 		addAllExperiences();
 
-		// createVehicle();
+		createVehicle(new THREE.Vector3(10, 10, -10), ZERO_QUATERNION);
 
 		// test();
 
