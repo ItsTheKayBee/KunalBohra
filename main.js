@@ -56,13 +56,13 @@ Ammo().then(function (Ammo) {
 	function scenes() {
 		scene = new THREE.Scene();
 		scene.fog = new THREE.FogExp2(0xffffff, 0.00025);
-		var axesHelper = new THREE.AxesHelper(5);
-		scene.add(axesHelper);
+		/* var axesHelper = new THREE.AxesHelper(5);
+		scene.add(axesHelper); */
 	}
 
 	function cam() {
 		camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
-		camera.position.set(10, 10, 10);
+		camera.position.set(0, 5, 10);
 		camera.lookAt(scene.position);
 	}
 
@@ -106,11 +106,18 @@ Ammo().then(function (Ammo) {
 		cam();
 		lights();
 
-		controls = new THREE.OrbitControls(camera, renderer.domElement);
-
 		window.addEventListener('resize', onWindowResize, false);
 		window.addEventListener('keydown', keydown);
 		window.addEventListener('keyup', keyup);
+		window.addEventListener('wheel', scrolling, false);
+	}
+
+	function scrolling() {
+		// event.preventDefault();
+		camera.position.z -= event.deltaY * 0.005;
+
+		// prevent scrolling beyond a min/max value
+		camera.position.clampScalar(0, 10);
 	}
 
 	function onWindowResize() {
@@ -137,9 +144,7 @@ Ammo().then(function (Ammo) {
 
 		physicsWorld.stepSimulation(dt, 10);
 
-		controls.update(dt);
-
-		projectsAnimation(step);
+		// projectsAnimation(step);
 		step++;
 
 		updateMixers(dt);
@@ -271,7 +276,7 @@ Ammo().then(function (Ammo) {
 
 		body.applyForce(force_vec);
 
-		
+
 		camera.lookAt(ball.position);
 	}
 
@@ -1936,7 +1941,7 @@ Ammo().then(function (Ammo) {
 		padMesh.position.y -= padpos;
 	}
 
-	function test() {
+	function addBall() {
 		gltfLoader.load('models3d/ball/scene.gltf', function (gltf) {
 			var mesh = gltf.scene;
 
@@ -2063,22 +2068,41 @@ Ammo().then(function (Ammo) {
 		createExperience();
 	}
 
+	function addTrack() {
+		var trackWidth = 30;
+		var trackLength = 1000;
+		trackGeom = new THREE.PlaneBufferGeometry(trackWidth, trackLength);
+		var trackMaterial = new THREE.MeshPhongMaterial({
+			color: 0xffffff,
+			side: THREE.DoubleSide
+		});
+		track = new THREE.Mesh(trackGeom, trackMaterial);
+		track.receiveShadow = true;
+		track.castShadow = true;
+		createBox(track, new THREE.Vector3(0, -0.5, 0), ZERO_QUATERNION, trackWidth, 1, trackLength, 0, 2);
+
+		track.rotation.x = Math.PI / 2;
+		track.position.z = 10 - trackLength / 2;
+	}
+
 	function createObjects() {
 
-		loadMars();
-		createSignPost();
+		// loadMars();
 
-		addAllProjects();
+		/* addAllProjects();
 
 		addAllSkills();
 
 		addAllAboutMe();
 
-		addAllExperiences();
+		addAllExperiences(); */
 
 		// createVehicle(new THREE.Vector3(10, 10, -10), ZERO_QUATERNION);
 
-		test();
+		// addBall();
+
+		addTrack();
+
 
 	}
 
