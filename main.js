@@ -23,6 +23,8 @@ Ammo().then(function (Ammo) {
 	var mixers = [];
 	var models3d = [];
 	var foods = [];
+	var ball;
+	var temp = new THREE.Vector3;
 	// var groundLimit = 0;
 	var padMesh;
 
@@ -32,7 +34,7 @@ Ammo().then(function (Ammo) {
 	var broadphase;
 	var solver;
 	var physicsWorld;
-	var syncList = [];
+	var rigidBodies = [];
 	var margin = 0.05;
 
 	// Keybord actions
@@ -71,7 +73,7 @@ Ammo().then(function (Ammo) {
 
 		//directional light
 		var dirLight = new THREE.DirectionalLight(0xffffff, 1);
-		dirLight.position.set(- 3, 10, - 10);
+		dirLight.position.set(-10, 10, 5);
 		dirLight.castShadow = true;
 		dirLight.shadow.camera.top = 2;
 		dirLight.shadow.camera.bottom = - 2;
@@ -79,12 +81,15 @@ Ammo().then(function (Ammo) {
 		dirLight.shadow.camera.right = 2;
 		dirLight.shadow.camera.near = 0.1;
 		dirLight.shadow.camera.far = 40;
+		dirLight.shadow.mapSize.x = 1024;
+		dirLight.shadow.mapSize.y = 1024;
 		scene.add(dirLight);
 	}
 
 	function rend() {
 		renderer = new THREE.WebGLRenderer({ antialias: true });
-		renderer.shadowMap.type = THREE.BasicShadowMap;
+		renderer.setClearColor(0xbfd1e5);
+		// renderer.shadowMap.type = THREE.BasicShadowMap;
 		renderer.shadowMap.enabled = true;
 		// console.log(renderer);
 		renderPass = new POSTPROCESSING.RenderPass(scene, camera);
@@ -129,8 +134,7 @@ Ammo().then(function (Ammo) {
 	function animate() {
 		requestAnimationFrame(animate);
 		var dt = clock.getDelta();
-		for (var i = 0; i < syncList.length; i++)
-			syncList[i](dt);
+
 		physicsWorld.stepSimulation(dt, 10);
 
 		controls.update(dt);
@@ -145,12 +149,30 @@ Ammo().then(function (Ammo) {
 		}
 
 		if (pad) padMovement();
+		if (ball) ballMovement();
 
 		if (chassisMesh) camera.lookAt(chassisMesh.position);
 		// if (padMesh) camera.lookAt(padMesh.position);
 
+		updatePhysics();
+
 		composer.render(0.1);
 		renderer.render(scene, camera);
+	}
+
+	function updatePhysics() {
+		for (var i = 0; i < rigidBodies.length; i++) {
+			let mesh = rigidBodies[i];
+			var objPhys = mesh.userData.physicsBody;
+			var ms = objPhys.getMotionState();
+			if (ms) {
+				ms.getWorldTransform(TRANSFORM_AUX);
+				var p = TRANSFORM_AUX.getOrigin();
+				var q = TRANSFORM_AUX.getRotation();
+				mesh.position.set(p.x(), p.y(), p.z());
+				mesh.quaternion.set(q.x(), q.y(), q.z(), q.w());
+			}
+		}
 	}
 
 	function updateMixers(dt) {
@@ -217,6 +239,42 @@ Ammo().then(function (Ammo) {
 		trend.position.y = 2;
 	}
 
+	function ballMovement() {
+		let body = ball.userData.physicsBody;
+		const vel = 5;
+		let vx = 0;
+		let vz = 0;
+		let rot = 0;
+		const rotation = Math.PI / 2 * 1;
+
+		var dir = new THREE.Vector3(ball.position.x, ball.position.y, ball.position.z);
+		dir.sub(camera.position).normalize();
+
+		if (actions.acceleration) {
+			vx += vel * dir.x;
+			vz += vel * dir.z;
+		} else if (actions.braking) {
+			vx -= vel * dir.x;
+			vz -= vel * dir.z;
+		} else if (actions.right) {
+			rot -= rotation;
+		} else if (actions.left) {
+			rot += rotation;
+		} else {
+			force_vec.setValue(0, 0, 0);
+		}
+		var rotZ = Math.cos(rot);
+		var rotX = Math.sin(rot);
+		var distance = 10;
+
+		force_vec.setValue(vx, 0, vz);
+
+		body.applyForce(force_vec);
+
+		
+		camera.lookAt(ball.position);
+	}
+
 	//function to set event listeners to false
 	function keyup(e) {
 		if (keysActions[e.code]) {
@@ -251,6 +309,7 @@ Ammo().then(function (Ammo) {
 
 	function createBox(mesh, pos, quat, w, l, h, mass, friction) {
 		var shape = new Ammo.btBoxShape(new Ammo.btVector3(w * 0.5, l * 0.5, h * 0.5));
+		shape.setMargin(margin);
 
 		if (!mass) mass = 0;
 		if (!friction) friction = 1;
@@ -277,19 +336,8 @@ Ammo().then(function (Ammo) {
 
 		if (mass > 0) {
 			body.setActivationState(DISABLE_DEACTIVATION);
-			// Sync physics and graphics
-			function sync(dt) {
-				var ms = body.getMotionState();
-				if (ms) {
-					ms.getWorldTransform(TRANSFORM_AUX);
-					var p = TRANSFORM_AUX.getOrigin();
-					var q = TRANSFORM_AUX.getRotation();
-					mesh.position.set(p.x(), p.y(), p.z());
-					mesh.quaternion.set(q.x(), q.y(), q.z(), q.w());
-				}
-			}
-
-			syncList.push(sync);
+			mesh.userData.physicsBody = body;
+			rigidBodies.push(mesh);
 		}
 		return body;
 	}
@@ -320,13 +368,13 @@ Ammo().then(function (Ammo) {
 		//three.js
 		marsGeom = new THREE.PlaneGeometry(marsLength, marsLength);
 		// buildTerrain();
-		var marsMaterial = new THREE.MeshLambertMaterial({
+		var marsMaterial = new THREE.MeshPhongMaterial({
 			color: 0xffffff,
 			side: THREE.DoubleSide
 		});
 		mars = new THREE.Mesh(marsGeom, marsMaterial);
-		// mars.position.y = -1;
 		mars.receiveShadow = true;
+		mars.castShadow = true;
 		createBox(mars, new THREE.Vector3(0, -0.5, 0), ZERO_QUATERNION, marsLength, 1, marsLength, 0, 2);
 
 		mars.rotation.x = Math.PI / 2;
@@ -368,7 +416,7 @@ Ammo().then(function (Ammo) {
 		var suspensionStiffness = 20.0;
 		var suspensionDamping = 2.3;
 		var suspensionCompression = 4.4;
-		var suspensionRestLength = 0.6;
+		var suspensionRestLength = 0.5;
 		var rollInfluence = 0.2;
 
 		var steeringIncrement = .04;
@@ -466,10 +514,10 @@ Ammo().then(function (Ammo) {
 						vehicleSteering -= steeringIncrement;
 				}
 				else {
-					if (speed > 1 && engineForce != maxEngineForce)
+					/* if (speed > 1 && engineForce != maxEngineForce)
 						breakingForce = maxBreakingForce;
 					else if (speed < 0 && breakingForce != maxBreakingForce)
-						engineForce = maxEngineForce/2;
+						engineForce = maxEngineForce/2; */
 
 					if (vehicleSteering < -steeringIncrement)
 						vehicleSteering += steeringIncrement;
@@ -514,7 +562,7 @@ Ammo().then(function (Ammo) {
 			chassisMesh.quaternion.set(q.x(), q.y(), q.z(), q.w());
 		}
 
-		syncList.push(sync);
+		// syncList.push(sync);
 	}
 
 	//solar panel
@@ -1753,9 +1801,9 @@ Ammo().then(function (Ammo) {
 	function createPad() {
 		let pos = { x: 0, y: 3, z: -60 };
 		let quat = ZERO_QUATERNION;
-		let w = 2;
-		let h = 4.5;
-		let l = 2;
+		let w = 1;
+		let h = 1;
+		let l = 1;
 
 		var texture = textureLoader.load('textures/outer_texture.jpg');
 		texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
@@ -1763,12 +1811,14 @@ Ammo().then(function (Ammo) {
 
 		gltfLoader.load('models3d/pad/scene.gltf', function (gltf) {
 			var mesh = gltf.scene;
-			pad = createBox(mesh, pos, quat, w, h, l, 100, 1);
-			models3d.push(mesh);
-			let object = mesh.children[0];
-			object.scale.set(10, 10, 10);
+
+			console.log(gltf.scene.children[1]);
+
+			createBox(mesh, pos, quat, w, h, l, 100, 1);
+
 			let mixer = new THREE.AnimationMixer(mesh);
 			mixers.push(mixer);
+
 			for (var i = 0; i < 4; i++) {
 				var action = mixer.clipAction(gltf.animations[i]);
 				takeOffAction.push(action);
@@ -1793,6 +1843,8 @@ Ammo().then(function (Ammo) {
 			var outer = mesh.children[1].children[4];
 			outer.material.map = texture;
 
+			models3d.push(mesh);
+
 			mesh.traverse(function (node) {
 
 				if (node.isMesh) {
@@ -1803,11 +1855,10 @@ Ammo().then(function (Ammo) {
 
 			padMesh = mesh;
 			mesh.position.set(0, 3, -60);
+			mesh.scale.set(4, 4, 4);
 			scene.add(mesh);
 		});
 	}
-
-	var arcon;
 
 	function createExperience() {
 		let pos = { x: 10, y: 100, z: -60 };
@@ -1886,11 +1937,50 @@ Ammo().then(function (Ammo) {
 	}
 
 	function test() {
-		var geometry = new THREE.SphereBufferGeometry(1, 17, 17);
-		var mesh = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ color: 0xff0000 }));
-		scene.add(mesh);
-		mesh.position.set(-10, 2, 10);
-		mesh.castShadow = true;
+		gltfLoader.load('models3d/ball/scene.gltf', function (gltf) {
+			var mesh = gltf.scene;
+
+			var shape = new Ammo.btSphereShape(1);
+			shape.setMargin(margin);
+
+			mesh.receiveShadow = true;
+			mesh.castShadow = true;
+
+			mass = 2;
+			friction = 0.7;
+
+			pos = new THREE.Vector3(5, 5, 5);
+			quat = ZERO_QUATERNION;
+
+			mesh.position.copy(pos);
+			mesh.quaternion.copy(quat);
+
+			var transform = new Ammo.btTransform();
+			transform.setIdentity();
+			transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
+			transform.setRotation(new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
+			var motionState = new Ammo.btDefaultMotionState(transform);
+
+			var localInertia = new Ammo.btVector3(0, 0, 0);
+			shape.calculateLocalInertia(mass, localInertia);
+
+			var rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, shape, localInertia);
+			var body = new Ammo.btRigidBody(rbInfo);
+
+			ball = mesh;
+
+			body.setFriction(friction);
+
+			physicsWorld.addRigidBody(body);
+
+			body.setActivationState(DISABLE_DEACTIVATION);
+
+			// Sync physics and graphics
+			mesh.userData.physicsBody = body;
+			rigidBodies.push(mesh);
+
+			scene.add(mesh);
+		});
 	}
 
 	function addGodrays(base) {
@@ -1986,9 +2076,9 @@ Ammo().then(function (Ammo) {
 
 		addAllExperiences();
 
-		createVehicle(new THREE.Vector3(10, 10, -10), ZERO_QUATERNION);
+		// createVehicle(new THREE.Vector3(10, 10, -10), ZERO_QUATERNION);
 
-		// test();
+		test();
 
 	}
 
