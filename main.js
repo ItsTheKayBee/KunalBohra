@@ -56,8 +56,8 @@ Ammo().then(function (Ammo) {
 	function scenes() {
 		scene = new THREE.Scene();
 		scene.fog = new THREE.FogExp2(0xffffff, 0.00025);
-		/* var axesHelper = new THREE.AxesHelper(5);
-		scene.add(axesHelper); */
+		var axesHelper = new THREE.AxesHelper(5);
+		scene.add(axesHelper);
 	}
 
 	function cam() {
@@ -117,7 +117,7 @@ Ammo().then(function (Ammo) {
 		camera.position.z -= event.deltaY * 0.005;
 
 		// prevent scrolling beyond a min/max value
-		camera.position.clampScalar(0, 10);
+		camera.position.clampScalar(-300, 10);
 	}
 
 	function onWindowResize() {
@@ -144,7 +144,7 @@ Ammo().then(function (Ammo) {
 
 		physicsWorld.stepSimulation(dt, 10);
 
-		// projectsAnimation(step);
+		projectsAnimation(step);
 		step++;
 
 		updateMixers(dt);
@@ -154,9 +154,9 @@ Ammo().then(function (Ammo) {
 		}
 
 		if (pad) padMovement();
-		if (ball) ballMovement();
+		// if (ball) ballMovement();
 
-		if (chassisMesh) camera.lookAt(chassisMesh.position);
+		// if (chassisMesh) camera.lookAt(chassisMesh.position);
 		// if (padMesh) camera.lookAt(padMesh.position);
 
 		updatePhysics();
@@ -643,8 +643,9 @@ Ammo().then(function (Ammo) {
 		flag.position.y = 2.65;
 		flag.position.x = -3.25;
 		pole.add(flag);
-		pole.rotation.y = Math.PI / 2;
-		pole.position.set(0, 4, 60);
+		pole.rotation.y = Math.PI;
+		pole.position.set(-10, 2, -200);
+		pole.scale.set(0.35, 0.35, 0.35);
 		scene.add(pole);
 	}
 
@@ -657,8 +658,10 @@ Ammo().then(function (Ammo) {
 			curveSegments: 2,
 			bevelEnabled: false,
 		});
-		var textMaterial = new THREE.MeshLambertMaterial({ color: color });
+		var textMaterial = new THREE.MeshPhongMaterial({ color: color });
 		var text = new THREE.Mesh(textGeometry, textMaterial);
+		text.receiveShadow = true;
+		text.castShadow = true;
 		text.scale.set(s, s, s);
 		text.position.set(pos.x, pos.y, pos.z);
 		text.rotation.set(quat.x, quat.y, quat.z);
@@ -784,7 +787,7 @@ Ammo().then(function (Ammo) {
 		if (image !== '') {
 			var texture = textureLoader.load('textures/' + image + '.png', function (texture) {
 				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-				texture.offset.set(0, 0);
+				texture.offset.set(-1, 0);
 				texture.repeat.set(dx, dy);
 			});
 			var materials = [
@@ -847,11 +850,11 @@ Ammo().then(function (Ammo) {
 		var extrudeSettings = { depth: 0.2, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 0.25, bevelThickness: 0.1 };
 		var addPhoneShape = new THREE.Shape();
 
-		createRoundedRect(addPhoneShape, 0, 0, 2, 4, 0.1);
+		createRoundedRect(addPhoneShape, -1, 0, 2, 4, 0.1);
 
-		mobile = addShape('mobile', addPhoneShape, extrudeSettings, 0x00fff2, 4, 2, 0, 0, 0, 0, 1, 0.5, 0.25);
+		mobile = addShape('mobile', addPhoneShape, extrudeSettings, 0x00fff2, 4, 2, 0, 0, 0, 0, 1, 0.25, 0.25);
 
-		mobile.position.set(-40, 1, 0);
+		mobile.position.set(10, 2, -30);
 		scene.add(mobile);
 	}
 
@@ -963,7 +966,7 @@ Ammo().then(function (Ammo) {
 		chain8.position.set(2, 0, 0.6);
 		blockchain.add(chain8);
 
-		blockchain.position.set(-60, 1, 0);
+		blockchain.position.set(-10, 1, -40);
 
 		var coinGeo = new THREE.CylinderBufferGeometry(0.5, 0.5, 0.15, 20);
 		var texture = textureLoader.load('textures/bitcoin.png');
@@ -1047,7 +1050,7 @@ Ammo().then(function (Ammo) {
 		var chat = new THREE.Group();
 		chat.add(dialogueL);
 		chat.add(dialogueR);
-		chat.position.set(-82, 2, 0);
+		chat.position.set(8, 2, -51);
 		scene.add(chat);
 	}
 
@@ -1071,7 +1074,7 @@ Ammo().then(function (Ammo) {
 		pc.add(screen);
 		pc.add(neck);
 		pc.add(stand);
-		pc.position.set(-100, 1, 0)
+		pc.position.set(-10, 1, -60)
 		scene.add(pc);
 	}
 
@@ -1112,7 +1115,7 @@ Ammo().then(function (Ammo) {
 		var graph = new THREE.Group();
 		graph.add(axes);
 		graph.add(trend);
-		graph.position.set(-121, 2, 0);
+		graph.position.set(8.5, 2, -70);
 		scene.add(graph);
 	}
 
@@ -1128,7 +1131,7 @@ Ammo().then(function (Ammo) {
 				0.5,
 				2,
 				0.7,
-				0xffffff
+				0xffff00
 			);
 			bcSkillGroup.add(blockchainText);
 		});
@@ -1167,7 +1170,7 @@ Ammo().then(function (Ammo) {
 				model.scale.set(0.025, 0.025, 0.025);
 			});
 		}, 1000);
-		bcSkillGroup.position.set(40, -1, 0);
+		bcSkillGroup.position.set(-11, 0, -80);
 		scene.add(bcSkillGroup);
 	}
 
@@ -1183,7 +1186,7 @@ Ammo().then(function (Ammo) {
 				0.5,
 				3,
 				0.7,
-				0xffffff
+				0xffff00
 			);
 			phpSkillGroup.add(phpText);
 		});
@@ -1223,11 +1226,11 @@ Ammo().then(function (Ammo) {
 			).then((model) => phpSkillGroup.add(model));
 		}, 1500);
 
-		phpSkillGroup.position.set(50, -1, 0);
+		phpSkillGroup.position.set(8, 0, -90);
 		scene.add(phpSkillGroup);
 	}
 
-	//4 stars skill	
+	//3 stars skill	
 	function addAndroidSkill() {
 		var androidSkillGroup = new THREE.Group();
 		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
@@ -1239,14 +1242,14 @@ Ammo().then(function (Ammo) {
 				0.5,
 				3,
 				0.7,
-				0xffffff
+				0xffff00
 			);
 			androidSkillGroup.add(androidText);
 		});
 		var rot = { x: 0, y: 0, z: 0 };
 		loadModel(
 			'android',
-			{ x: 1.2, y: 3, z: 0 },
+			{ x: 1.6, y: 3, z: 0 },
 			ZERO_QUATERNION,
 			rot,
 			0.5, 0, 0.5, 0.5, 0.1
@@ -1257,7 +1260,7 @@ Ammo().then(function (Ammo) {
 		setTimeout(() => {
 			loadModel(
 				'android',
-				{ x: 3.2, y: 4, z: 0 },
+				{ x: 5, y: 4, z: 0 },
 				ZERO_QUATERNION,
 				rot,
 				0.5, 0, 0.5, 0.5, 0.1
@@ -1269,7 +1272,7 @@ Ammo().then(function (Ammo) {
 		setTimeout(() => {
 			loadModel(
 				'android',
-				{ x: 6.2, y: 4, z: 0 },
+				{ x: 8.4, y: 4, z: 0 },
 				ZERO_QUATERNION,
 				rot,
 				0.5, 0, 0.5, 0.5, 0.1
@@ -1278,20 +1281,8 @@ Ammo().then(function (Ammo) {
 				foods.push(model);
 			});
 		}, 1000);
-		setTimeout(() => {
-			loadModel(
-				'android',
-				{ x: 8.2, y: 3, z: 0 },
-				ZERO_QUATERNION,
-				rot,
-				0.5, 0, 0.5, 0.5, 0.1
-			).then((model) => {
-				androidSkillGroup.add(model);
-				foods.push(model);
-			});
-		}, 1500);
 
-		androidSkillGroup.position.set(58, -1, 0);
+		androidSkillGroup.position.set(-12, 0, -100);
 		scene.add(androidSkillGroup);
 	}
 
@@ -1307,7 +1298,7 @@ Ammo().then(function (Ammo) {
 				0.5,
 				3,
 				0.7,
-				0xffffff
+				0xffff00
 			);
 			pythonSkillGroup.add(pyText);
 		});
@@ -1338,7 +1329,7 @@ Ammo().then(function (Ammo) {
 			).then((model) => pythonSkillGroup.add(model));
 		}, 1000);
 
-		pythonSkillGroup.position.set(72, -1, 0);
+		pythonSkillGroup.position.set(5, 0, -110);
 		scene.add(pythonSkillGroup);
 	}
 
@@ -1354,7 +1345,7 @@ Ammo().then(function (Ammo) {
 				0.5,
 				3,
 				0.7,
-				0xffffff
+				0xffff00
 			);
 			webSkillGroup.add(htmlText);
 		});
@@ -1367,7 +1358,7 @@ Ammo().then(function (Ammo) {
 				0.5,
 				3,
 				0.7,
-				0xffffff
+				0xffff00
 			);
 			webSkillGroup.add(cssText);
 		});
@@ -1380,7 +1371,7 @@ Ammo().then(function (Ammo) {
 				0.5,
 				3,
 				0.7,
-				0xffffff
+				0xffff00
 			);
 			webSkillGroup.add(jsText);
 		});
@@ -1432,7 +1423,7 @@ Ammo().then(function (Ammo) {
 			});
 		}, 1500);
 
-		webSkillGroup.position.set(95, -1, 0);
+		webSkillGroup.position.set(-10, 0, -120);
 		scene.add(webSkillGroup);
 	}
 
@@ -1448,7 +1439,7 @@ Ammo().then(function (Ammo) {
 				0.5,
 				3,
 				0.7,
-				0xffffff
+				0xffff00
 			);
 			javaSkillGroup.add(javaText);
 		});
@@ -1488,7 +1479,7 @@ Ammo().then(function (Ammo) {
 			).then((model) => javaSkillGroup.add(model));
 		}, 1500);
 
-		javaSkillGroup.position.set(85, -1, 0);
+		javaSkillGroup.position.set(7, 0, -130);
 		scene.add(javaSkillGroup);
 	}
 
@@ -1504,7 +1495,7 @@ Ammo().then(function (Ammo) {
 				0.5,
 				3,
 				0.7,
-				0xffffff
+				0xffff00
 			);
 			mysqlSkillGroup.add(javaText);
 		});
@@ -1556,7 +1547,7 @@ Ammo().then(function (Ammo) {
 			});
 		}, 1500);
 
-		mysqlSkillGroup.position.set(105, -0.75, 0);
+		mysqlSkillGroup.position.set(-10, 0, -140);
 		scene.add(mysqlSkillGroup);
 	}
 
@@ -1572,7 +1563,7 @@ Ammo().then(function (Ammo) {
 				0.5,
 				3.25,
 				0.7,
-				0xffffff
+				0xffff00
 			);
 			cppSkillGroup.add(cppText);
 		});
@@ -1612,7 +1603,7 @@ Ammo().then(function (Ammo) {
 			});
 		}, 1000);
 
-		cppSkillGroup.position.set(115, -1, 0);
+		cppSkillGroup.position.set(8, 0, -150);
 		scene.add(cppSkillGroup);
 	}
 
@@ -1640,51 +1631,52 @@ Ammo().then(function (Ammo) {
 			ZERO_QUATERNION,
 			rot,
 			1, 0, 0.5, 0.5, 0.1
-		).then((model) => githubUfo.add(model));
+		).then((model) => {
+			githubUfo.add(model);
+			var logo = textureLoader.load('images/github.png');
+			logo.wrapS = logo.wrapT = THREE.RepeatWrapping;
+			logo.offset.set(0, 0);
+			logo.repeat.set(1, 1);
 
-		var logo = textureLoader.load('images/github.png');
-		logo.wrapS = logo.wrapT = THREE.RepeatWrapping;
-		logo.offset.set(0, 0);
-		logo.repeat.set(1, 1);
+			var logoMat = new THREE.MeshBasicMaterial({
+				map: logo,
+				transparent: true,
+				side: THREE.DoubleSide
+			});
 
-		var logoMat = new THREE.MeshBasicMaterial({
-			map: logo,
-			transparent: true,
-			side: THREE.DoubleSide
+			var plate = new THREE.SphereBufferGeometry(0.7, 10, 10, 2, 0.8, 1, 0.6);
+			var plateMesh = new THREE.Mesh(plate, logoMat);
+
+			githubUfo.add(plateMesh);
+			plateMesh.scale.set(1.5, 1.5, 1.5);
+			plateMesh.position.set(0, 0.75, 0);
+			plateMesh.rotation.y = -1.5 * Math.PI / 6;
+
+			var ufoLightMaterial = new THREE.MeshBasicMaterial({
+				color: 0x009eff,
+				transparent: true,
+				opacity: 0.7
+			});
+			var ufoLightMesh = new THREE.Mesh(new THREE.CylinderBufferGeometry(0.5, 1.1, 5, 32), ufoLightMaterial);
+			ufoLightMesh.position.y = -2.5;
+
+			let godraysEffect = new POSTPROCESSING.GodRaysEffect(camera, ufoLightMesh, {
+				resolutionScale: 1,
+				density: 1,
+				decay: 0.95,
+				weight: 0.1,
+				samples: 100
+			});
+			let effectPass = new POSTPROCESSING.EffectPass(camera, godraysEffect);
+
+			composer.addPass(effectPass);
+
+			githubUfo.add(ufoLightMesh);
+
+			githubUfo.position.set(0, 3, -220);
+			scene.add(githubUfo);
 		});
 
-		var plate = new THREE.SphereBufferGeometry(0.7, 10, 10, 2, 0.8, 1, 0.6);
-		var plateMesh = new THREE.Mesh(plate, logoMat);
-
-		githubUfo.add(plateMesh);
-		plateMesh.scale.set(1.5, 1.5, 1.5);
-		plateMesh.position.set(0, 1, 0);
-
-		githubUfo.scale.set(2, 2, 2);
-
-		var ufoLightMaterial = new THREE.MeshBasicMaterial({
-			color: 0x009eff,
-			transparent: true,
-			opacity: 0.7
-		});
-		var ufoLightMesh = new THREE.Mesh(new THREE.CylinderBufferGeometry(0.5, 1.1, 5, 32), ufoLightMaterial);
-		ufoLightMesh.position.y = -2.5;
-
-		let godraysEffect = new POSTPROCESSING.GodRaysEffect(camera, ufoLightMesh, {
-			resolutionScale: 1,
-			density: 1,
-			decay: 0.95,
-			weight: 0.1,
-			samples: 100
-		});
-		let effectPass = new POSTPROCESSING.EffectPass(camera, godraysEffect);
-
-		composer.addPass(effectPass);
-
-		githubUfo.add(ufoLightMesh);
-
-		githubUfo.position.set(0, 10, 100);
-		scene.add(githubUfo);
 	}
 
 	function createLinkedinUfo() {
@@ -1697,52 +1689,53 @@ Ammo().then(function (Ammo) {
 			ZERO_QUATERNION,
 			rot,
 			1, 0, 0.5, 0.5, 0.1
-		).then((model) => linkedinUfo.add(model));
+		).then((model) => {
+			linkedinUfo.add(model);
+			var logo = textureLoader.load('images/linkedin.png');
+			logo.wrapS = logo.wrapT = THREE.RepeatWrapping;
+			logo.offset.set(0, 0);
+			logo.repeat.set(1, 1);
 
-		var logo = textureLoader.load('images/linkedin.png');
-		logo.wrapS = logo.wrapT = THREE.RepeatWrapping;
-		logo.offset.set(0, 0);
-		logo.repeat.set(1, 1);
+			var logoMat = new THREE.MeshBasicMaterial({
+				map: logo,
+				transparent: true,
+				side: THREE.DoubleSide
+			});
 
-		var logoMat = new THREE.MeshBasicMaterial({
-			map: logo,
-			transparent: true,
-			side: THREE.DoubleSide
+			var plate = new THREE.SphereBufferGeometry(0.7, 10, 10, 2, 0.8, 1, 0.6);
+			var plateMesh = new THREE.Mesh(plate, logoMat);
+
+			linkedinUfo.add(plateMesh);
+			plateMesh.scale.set(1.5, 1.5, 1.5);
+			plateMesh.position.set(0, 0.75, 0);
+			plateMesh.rotation.y = -1.5 * Math.PI / 6;
+
+
+			var ufoLightMaterial = new THREE.MeshBasicMaterial({
+				color: 0x009eff,
+				transparent: true,
+				opacity: 0.7
+			});
+			var ufoLightMesh = new THREE.Mesh(new THREE.CylinderBufferGeometry(0.5, 1.1, 5, 32), ufoLightMaterial);
+			ufoLightMesh.position.y = -2.5;
+
+			let godraysEffect = new POSTPROCESSING.GodRaysEffect(camera, ufoLightMesh, {
+				resolutionScale: 1,
+				density: 1,
+				decay: 0.95,
+				weight: 0.1,
+				samples: 100
+			});
+			let effectPass = new POSTPROCESSING.EffectPass(camera, godraysEffect);
+
+			composer.addPass(effectPass);
+
+			linkedinUfo.add(ufoLightMesh);
+
+			linkedinUfo.position.set(0, 3, -240);
+
+			scene.add(linkedinUfo);
 		});
-
-		var plate = new THREE.SphereBufferGeometry(0.7, 10, 10, 2, 0.8, 1, 0.6);
-		var plateMesh = new THREE.Mesh(plate, logoMat);
-
-		linkedinUfo.add(plateMesh);
-		plateMesh.scale.set(1.5, 1.5, 1.5);
-		plateMesh.position.set(0, 1, 0);
-
-		linkedinUfo.scale.set(2, 2, 2);
-
-		var ufoLightMaterial = new THREE.MeshBasicMaterial({
-			color: 0x009eff,
-			transparent: true,
-			opacity: 0.7
-		});
-		var ufoLightMesh = new THREE.Mesh(new THREE.CylinderBufferGeometry(0.5, 1.1, 5, 32), ufoLightMaterial);
-		ufoLightMesh.position.y = -2.5;
-
-		let godraysEffect = new POSTPROCESSING.GodRaysEffect(camera, ufoLightMesh, {
-			resolutionScale: 1,
-			density: 1,
-			decay: 0.95,
-			weight: 0.1,
-			samples: 100
-		});
-		let effectPass = new POSTPROCESSING.EffectPass(camera, godraysEffect);
-
-		composer.addPass(effectPass);
-
-		linkedinUfo.add(ufoLightMesh);
-
-		linkedinUfo.position.set(15, 10, 95);
-
-		scene.add(linkedinUfo);
 	}
 
 	function createMailUfo() {
@@ -1755,56 +1748,56 @@ Ammo().then(function (Ammo) {
 			ZERO_QUATERNION,
 			rot,
 			1, 0, 0.5, 0.5, 0.1
-		).then((model) => mailUfo.add(model));
+		).then((model) => {
+			mailUfo.add(model);
+			var logo = textureLoader.load('images/gmail.png');
+			logo.wrapS = logo.wrapT = THREE.RepeatWrapping;
+			logo.offset.set(0, 0);
+			logo.repeat.set(1, 1);
 
-		var logo = textureLoader.load('images/gmail.png');
-		logo.wrapS = logo.wrapT = THREE.RepeatWrapping;
-		logo.offset.set(0, 0);
-		logo.repeat.set(1, 1);
+			var logoMat = new THREE.MeshBasicMaterial({
+				map: logo,
+				transparent: true,
+				side: THREE.DoubleSide
+			});
 
-		var logoMat = new THREE.MeshBasicMaterial({
-			map: logo,
-			transparent: true,
-			side: THREE.DoubleSide
+			var plate = new THREE.SphereBufferGeometry(0.7, 10, 10, 2, 0.8, 1, 0.6);
+			var plateMesh = new THREE.Mesh(plate, logoMat);
+
+			mailUfo.add(plateMesh);
+			plateMesh.scale.set(1.5, 1.5, 1.5);
+			plateMesh.position.set(0, 0.75, 0);
+			plateMesh.rotation.y = -1.5 * Math.PI / 6;
+
+			var ufoLightMaterial = new THREE.MeshBasicMaterial({
+				color: 0x009eff,
+				transparent: true,
+				opacity: 0.7
+			});
+			var ufoLightMesh = new THREE.Mesh(new THREE.CylinderBufferGeometry(0.5, 1.1, 5, 32), ufoLightMaterial);
+			ufoLightMesh.position.y = -2.5;
+
+			let godraysEffect = new POSTPROCESSING.GodRaysEffect(camera, ufoLightMesh, {
+				resolutionScale: 1,
+				density: 1,
+				decay: 0.95,
+				weight: 0.1,
+				samples: 100
+			});
+			let effectPass = new POSTPROCESSING.EffectPass(camera, godraysEffect);
+
+			composer.addPass(effectPass);
+			effectPass.renderToScreen = true;
+
+			mailUfo.add(ufoLightMesh);
+
+			scene.add(mailUfo);
+			mailUfo.position.set(0, 3, -260);
 		});
-
-		var plate = new THREE.SphereBufferGeometry(0.7, 10, 10, 2, 0.8, 1, 0.6);
-		var plateMesh = new THREE.Mesh(plate, logoMat);
-
-		mailUfo.add(plateMesh);
-		plateMesh.scale.set(1.5, 1.5, 1.5);
-		plateMesh.position.set(0, 1, 0);
-
-		mailUfo.scale.set(2, 2, 2);
-
-		var ufoLightMaterial = new THREE.MeshBasicMaterial({
-			color: 0x009eff,
-			transparent: true,
-			opacity: 0.7
-		});
-		var ufoLightMesh = new THREE.Mesh(new THREE.CylinderBufferGeometry(0.5, 1.1, 5, 32), ufoLightMaterial);
-		ufoLightMesh.position.y = -2.5;
-
-		let godraysEffect = new POSTPROCESSING.GodRaysEffect(camera, ufoLightMesh, {
-			resolutionScale: 1,
-			density: 1,
-			decay: 0.95,
-			weight: 0.1,
-			samples: 100
-		});
-		let effectPass = new POSTPROCESSING.EffectPass(camera, godraysEffect);
-
-		composer.addPass(effectPass);
-		effectPass.renderToScreen = true;
-
-		mailUfo.add(ufoLightMesh);
-
-		scene.add(mailUfo);
-		mailUfo.position.set(-15, 10, 95);
 	}
 
 	function createPad() {
-		let pos = { x: 0, y: 3, z: -60 };
+		let pos = { x: 0, y: 3, z: -160 };
 		let quat = ZERO_QUATERNION;
 		let w = 1;
 		let h = 1;
@@ -1817,9 +1810,7 @@ Ammo().then(function (Ammo) {
 		gltfLoader.load('models3d/pad/scene.gltf', function (gltf) {
 			var mesh = gltf.scene;
 
-			console.log(gltf.scene.children[1]);
-
-			createBox(mesh, pos, quat, w, h, l, 100, 1);
+			// createBox(mesh, pos, quat, w, h, l, 100, 1);
 
 			let mixer = new THREE.AnimationMixer(mesh);
 			mixers.push(mixer);
@@ -1859,8 +1850,8 @@ Ammo().then(function (Ammo) {
 			});
 
 			padMesh = mesh;
-			mesh.position.set(0, 3, -60);
-			mesh.scale.set(4, 4, 4);
+			mesh.position.set(0, 3, -170);
+			mesh.scale.set(3, 3, 3);
 			scene.add(mesh);
 		});
 	}
@@ -2009,35 +2000,35 @@ Ammo().then(function (Ammo) {
 
 		addGodrays(base1);
 
-		base1.position.set(-40, -2, 0);
+		base1.position.set(10, -2, -30);
 		scene.add(base1);
 
 		addPhone();
 
 		let base2 = addHoloBase();
 		addGodrays(base2);
-		base2.position.set(-60, -2, 0);
+		base2.position.set(-10, -2, -40);
 		scene.add(base2);
 
 		addBlockchain()
 
 		let base3 = addHoloBase();
 		addGodrays(base3);
-		base3.position.set(-80, -2, 0);
+		base3.position.set(10, -2, -50);
 		scene.add(base3);
 
 		addDialogFlow();
 
 		let base4 = addHoloBase();
 		addGodrays(base4);
-		base4.position.set(-100, -2, 0);
+		base4.position.set(-10, -2, -60);
 		scene.add(base4);
 
 		addDesktop();
 
 		let base5 = addHoloBase();
 		addGodrays(base5);
-		base5.position.set(-120, -2, 0);
+		base5.position.set(10, -2, -70);
 		scene.add(base5);
 
 		addStock();
@@ -2087,15 +2078,13 @@ Ammo().then(function (Ammo) {
 
 	function createObjects() {
 
-		// loadMars();
-
-		/* addAllProjects();
+		addAllProjects();
 
 		addAllSkills();
 
 		addAllAboutMe();
 
-		addAllExperiences(); */
+		addAllExperiences();
 
 		// createVehicle(new THREE.Vector3(10, 10, -10), ZERO_QUATERNION);
 
