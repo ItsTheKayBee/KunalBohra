@@ -113,11 +113,38 @@ Ammo().then(function (Ammo) {
 	}
 
 	function scrolling() {
-		// event.preventDefault();
-		camera.position.z -= event.deltaY * 0.005;
+		if (camera.position.z > -160 || camera.position.z <= -166) {
+			camera.position.z -= event.deltaY * 0.005;
+			camera.position.clampScalar(-300, 10);
+		}
 
-		// prevent scrolling beyond a min/max value
-		camera.position.clampScalar(-300, 10);
+		if (camera.position.z <= -164 && Math.ceil(camera.position.z)>=-165) {
+			console.log(1);
+			camera.position.y -= event.deltaY * 0.005;
+			if (padMesh) camera.lookAt(padMesh.position);
+			if (camera.position.y < 5) {
+				camera.position.z = -166;
+				camera.position.y = 5;
+			}
+			if (camera.position.y > 120) {
+				camera.position.z = -162;
+			}
+		}
+	
+		if (camera.position.z <= -160 && camera.position.z >= -163) {
+			console.log(2);
+			camera.position.y += event.deltaY * 0.005;
+			if (padMesh) camera.lookAt(padMesh.position);
+			if (camera.position.y < 5) {
+				camera.position.z = -159;
+				camera.position.y = 5;
+			}
+			if (camera.position.y > 120) {
+				camera.position.z = -164;
+			}
+
+		}
+
 	}
 
 	function onWindowResize() {
@@ -157,7 +184,6 @@ Ammo().then(function (Ammo) {
 		// if (ball) ballMovement();
 
 		// if (chassisMesh) camera.lookAt(chassisMesh.position);
-		// if (padMesh) camera.lookAt(padMesh.position);
 
 		updatePhysics();
 
@@ -397,178 +423,6 @@ Ammo().then(function (Ammo) {
 		marsGeom.computeVertexNormals();
 	}
 
-	//add vehicle and movements
-	function createVehicle(pos, quat) {
-
-		var chassisWidth = 2.5;
-		var chassisHeight = .4;
-		var chassisLength = 4;
-		var massVehicle = 800;
-
-		var wheelAxisPositionBack = -1.2;
-		var wheelRadiusBack = .35;
-		var wheelWidthBack = .3;
-		var wheelHalfTrackBack = 1.4;
-		var wheelAxisHeightBack = .3;
-
-		var wheelAxisFrontPosition = 1.2;
-		var wheelHalfTrackFront = 1.4;
-		var wheelAxisHeightFront = .3;
-		var wheelRadiusFront = .35;
-		var wheelWidthFront = .2;
-
-		var friction = 10000;
-		var suspensionStiffness = 20.0;
-		var suspensionDamping = 2.3;
-		var suspensionCompression = 4.4;
-		var suspensionRestLength = 0.5;
-		var rollInfluence = 0.2;
-
-		var steeringIncrement = .04;
-		var steeringClamp = .5;
-		var maxEngineForce = 500;
-		var maxBreakingForce = 100;
-
-		// Chassis
-		var geometry = new Ammo.btBoxShape(new Ammo.btVector3(chassisWidth * .5, chassisHeight * .5, chassisLength * .5));
-		var transform = new Ammo.btTransform();
-		transform.setIdentity();
-		transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
-		transform.setRotation(new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
-		var motionState = new Ammo.btDefaultMotionState(transform);
-		var localInertia = new Ammo.btVector3(0, 0, 0);
-		geometry.calculateLocalInertia(massVehicle, localInertia);
-		var body = new Ammo.btRigidBody(new Ammo.btRigidBodyConstructionInfo(massVehicle, motionState, geometry, localInertia));
-		body.setActivationState(DISABLE_DEACTIVATION);
-		physicsWorld.addRigidBody(body);
-		chassisMesh = createChassisMesh(chassisWidth, chassisHeight, chassisLength);
-
-		//solar panel
-		chassisMesh.add(addPanel());
-
-		// Raycast Vehicle
-		var engineForce = 0;
-		var vehicleSteering = 0;
-		var breakingForce = 0;
-		var tuning = new Ammo.btVehicleTuning();
-		var rayCaster = new Ammo.btDefaultVehicleRaycaster(physicsWorld);
-		var vehicle = new Ammo.btRaycastVehicle(tuning, body, rayCaster);
-		vehicle.setCoordinateSystem(0, 1, 2);
-		physicsWorld.addAction(vehicle);
-
-		// Wheels
-		var FRONT_LEFT = 0;
-		var FRONT_RIGHT = 1;
-		var BACK_LEFT = 2;
-		var BACK_RIGHT = 3;
-		var wheelMeshes = [];
-		var wheelDirectionCS0 = new Ammo.btVector3(0, -1, 0);
-		var wheelAxleCS = new Ammo.btVector3(-1, 0, 0);
-
-		function addWheel(isFront, pos, radius, width, index) {
-
-			var wheelInfo = vehicle.addWheel(
-				pos,
-				wheelDirectionCS0,
-				wheelAxleCS,
-				suspensionRestLength,
-				radius,
-				tuning,
-				isFront);
-
-			wheelInfo.set_m_suspensionStiffness(suspensionStiffness);
-			wheelInfo.set_m_wheelsDampingRelaxation(suspensionDamping);
-			wheelInfo.set_m_wheelsDampingCompression(suspensionCompression);
-			wheelInfo.set_m_frictionSlip(friction);
-			wheelInfo.set_m_rollInfluence(rollInfluence);
-
-			wheelMeshes[index] = createWheelMesh(radius, width);
-		}
-
-		addWheel(true, new Ammo.btVector3(wheelHalfTrackFront, wheelAxisHeightFront, wheelAxisFrontPosition), wheelRadiusFront, wheelWidthFront, FRONT_LEFT);
-		addWheel(true, new Ammo.btVector3(-wheelHalfTrackFront, wheelAxisHeightFront, wheelAxisFrontPosition), wheelRadiusFront, wheelWidthFront, FRONT_RIGHT);
-		addWheel(false, new Ammo.btVector3(-wheelHalfTrackBack, wheelAxisHeightBack, wheelAxisPositionBack), wheelRadiusBack, wheelWidthBack, BACK_LEFT);
-		addWheel(false, new Ammo.btVector3(wheelHalfTrackBack, wheelAxisHeightBack, wheelAxisPositionBack), wheelRadiusBack, wheelWidthBack, BACK_RIGHT);
-
-		// Sync keybord actions and physics and graphics
-		function sync(dt) {
-
-			var speed = vehicle.getCurrentSpeedKmHour();
-
-			breakingForce = 0;
-			engineForce = 0;
-			// console.log(speed);
-
-			if (actions.acceleration) {
-				if (speed < -1)
-					breakingForce = maxBreakingForce;
-				else engineForce = maxEngineForce;
-			}
-			if (actions.braking) {
-				if (speed > 1)
-					breakingForce = maxBreakingForce;
-				else engineForce = -maxEngineForce / 2;
-			}
-			if (actions.left) {
-				if (vehicleSteering < steeringClamp)
-					vehicleSteering += steeringIncrement;
-			}
-			else {
-				if (actions.right) {
-					if (vehicleSteering > -steeringClamp)
-						vehicleSteering -= steeringIncrement;
-				}
-				else {
-					/* if (speed > 1 && engineForce != maxEngineForce)
-						breakingForce = maxBreakingForce;
-					else if (speed < 0 && breakingForce != maxBreakingForce)
-						engineForce = maxEngineForce/2; */
-
-					if (vehicleSteering < -steeringIncrement)
-						vehicleSteering += steeringIncrement;
-					else {
-						if (vehicleSteering > steeringIncrement)
-							vehicleSteering -= steeringIncrement;
-						else {
-							vehicleSteering = 0;
-						}
-					}
-				}
-			}
-
-			console.log(speed, breakingForce);
-
-			vehicle.applyEngineForce(engineForce, BACK_LEFT);
-			vehicle.applyEngineForce(engineForce, BACK_RIGHT);
-
-			vehicle.setBrake(breakingForce / 2, FRONT_LEFT);
-			vehicle.setBrake(breakingForce / 2, FRONT_RIGHT);
-			vehicle.setBrake(breakingForce, BACK_LEFT);
-			vehicle.setBrake(breakingForce, BACK_RIGHT);
-
-			vehicle.setSteeringValue(vehicleSteering, FRONT_LEFT);
-			vehicle.setSteeringValue(vehicleSteering, FRONT_RIGHT);
-
-			var tm, p, q, i;
-			var n = vehicle.getNumWheels();
-			for (i = 0; i < n; i++) {
-				vehicle.updateWheelTransform(i, true);
-				tm = vehicle.getWheelTransformWS(i);
-				p = tm.getOrigin();
-				q = tm.getRotation();
-				wheelMeshes[i].position.set(p.x(), p.y(), p.z());
-				wheelMeshes[i].quaternion.set(q.x(), q.y(), q.z(), q.w());
-			}
-
-			tm = vehicle.getChassisWorldTransform();
-			p = tm.getOrigin();
-			q = tm.getRotation();
-			chassisMesh.position.set(p.x(), p.y(), p.z());
-			chassisMesh.quaternion.set(q.x(), q.y(), q.z(), q.w());
-		}
-
-		// syncList.push(sync);
-	}
 
 	//solar panel
 	function addPanel() {
@@ -2064,13 +1918,13 @@ Ammo().then(function (Ammo) {
 		var trackLength = 1000;
 		trackGeom = new THREE.PlaneBufferGeometry(trackWidth, trackLength);
 		var trackMaterial = new THREE.MeshPhongMaterial({
-			color: 0xffffff,
+			color: 0xbaffc9,
 			side: THREE.DoubleSide
 		});
 		track = new THREE.Mesh(trackGeom, trackMaterial);
 		track.receiveShadow = true;
 		track.castShadow = true;
-		createBox(track, new THREE.Vector3(0, -0.5, 0), ZERO_QUATERNION, trackWidth, 1, trackLength, 0, 2);
+		// createBox(track, new THREE.Vector3(0, -0.5, 0), ZERO_QUATERNION, trackWidth, 1, trackLength, 0, 2);
 
 		track.rotation.x = Math.PI / 2;
 		track.position.z = 10 - trackLength / 2;
