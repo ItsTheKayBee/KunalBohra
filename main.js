@@ -23,9 +23,9 @@ Ammo().then(function (Ammo) {
 	var mixers = [];
 	var models3d = [];
 	var foods = [];
-	var ball;
+	var runAction = [];
+	var andy;
 	var temp = new THREE.Vector3;
-	// var groundLimit = 0;
 	var padMesh;
 
 	// Physics variables
@@ -56,8 +56,8 @@ Ammo().then(function (Ammo) {
 	function scenes() {
 		scene = new THREE.Scene();
 		scene.fog = new THREE.FogExp2(0xffffff, 0.00025);
-		var axesHelper = new THREE.AxesHelper(5);
-		scene.add(axesHelper);
+		/* 	var axesHelper = new THREE.AxesHelper(5);
+			scene.add(axesHelper); */
 	}
 
 	function cam() {
@@ -88,7 +88,7 @@ Ammo().then(function (Ammo) {
 
 	function rend() {
 		renderer = new THREE.WebGLRenderer({ antialias: true });
-		renderer.setClearColor(0xbfd1e5);
+		renderer.setClearColor(0xbae1ff);
 		// renderer.shadowMap.type = THREE.BasicShadowMap;
 		renderer.shadowMap.enabled = true;
 		// console.log(renderer);
@@ -115,11 +115,16 @@ Ammo().then(function (Ammo) {
 	function scrolling() {
 		if (camera.position.z > -160 || camera.position.z <= -166) {
 			camera.position.z -= event.deltaY * 0.005;
+			andy.position.z -= event.deltaY * 0.005;
+			for (var i = 0; i < 4; i++){
+				runAction[i].play();
+			}
+
 			camera.position.clampScalar(-300, 10);
+			andy.position.clampScalar(-300, 5);
 		}
 
-		if (camera.position.z <= -164 && Math.ceil(camera.position.z)>=-165) {
-			console.log(1);
+		if (camera.position.z <= -164 && Math.ceil(camera.position.z) >= -165) {
 			camera.position.y -= event.deltaY * 0.005;
 			if (padMesh) camera.lookAt(padMesh.position);
 			if (camera.position.y < 5) {
@@ -130,7 +135,7 @@ Ammo().then(function (Ammo) {
 				camera.position.z = -162;
 			}
 		}
-	
+
 		if (camera.position.z <= -160 && camera.position.z >= -163) {
 			console.log(2);
 			camera.position.y += event.deltaY * 0.005;
@@ -181,7 +186,6 @@ Ammo().then(function (Ammo) {
 		}
 
 		if (pad) padMovement();
-		// if (ball) ballMovement();
 
 		// if (chassisMesh) camera.lookAt(chassisMesh.position);
 
@@ -270,7 +274,7 @@ Ammo().then(function (Ammo) {
 		trend.position.y = 2;
 	}
 
-	function ballMovement() {
+/* 	function ballMovement() {
 		let body = ball.userData.physicsBody;
 		const vel = 5;
 		let vx = 0;
@@ -304,7 +308,7 @@ Ammo().then(function (Ammo) {
 
 
 		camera.lookAt(ball.position);
-	}
+	} */
 
 	//function to set event listeners to false
 	function keyup(e) {
@@ -654,14 +658,14 @@ Ammo().then(function (Ammo) {
 				new THREE.MeshBasicMaterial({
 					color: color,
 					transparent: true,
-					opacity: 0.3
+					opacity: 0.5
 				}),
 			];
 		} else {
 			var materials = new THREE.MeshBasicMaterial({
 				color: color,
 				transparent: true,
-				opacity: 0.3
+				opacity: 0.5
 			});
 		}
 
@@ -678,7 +682,7 @@ Ammo().then(function (Ammo) {
 		var material = new THREE.MeshBasicMaterial({
 			transparent: true,
 			opacity: 0.7,
-			color: 0x00fff2
+			color: 0x00fff0
 		});
 
 		var sphere = new THREE.Mesh(geometry, material);
@@ -706,7 +710,7 @@ Ammo().then(function (Ammo) {
 
 		createRoundedRect(addPhoneShape, -1, 0, 2, 4, 0.1);
 
-		mobile = addShape('mobile', addPhoneShape, extrudeSettings, 0x00fff2, 4, 2, 0, 0, 0, 0, 1, 0.25, 0.25);
+		mobile = addShape('', addPhoneShape, extrudeSettings, 0xf0f69f, 4, 2, 0, 0, 0, 0, 1, 0.25, 0.25);
 
 		mobile.position.set(10, 2, -30);
 		scene.add(mobile);
@@ -717,7 +721,7 @@ Ammo().then(function (Ammo) {
 
 		var blockGeo = new THREE.BoxBufferGeometry(1, 1, 1);
 		var material = new THREE.MeshBasicMaterial({
-			color: 0x00fff2,
+			color: 0xef6c57,
 			transparent: true,
 			opacity: 0.3
 		});
@@ -761,7 +765,7 @@ Ammo().then(function (Ammo) {
 
 		var edges = new THREE.EdgesGeometry(blockGeo);
 		var lineMaterial = new THREE.LineBasicMaterial({
-			color: 0x00fff2,
+			color: 0xef6c57,
 			transparent: true,
 			opacity: 0.7
 		});
@@ -827,13 +831,13 @@ Ammo().then(function (Ammo) {
 
 		var coinMat = [
 			new THREE.MeshBasicMaterial({
-				color: 0x00ffff,
+				color: 0xef6c57,
 				transparent: true,
 				opacity: 0.3
 			}),
 			new THREE.MeshBasicMaterial({
 				map: texture,
-				color: 0x00ffff,
+				color: 0xef6c57,
 				opacity: 0.7,
 				transparent: true,
 				side: THREE.DoubleSide
@@ -856,8 +860,13 @@ Ammo().then(function (Ammo) {
 	function addDialogFlow() {
 		var extrudeSettings = { depth: 0.25, bevelEnabled: false };
 
-		var lineMaterial = new THREE.LineBasicMaterial({
-			color: 0x00fff2,
+		var lineMaterial1 = new THREE.LineBasicMaterial({
+			color: 0x05a3ff,
+			transparent: true,
+			opacity: 0.7
+		});
+		var lineMaterial2 = new THREE.LineBasicMaterial({
+			color: 0xf5b5fc,
 			transparent: true,
 			opacity: 0.7
 		});
@@ -887,7 +896,7 @@ Ammo().then(function (Ammo) {
 		var splineShapeR = new THREE.Shape()
 			.moveTo(1.5, 0)
 			.splineThru(splineptsR);
-		dialogueR = addShape('', splineShapeR, extrudeSettings, 0x00fff2, 0, 0, 0, 0, 0, 0, 1);
+		dialogueR = addShape('', splineShapeR, extrudeSettings, 0xf5b5fc, 0, 0, 0, 0, 0, 0, 1);
 
 		//edges
 		var dialogGeoL = new THREE.ExtrudeBufferGeometry(splineShapeL, extrudeSettings);
@@ -895,8 +904,8 @@ Ammo().then(function (Ammo) {
 
 		var edgesL = new THREE.EdgesGeometry(dialogGeoL);
 		var edgesR = new THREE.EdgesGeometry(dialogGeoR);
-		var line1 = new THREE.LineSegments(edgesL, lineMaterial);
-		var line2 = new THREE.LineSegments(edgesR, lineMaterial);
+		var line1 = new THREE.LineSegments(edgesL, lineMaterial1);
+		var line2 = new THREE.LineSegments(edgesR, lineMaterial2);
 
 		dialogueL.add(line1);
 		dialogueR.add(line2);
@@ -919,9 +928,9 @@ Ammo().then(function (Ammo) {
 		createRoundedRect(neckShape, 1.75, 0, 0.5, 1, 0.1);
 		createRoundedRect(standShape, 0.6, 0, 2.8, 1, 0.1);
 
-		var screen = addShape('desktop', screenShape, extrudeSettings, 0x00fff2, -2, 0, 0, 0, 0, 0, 1, 0.25, 0.2);
-		var neck = addShape('', neckShape, extrudeSettings, 0x00fff2, -2, 0, 0, 0, 0, 0, 1);
-		var stand = addShape('', standShape, extrudeSettings, 0x00fff2, -2, 0, 0, Math.PI / 2, 0, 0, 1);
+		var screen = addShape('desktop', screenShape, extrudeSettings, 0x7fe7cc, -2, 0, 0, 0, 0, 0, 1, 0.25, 0.2);
+		var neck = addShape('', neckShape, extrudeSettings, 0x7fe7cc, -2, 0, 0, 0, 0, 0, 1);
+		var stand = addShape('', standShape, extrudeSettings, 0x7fe7cc, -2, 0, 0, Math.PI / 2, 0, 0, 1);
 
 		pc = new THREE.Group();
 
@@ -935,7 +944,7 @@ Ammo().then(function (Ammo) {
 	//xervixx project
 	function addStock() {
 		var material = new THREE.LineBasicMaterial({
-			color: 0x00fff2,
+			color: 0xffc5a1,
 			transparent: true,
 			opacity: 0.7,
 		});
@@ -985,7 +994,7 @@ Ammo().then(function (Ammo) {
 				0.5,
 				2,
 				0.7,
-				0xffff00
+				0xee8276
 			);
 			bcSkillGroup.add(blockchainText);
 		});
@@ -1011,7 +1020,7 @@ Ammo().then(function (Ammo) {
 				bcSkillGroup.add(model);
 				model.scale.set(0.025, 0.025, 0.025);
 			});
-		}, 500);
+		}, 1000);
 		setTimeout(() => {
 			loadModel(
 				'star',
@@ -1023,7 +1032,7 @@ Ammo().then(function (Ammo) {
 				bcSkillGroup.add(model);
 				model.scale.set(0.025, 0.025, 0.025);
 			});
-		}, 1000);
+		}, 2000);
 		bcSkillGroup.position.set(-11, 0, -80);
 		scene.add(bcSkillGroup);
 	}
@@ -1040,7 +1049,7 @@ Ammo().then(function (Ammo) {
 				0.5,
 				3,
 				0.7,
-				0xffff00
+				0xf6a24e
 			);
 			phpSkillGroup.add(phpText);
 		});
@@ -1060,7 +1069,7 @@ Ammo().then(function (Ammo) {
 				rot,
 				0.1, 0, 0.5, 0.5, 0.1
 			).then((model) => phpSkillGroup.add(model));
-		}, 500);
+		}, 1000);
 		setTimeout(() => {
 			loadModel(
 				'pizza',
@@ -1069,7 +1078,7 @@ Ammo().then(function (Ammo) {
 				rot,
 				0.1, 0, 0.5, 0.5, 0.1
 			).then((model) => phpSkillGroup.add(model));
-		}, 1000);
+		}, 2000);
 		setTimeout(() => {
 			loadModel(
 				'pizza',
@@ -1078,9 +1087,9 @@ Ammo().then(function (Ammo) {
 				rot,
 				0.1, 0, 0.5, 0.5, 0.1
 			).then((model) => phpSkillGroup.add(model));
-		}, 1500);
+		}, 3000);
 
-		phpSkillGroup.position.set(8, 0, -90);
+		phpSkillGroup.position.set(6, 0, -90);
 		scene.add(phpSkillGroup);
 	}
 
@@ -1096,7 +1105,7 @@ Ammo().then(function (Ammo) {
 				0.5,
 				3,
 				0.7,
-				0xffff00
+				0xf8b88b
 			);
 			androidSkillGroup.add(androidText);
 		});
@@ -1122,7 +1131,7 @@ Ammo().then(function (Ammo) {
 				androidSkillGroup.add(model);
 				foods.push(model);
 			});
-		}, 500);
+		}, 1000);
 		setTimeout(() => {
 			loadModel(
 				'android',
@@ -1134,7 +1143,7 @@ Ammo().then(function (Ammo) {
 				androidSkillGroup.add(model);
 				foods.push(model);
 			});
-		}, 1000);
+		}, 2000);
 
 		androidSkillGroup.position.set(-12, 0, -100);
 		scene.add(androidSkillGroup);
@@ -1152,7 +1161,7 @@ Ammo().then(function (Ammo) {
 				0.5,
 				3,
 				0.7,
-				0xffff00
+				0xe97140
 			);
 			pythonSkillGroup.add(pyText);
 		});
@@ -1172,7 +1181,7 @@ Ammo().then(function (Ammo) {
 				rot,
 				0.25, 0, 0.5, 0.5, 0.1
 			).then((model) => pythonSkillGroup.add(model));
-		}, 500);
+		}, 1000);
 		setTimeout(() => {
 			loadModel(
 				'fries',
@@ -1181,7 +1190,7 @@ Ammo().then(function (Ammo) {
 				rot,
 				0.25, 0, 0.5, 0.5, 0.1
 			).then((model) => pythonSkillGroup.add(model));
-		}, 1000);
+		}, 2000);
 
 		pythonSkillGroup.position.set(5, 0, -110);
 		scene.add(pythonSkillGroup);
@@ -1199,7 +1208,7 @@ Ammo().then(function (Ammo) {
 				0.5,
 				3,
 				0.7,
-				0xffff00
+				0xcc5079
 			);
 			webSkillGroup.add(htmlText);
 		});
@@ -1212,7 +1221,7 @@ Ammo().then(function (Ammo) {
 				0.5,
 				3,
 				0.7,
-				0xffff00
+				0xf274bc
 			);
 			webSkillGroup.add(cssText);
 		});
@@ -1225,7 +1234,7 @@ Ammo().then(function (Ammo) {
 				0.5,
 				3,
 				0.7,
-				0xffff00
+				0xf2a2e8
 			);
 			webSkillGroup.add(jsText);
 		});
@@ -1251,7 +1260,7 @@ Ammo().then(function (Ammo) {
 				webSkillGroup.add(model);
 				foods.push(model);
 			});
-		}, 500);
+		}, 1000);
 		setTimeout(() => {
 			loadModel(
 				'ice_cream',
@@ -1263,7 +1272,7 @@ Ammo().then(function (Ammo) {
 				webSkillGroup.add(model);
 				foods.push(model);
 			});
-		}, 1000);
+		}, 2000);
 		setTimeout(() => {
 			loadModel(
 				'ice_cream',
@@ -1275,7 +1284,7 @@ Ammo().then(function (Ammo) {
 				webSkillGroup.add(model);
 				foods.push(model);
 			});
-		}, 1500);
+		}, 3000);
 
 		webSkillGroup.position.set(-10, 0, -120);
 		scene.add(webSkillGroup);
@@ -1293,7 +1302,7 @@ Ammo().then(function (Ammo) {
 				0.5,
 				3,
 				0.7,
-				0xffff00
+				0x129a7d
 			);
 			javaSkillGroup.add(javaText);
 		});
@@ -1313,7 +1322,7 @@ Ammo().then(function (Ammo) {
 				rot,
 				2, 0, 0.5, 0.5, 0.1
 			).then((model) => javaSkillGroup.add(model));
-		}, 500);
+		}, 1000);
 		setTimeout(() => {
 			loadModel(
 				'chocolate_chip_cookie',
@@ -1322,7 +1331,7 @@ Ammo().then(function (Ammo) {
 				rot,
 				2, 0, 0.5, 0.5, 0.1
 			).then((model) => javaSkillGroup.add(model));
-		}, 1000);
+		}, 2000);
 		setTimeout(() => {
 			loadModel(
 				'chocolate_chip_cookie',
@@ -1331,7 +1340,7 @@ Ammo().then(function (Ammo) {
 				rot,
 				2, 0, 0.5, 0.5, 0.1
 			).then((model) => javaSkillGroup.add(model));
-		}, 1500);
+		}, 3000);
 
 		javaSkillGroup.position.set(7, 0, -130);
 		scene.add(javaSkillGroup);
@@ -1349,7 +1358,7 @@ Ammo().then(function (Ammo) {
 				0.5,
 				3,
 				0.7,
-				0xffff00
+				0xa87550
 			);
 			mysqlSkillGroup.add(javaText);
 		});
@@ -1375,7 +1384,7 @@ Ammo().then(function (Ammo) {
 				mysqlSkillGroup.add(model);
 				foods.push(model);
 			});
-		}, 500);
+		}, 1000);
 		setTimeout(() => {
 			loadModel(
 				'burger',
@@ -1387,7 +1396,7 @@ Ammo().then(function (Ammo) {
 				mysqlSkillGroup.add(model);
 				foods.push(model);
 			});
-		}, 1000);
+		}, 2000);
 		setTimeout(() => {
 			loadModel(
 				'burger',
@@ -1399,7 +1408,7 @@ Ammo().then(function (Ammo) {
 				mysqlSkillGroup.add(model);
 				foods.push(model);
 			});
-		}, 1500);
+		}, 3000);
 
 		mysqlSkillGroup.position.set(-10, 0, -140);
 		scene.add(mysqlSkillGroup);
@@ -1417,7 +1426,7 @@ Ammo().then(function (Ammo) {
 				0.5,
 				3.25,
 				0.7,
-				0xffff00
+				0x2d7f9d
 			);
 			cppSkillGroup.add(cppText);
 		});
@@ -1443,7 +1452,7 @@ Ammo().then(function (Ammo) {
 				cppSkillGroup.add(model);
 				foods.push(model);
 			});
-		}, 500);
+		}, 1000);
 		setTimeout(() => {
 			loadModel(
 				'cupcake',
@@ -1455,9 +1464,9 @@ Ammo().then(function (Ammo) {
 				cppSkillGroup.add(model);
 				foods.push(model);
 			});
-		}, 1000);
+		}, 2000);
 
-		cppSkillGroup.position.set(8, 0, -150);
+		cppSkillGroup.position.set(6, 0, -150);
 		scene.add(cppSkillGroup);
 	}
 
@@ -1786,49 +1795,29 @@ Ammo().then(function (Ammo) {
 		padMesh.position.y -= padpos;
 	}
 
-	function addBall() {
-		gltfLoader.load('models3d/ball/scene.gltf', function (gltf) {
+	function addAndy() {
+		gltfLoader.load('models3d/andy/scene.gltf', function (gltf) {
 			var mesh = gltf.scene;
 
-			var shape = new Ammo.btSphereShape(1);
-			shape.setMargin(margin);
+			let mixer = new THREE.AnimationMixer(mesh);
+			mixers.push(mixer);
 
-			mesh.receiveShadow = true;
-			mesh.castShadow = true;
+			for (var i = 0; i < 4; i++) {
+				var action = mixer.clipAction(gltf.animations[i]);
+				runAction.push(action);
+			}
+	
+			mesh.traverse(function (node) {
 
-			mass = 2;
-			friction = 0.7;
+				if (node.isMesh) {
+					node.castShadow = true;
+					node.receiveShadow = true;
+				}
+			});
 
-			pos = new THREE.Vector3(5, 5, 5);
-			quat = ZERO_QUATERNION;
-
-			mesh.position.copy(pos);
-			mesh.quaternion.copy(quat);
-
-			var transform = new Ammo.btTransform();
-			transform.setIdentity();
-			transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
-			transform.setRotation(new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
-			var motionState = new Ammo.btDefaultMotionState(transform);
-
-			var localInertia = new Ammo.btVector3(0, 0, 0);
-			shape.calculateLocalInertia(mass, localInertia);
-
-			var rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, shape, localInertia);
-			var body = new Ammo.btRigidBody(rbInfo);
-
-			ball = mesh;
-
-			body.setFriction(friction);
-
-			physicsWorld.addRigidBody(body);
-
-			body.setActivationState(DISABLE_DEACTIVATION);
-
-			// Sync physics and graphics
-			mesh.userData.physicsBody = body;
-			rigidBodies.push(mesh);
-
+			andy = mesh;
+			mesh.position.set(0, 1, 5);
+			mesh.rotation.set(0, Math.PI / 2, 0);
 			scene.add(mesh);
 		});
 	}
@@ -1837,9 +1826,9 @@ Ammo().then(function (Ammo) {
 		//add godrays effect for holograph
 		var godraysEffect = new POSTPROCESSING.GodRaysEffect(camera, base, {
 			resolutionScale: 1,
-			density: 1,
-			decay: 0.95,
-			weight: 0.3,
+			density: 0.9,
+			decay: 0.96,
+			weight: 1,
 			samples: 100
 		});
 		var effectPass = new POSTPROCESSING.EffectPass(camera, godraysEffect);
@@ -1917,14 +1906,14 @@ Ammo().then(function (Ammo) {
 		var trackWidth = 30;
 		var trackLength = 1000;
 		trackGeom = new THREE.PlaneBufferGeometry(trackWidth, trackLength);
-		var trackMaterial = new THREE.MeshPhongMaterial({
+		var trackMaterial = new THREE.MeshBasicMaterial({
 			color: 0xbaffc9,
 			side: THREE.DoubleSide
 		});
 		track = new THREE.Mesh(trackGeom, trackMaterial);
 		track.receiveShadow = true;
 		track.castShadow = true;
-		// createBox(track, new THREE.Vector3(0, -0.5, 0), ZERO_QUATERNION, trackWidth, 1, trackLength, 0, 2);
+		createBox(track, new THREE.Vector3(0, -0.5, 0), ZERO_QUATERNION, trackWidth, 1, trackLength, 0, 2);
 
 		track.rotation.x = Math.PI / 2;
 		track.position.z = 10 - trackLength / 2;
@@ -1940,13 +1929,9 @@ Ammo().then(function (Ammo) {
 
 		addAllExperiences();
 
-		// createVehicle(new THREE.Vector3(10, 10, -10), ZERO_QUATERNION);
-
-		// addBall();
+		addAndy();
 
 		addTrack();
-
-
 	}
 
 	// - Init -

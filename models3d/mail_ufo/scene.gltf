@@ -300,9 +300,9 @@
             "name" : "body",
             "pbrMetallicRoughness" : {
                 "baseColorFactor" : [
-                    1,
-                    0.00818832777440548,
-                    0.011776763945817947,
+                    0.8549929857254028,
+                    0.07551784813404083,
+                    0.07551784813404083,
                     1
                 ],
                 "metallicFactor" : 0,
@@ -341,9 +341,9 @@
         {
             "doubleSided" : true,
             "emissiveFactor" : [
-                0,
-                0.16600336134433746,
-                1
+                1,
+                0.8262073397636414,
+                0.06276553124189377
             ],
             "name" : "light",
             "pbrMetallicRoughness" : {
