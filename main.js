@@ -12,7 +12,6 @@ Ammo().then(function (Ammo) {
 	var mobile, pc, blockchain, coin, dialogueL, dialogueR, trend;
 	var pad, takeOffAction = [], hoverAction, closeAction = [], openAction = [];
 	var insta_button, fms_button, kart_button, linkedin_button, github_button, email_button, xerv_button, fund_button;
-	var force_vec = new Ammo.btVector3();
 	var up = 1, down = 0;
 	var dl = 1, dr = 0, step = 0;
 	var trendBack = 1, trendFront = 0;
@@ -24,11 +23,20 @@ Ammo().then(function (Ammo) {
 	var foods = [];
 	var runAction = [];
 	var andy, lText;
+	var activeButton = -1;
 	var isAndyMoving = false;
 	var hasAndyTurned = false;
-	var temp = new THREE.Vector3;
 	var mouse = new THREE.Vector3();
 	var raycaster = new THREE.Raycaster();
+	var links = ['https://github.com/ItsTheKayBee/InstaNote',
+		'https://github.com/ItsTheKayBee/FundEasy',
+		'https://github.com/ItsTheKayBee/EssentialsKart',
+		'https://github.com/ItsTheKayBee/FacultyManagementSystem',
+		'https://github.com/ItsTheKayBee/Xervixx',
+		'https://www.github.com/ItsTheKayBee',
+		'https://linkedin.com/in/itsthekaybee',
+		'mailto:kunal.bohra@somaiya.edu'
+	];
 
 	// Physics variables
 	var collisionConfiguration;
@@ -184,46 +192,45 @@ Ammo().then(function (Ammo) {
 			//buttons
 			if (andyz <= -218 && andyz >= -220) {
 				//github
+				activeButton = 5;
 				github_button.position.y = 4;
-				// window.open('https://www.github.com/ItsTheKayBee');
 
 			} else if (andyz <= -238 && andyz >= -240) {
 				//linkedin
+				activeButton = 6;
 				linkedin_button.position.y = 4;
-				// window.open('https://linkedin.com/in/itsthekaybee');
 
 			} else if (andyz <= -258 && andyz >= -260) {
 				//email
+				activeButton = 7;
 				email_button.position.y = 4;
 			} else if (andyz <= -23 && andyz >= -31) {
 				// instanote
 				insta_button.position.y = 4;
-				// window.open('https://github.com/ItsTheKayBee/InstaNote');
+				activeButton = 0;
 
 			} else if (andyz <= -34 && andyz >= -41) {
 				// fundeasy
+				activeButton = 1;
 				fund_button.position.y = 4;
-
-				// window.open('https://github.com/ItsTheKayBee/FundEasy');
 
 			} else if (andyz <= -43 && andyz >= -51) {
 				// essentialskart
+				activeButton = 2;
 				kart_button.position.y = 4;
-
-				// window.open('https://github.com/ItsTheKayBee/EssentialsKart');
 
 			} else if (andyz <= -54 && andyz >= -61) {
 				// fms
+				activeButton = 3;
 				fms_button.position.y = 4;
-
-				// window.open('https://github.com/ItsTheKayBee/FacultyManagementSystem');
 
 			} else if (andyz <= -64 && andyz >= -71) {
 				// xervixx
+				activeButton = 4;
 				xerv_button.position.y = 4;
 
-				// window.open('https://github.com/ItsTheKayBee/Xervixx');
 			} else {
+				activeButton = -1;
 				insta_button.position.y = -4;
 				fund_button.position.y = -4;
 				kart_button.position.y = -4;
@@ -238,9 +245,19 @@ Ammo().then(function (Ammo) {
 
 
 	function onMouseDown(event) {
-
+		event.preventDefault();
 		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
 		mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+		raycaster.setFromCamera(mouse, camera);
+
+		var intersects = raycaster.intersectObjects(scene.children);
+
+		if (intersects.length > 0) {
+
+			window.open(intersects[0].object.userData.url);
+		}
+
 
 	}
 
@@ -294,16 +311,6 @@ Ammo().then(function (Ammo) {
 				andy.rotation.y = Math.PI / 2;
 			}
 			isAndyMoving = false;
-		}
-
-		raycaster.setFromCamera(mouse, camera);
-
-		var intersects = raycaster.intersectObjects(scene.children);
-
-		for (var i = 0; i < intersects.length; i++) {
-
-			// intersects[i].object.material.color.set(0xffffff);
-
 		}
 
 		updatePhysics();
@@ -1866,13 +1873,32 @@ Ammo().then(function (Ammo) {
 			scene.add(bohraText);
 			var devText = createText(
 				font,
-				"SOFTWARE DEV",
+				"SOFTWARE D",
 				{ x: 3, y: 0, z: -6 },
 				ZERO_QUATERNION,
 				0.35, 2, 0.6,
 				0xef6c57
 			);
 			scene.add(devText);
+			var eText = createText(
+				font,
+				"E",
+				{ x: 9.35, y: 0, z: -6 },
+				ZERO_QUATERNION,
+				0.35, 2, 0.6,
+				0xef6c57
+			);
+			eText.rotation.z = 0.3;
+			scene.add(eText);
+			var vText = createText(
+				font,
+				"V",
+				{ x: 9.85, y: 0, z: -6 },
+				ZERO_QUATERNION,
+				0.35, 2, 0.6,
+				0xef6c57
+			);
+			scene.add(vText);
 		});
 
 	}
@@ -1895,6 +1921,7 @@ Ammo().then(function (Ammo) {
 			var pos = { x: 2.5, y: -4, z: -28 };
 			insta_button = addButton(pos, color);
 			insta_button.add(visitText);
+			insta_button.userData = { url: links[0] };
 			scene.add(insta_button);
 
 			//fundeasy
@@ -1902,6 +1929,7 @@ Ammo().then(function (Ammo) {
 			pos = { x: -2.5, y: -4, z: -36 };
 			fund_button = addButton(pos, color);
 			fund_button.add(visitText.clone());
+			fund_button.userData = { url: links[1] };
 			scene.add(fund_button);
 
 			//essentialskart
@@ -1909,6 +1937,7 @@ Ammo().then(function (Ammo) {
 			pos = { x: 2.5, y: -4, z: -46 };
 			kart_button = addButton(pos, color);
 			kart_button.add(visitText.clone());
+			kart_button.userData = { url: links[2] };
 			scene.add(kart_button);
 
 			//fms
@@ -1916,6 +1945,7 @@ Ammo().then(function (Ammo) {
 			pos = { x: -2.5, y: -4, z: -56 };
 			fms_button = addButton(pos, color);
 			fms_button.add(visitText.clone());
+			fms_button.userData = { url: links[3] };
 			scene.add(fms_button);
 
 			//xervixx
@@ -1923,6 +1953,7 @@ Ammo().then(function (Ammo) {
 			pos = { x: 2.5, y: -4, z: -66 };
 			xerv_button = addButton(pos, color);
 			xerv_button.add(visitText.clone());
+			xerv_button.userData = { url: links[4] };
 			scene.add(xerv_button);
 
 			var posn = { x: -0.65, y: -0.1, z: 0.2 };
@@ -1939,6 +1970,7 @@ Ammo().then(function (Ammo) {
 			pos = { x: -4, y: -4, z: -220 };
 			github_button = addButton(pos, color);
 			github_button.add(teleportText);
+			github_button.userData = { url: links[5] };
 			scene.add(github_button);
 
 			//linkedin
@@ -1946,6 +1978,7 @@ Ammo().then(function (Ammo) {
 			pos = { x: 4, y: -4, z: -240 };
 			linkedin_button = addButton(pos, color);
 			linkedin_button.add(teleportText.clone());
+			linkedin_button.userData = { url: links[6] };
 			scene.add(linkedin_button);
 
 			//email
@@ -1953,6 +1986,7 @@ Ammo().then(function (Ammo) {
 			pos = { x: -4, y: -4, z: -260 };
 			email_button = addButton(pos, color);
 			email_button.add(teleportText.clone());
+			email_button.userData = { url: links[7] };
 			scene.add(email_button);
 
 		});
