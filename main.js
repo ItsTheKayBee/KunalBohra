@@ -11,6 +11,7 @@ Ammo().then(function (Ammo) {
 	var githubUfo, linkedinUfo, mailUfo;
 	var mobile, pc, blockchain, coin, dialogueL, dialogueR, trend;
 	var pad, takeOffAction = [], hoverAction, closeAction = [], openAction = [];
+	var insta_button, fms_button, kart_button, linkedin_button, github_button, email_button, xerv_button, fund_button;
 	var force_vec = new Ammo.btVector3();
 	var up = 1, down = 0;
 	var dl = 1, dr = 0, step = 0;
@@ -95,7 +96,7 @@ Ammo().then(function (Ammo) {
 				camera.position.z -= dy * 0.005;
 				andy.position.z -= dy * 0.005;
 				andy.position.y = 1;
-				
+
 				if (camz <= -187)
 					andy.position.y = 1;
 				isAndyMoving = true;
@@ -106,8 +107,8 @@ Ammo().then(function (Ammo) {
 					hasAndyTurned = false;
 				}
 
-				camera.position.clampScalar(-300, 10);
-				andy.position.clampScalar(-305, 5);
+				camera.position.clampScalar(-270, 10);
+				andy.position.clampScalar(-275, 5);
 			}
 
 			else if (camz <= -178 && Math.ceil(camz) >= -179) {
@@ -169,45 +170,69 @@ Ammo().then(function (Ammo) {
 				}
 			}
 
+			//jumping
 			if (camz <= -171 && camz >= -174) {
 				andy.position.y += dy * 0.005;
 			}
 
-			/* 	if (andyz < -9.5 && andyz > -11) {
-					//movement of L
-					lText.position.x = -2;
-					lText.rotation.y = Math.PI / 4;
-				} else if (andyz <= -218 && andyz >= -220) {
-					//github
-					window.open('https://www.github.com/ItsTheKayBee');
-	
-				} else if (andyz <= -238 && andyz >= -240) {
-					//linkedin
-					window.open('https://linkedin.com/in/itsthekaybee');
-	
-				} else if (andyz <= -258 && andyz >= -260) {
-					//email
-	
-				} else if (andyz <= -29 && andyz >= -31) {
-					// instanote
-					window.open('https://github.com/ItsTheKayBee/InstaNote');
-	
-				} else if (andyz <= -39 && andyz >= -41) {
-					// fundeasy
-					window.open('https://github.com/ItsTheKayBee/FundEasy');
-	
-				} else if (andyz <= -49 && andyz >= -51) {
-					// essentialskart
-					window.open('https://github.com/ItsTheKayBee/EssentialsKart');
-	
-				} else if (andyz <= -59 && andyz >= -61) {
-					// fms
-					window.open('https://github.com/ItsTheKayBee/FacultyManagementSystem');
-	
-				} else if (andyz <= -69 && andyz >= -71) {
-					// xervixx
-					window.open('https://github.com/ItsTheKayBee/Xervixx');
-				} */
+			//movement of L
+			if (andyz < -9.5 && andyz > -11) {
+				lText.position.x = -2;
+				lText.rotation.y = Math.PI / 4;
+			}
+
+			//buttons
+			if (andyz <= -218 && andyz >= -220) {
+				//github
+				github_button.position.y = 4;
+				// window.open('https://www.github.com/ItsTheKayBee');
+
+			} else if (andyz <= -238 && andyz >= -240) {
+				//linkedin
+				linkedin_button.position.y = 4;
+				// window.open('https://linkedin.com/in/itsthekaybee');
+
+			} else if (andyz <= -258 && andyz >= -260) {
+				//email
+				email_button.position.y = 4;
+			} else if (andyz <= -23 && andyz >= -31) {
+				// instanote
+				insta_button.position.y = 4;
+				// window.open('https://github.com/ItsTheKayBee/InstaNote');
+
+			} else if (andyz <= -34 && andyz >= -41) {
+				// fundeasy
+				fund_button.position.y = 4;
+
+				// window.open('https://github.com/ItsTheKayBee/FundEasy');
+
+			} else if (andyz <= -43 && andyz >= -51) {
+				// essentialskart
+				kart_button.position.y = 4;
+
+				// window.open('https://github.com/ItsTheKayBee/EssentialsKart');
+
+			} else if (andyz <= -54 && andyz >= -61) {
+				// fms
+				fms_button.position.y = 4;
+
+				// window.open('https://github.com/ItsTheKayBee/FacultyManagementSystem');
+
+			} else if (andyz <= -64 && andyz >= -71) {
+				// xervixx
+				xerv_button.position.y = 4;
+
+				// window.open('https://github.com/ItsTheKayBee/Xervixx');
+			} else {
+				insta_button.position.y = -4;
+				fund_button.position.y = -4;
+				kart_button.position.y = -4;
+				fms_button.position.y = -4;
+				xerv_button.position.y = -4;
+				linkedin_button.position.y = -4;
+				github_button.position.y = -4;
+				email_button.position.y = -4;
+			}
 		}
 	}
 
@@ -1852,6 +1877,7 @@ Ammo().then(function (Ammo) {
 
 	}
 
+
 	function addButtons() {
 		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
 			var posn = { x: -0.55, y: -0.1, z: 0.2 };
@@ -1866,38 +1892,38 @@ Ammo().then(function (Ammo) {
 
 			//instanote
 			var color = 0xbb5a5a;
-			var pos = { x: 2.5, y: 4, z: -30 };
-			var button = addButton(pos, color);
-			button.add(visitText);
-			scene.add(button);
+			var pos = { x: 2.5, y: -4, z: -28 };
+			insta_button = addButton(pos, color);
+			insta_button.add(visitText);
+			scene.add(insta_button);
 
 			//fundeasy
 			color = 0x61c0bf;
-			pos = { x: -2.5, y: 4, z: -38 };
-			var button = addButton(pos, color);
-			button.add(visitText.clone());
-			scene.add(button);
+			pos = { x: -2.5, y: -4, z: -36 };
+			fund_button = addButton(pos, color);
+			fund_button.add(visitText.clone());
+			scene.add(fund_button);
 
 			//essentialskart
 			color = 0xffcab0;
-			pos = { x: 2.5, y: 4, z: -51 };
-			var button = addButton(pos, color);
-			button.add(visitText.clone());
-			scene.add(button);
+			pos = { x: 2.5, y: -4, z: -46 };
+			kart_button = addButton(pos, color);
+			kart_button.add(visitText.clone());
+			scene.add(kart_button);
 
 			//fms
 			color = 0x9a9b94;
-			pos = { x: -2.5, y: 4, z: -60 };
-			var button = addButton(pos, color);
-			button.add(visitText.clone());
-			scene.add(button);
+			pos = { x: -2.5, y: -4, z: -56 };
+			fms_button = addButton(pos, color);
+			fms_button.add(visitText.clone());
+			scene.add(fms_button);
 
 			//xervixx
 			color = 0xe6a4b4;
-			pos = { x: 2.5, y: 4, z: -70 };
-			var button = addButton(pos, color);
-			button.add(visitText.clone());
-			scene.add(button);
+			pos = { x: 2.5, y: -4, z: -66 };
+			xerv_button = addButton(pos, color);
+			xerv_button.add(visitText.clone());
+			scene.add(xerv_button);
 
 			var posn = { x: -0.65, y: -0.1, z: 0.2 };
 			var teleportText = createText(
@@ -1910,24 +1936,24 @@ Ammo().then(function (Ammo) {
 
 			//github
 			color = 0x8a79af;
-			pos = { x: -4.5, y: 4, z: -220 };
-			var button = addButton(pos, color);
-			button.add(teleportText);
-			scene.add(button);
+			pos = { x: -4, y: -4, z: -220 };
+			github_button = addButton(pos, color);
+			github_button.add(teleportText);
+			scene.add(github_button);
 
 			//linkedin
 			color = 0x99ddcc;
-			pos = { x: 4.5, y: 4, z: -240 };
-			var button = addButton(pos, color);
-			button.add(teleportText.clone());
-			scene.add(button);
+			pos = { x: 4, y: -4, z: -240 };
+			linkedin_button = addButton(pos, color);
+			linkedin_button.add(teleportText.clone());
+			scene.add(linkedin_button);
 
 			//email
 			color = 0xf67280;
-			pos = { x: -4.5, y: 4, z: -260 };
-			var button = addButton(pos, color);
-			button.add(teleportText.clone());
-			scene.add(button);
+			pos = { x: -4, y: -4, z: -260 };
+			email_button = addButton(pos, color);
+			email_button.add(teleportText.clone());
+			scene.add(email_button);
 
 		});
 
