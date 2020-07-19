@@ -22,10 +22,13 @@ Ammo().then(function (Ammo) {
 	var models3d = [];
 	var foods = [];
 	var runAction = [];
-	var andy;
+	var andy, lText;
 	var isAndyMoving = false;
 	var hasAndyTurned = false;
 	var temp = new THREE.Vector3;
+	var projector = new THREE.Projector();
+	var mouse = new THREE.Vector3();
+	var raycaster = new THREE.Raycaster();
 
 	// Physics variables
 	var collisionConfiguration;
@@ -38,7 +41,7 @@ Ammo().then(function (Ammo) {
 
 	function scenes() {
 		scene = new THREE.Scene();
-		scene.fog = new THREE.FogExp2(0xffffff, 0.0025);
+		scene.fog = new THREE.FogExp2(0xf2f3ee, 0.01);
 	}
 
 	function cam() {
@@ -55,15 +58,6 @@ Ammo().then(function (Ammo) {
 		//directional light
 		var dirLight = new THREE.DirectionalLight(0xffffff, 1);
 		dirLight.position.set(-10, 10, 5);
-		dirLight.castShadow = true;
-		dirLight.shadow.camera.top = 2;
-		dirLight.shadow.camera.bottom = -2;
-		dirLight.shadow.camera.left = -2;
-		dirLight.shadow.camera.right = 2;
-		dirLight.shadow.camera.near = 0.1;
-		dirLight.shadow.camera.far = 40;
-		dirLight.shadow.mapSize.x = 1024;
-		dirLight.shadow.mapSize.y = 1024;
 		scene.add(dirLight);
 	}
 
@@ -88,14 +82,19 @@ Ammo().then(function (Ammo) {
 
 		window.addEventListener('resize', onWindowResize, false);
 		window.addEventListener('wheel', scrolling, { passive: false });
+		window.addEventListener('mousemove', onMouseMove, false);
 	}
 
 	function scrolling() {
 		if (andy) {
-			camera.position.x = 0;
-			if (camera.position.z > -170 || camera.position.z <= -176) {
-				camera.position.z -= event.deltaY * 0.005;
-				andy.position.z -= event.deltaY * 0.005;
+			let andyz = andy.position.z;
+			let camz = camera.position.z;
+			let camy = camera.position.y;
+			let dy = event.deltaY;
+
+			if (camz > -174 || camz <= -180) {
+				camera.position.z -= dy * 0.005;
+				andy.position.z -= dy * 0.005;
 				isAndyMoving = true;
 
 				if (event.deltaY < 0) {
@@ -105,20 +104,21 @@ Ammo().then(function (Ammo) {
 				}
 
 				camera.position.clampScalar(-300, 10);
-				andy.position.clampScalar(-300, 5);
+				andy.position.clampScalar(-305, 5);
 			}
 
-			else if (camera.position.z <= -174 && Math.ceil(camera.position.z) >= -175) {
+			else if (camz <= -178 && Math.ceil(camz) >= -179) {
 				camera.lookAt(pad.position);
-
-				camera.position.y -= event.deltaY * 0.005;
-				pad.position.y -= event.deltaY * 0.005;
+				camera.position.y -= dy * 0.005;
+				pad.position.y -= dy * 0.005;
+				andy.position.y = pad.position.y + 1;
 				for (var i = 0; i < 4; i++) {
 					takeOffAction[i].stop();
 				}
 				if (camera.position.y < 5) {
-					camera.position.z = -176;
+					camera.position.z = -180;
 					camera.position.y = 5;
+					andy.position.y = 1;
 
 					for (var i = 0; i < 4; i++) {
 						openAction[i].play();
@@ -127,34 +127,81 @@ Ammo().then(function (Ammo) {
 						for (var i = 0; i < 4; i++) {
 							openAction[i].timeScale = 0;
 						}
-					}, 3300);
-					padpos = 1.5;
+					}, 3200);
 				}
-				if (camera.position.y > 120) {
-					camera.position.z = -172;
+				if (camy > 120) {
+					camera.position.z = -176;
 				}
 			}
 
-			else if (camera.position.z <= -170 && camera.position.z >= -173) {
+			else if (camz <= -174 && camz >= -177) {
 				camera.lookAt(pad.position);
-
-				pad.position.y += event.deltaY * 0.005;
-				camera.position.y += event.deltaY * 0.005;
+				pad.position.y += dy * 0.005;
+				andy.position.y = pad.position.y + 1;
+				camera.position.y += dy * 0.005;
 				for (var i = 0; i < 4; i++) {
 					takeOffAction[i].play();
 					closeAction[i].play();
 				}
-				if (camera.position.y < 5) {
-					camera.position.z = -169;
+				if (camy < 5) {
+					camera.position.z = -173;
 					camera.position.y = 5;
 				}
-				if (camera.position.y > 120) {
-					camera.position.z = -174;
-					pad.position.z = -182;
+				if (camy > 120) {
+					camera.position.z = -178;
+					pad.position.z = -186;
+					andy.position.z = -186;
 				}
 			}
 
+			if (camz <= -171 && camz >= -174) {
+				andy.position.y += dy * 0.005;
+			}
+
+			if (andyz < -9.5 && andyz > -11) {
+				//movement of L
+				lText.position.x = -2;
+				lText.rotation.y = Math.PI / 4;
+			} else if (andyz <= -218 && andyz >= -220) {
+				//github
+				window.open('https://www.github.com/ItsTheKayBee');
+
+			} else if (andyz <= -238 && andyz >= -240) {
+				//linkedin
+				window.open('https://linkedin.com/in/itsthekaybee');
+
+			} else if (andyz <= -258 && andyz >= -260) {
+				//email
+
+			} else if (andyz <= -29 && andyz >= -31) {
+				// instanote
+				window.open('https://github.com/ItsTheKayBee/InstaNote');
+
+			} else if (andyz <= -39 && andyz >= -41) {
+				// fundeasy
+				window.open('https://github.com/ItsTheKayBee/FundEasy');
+
+			} else if (andyz <= -49 && andyz >= -51) {
+				// essentialskart
+				window.open('https://github.com/ItsTheKayBee/EssentialsKart');
+
+			} else if (andyz <= -59 && andyz >= -61) {
+				// fms
+				window.open('https://github.com/ItsTheKayBee/FacultyManagementSystem');
+
+			} else if (andyz <= -69 && andyz >= -71) {
+				// xervixx
+				window.open('https://github.com/ItsTheKayBee/Xervixx');
+			}
 		}
+	}
+
+
+	function onMouseMove(event) {
+
+		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+		mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
 	}
 
 	function onWindowResize() {
@@ -207,6 +254,16 @@ Ammo().then(function (Ammo) {
 				andy.rotation.y = Math.PI / 2;
 			}
 			isAndyMoving = false;
+		}
+
+		raycaster.setFromCamera(mouse, camera);
+
+		var intersects = raycaster.intersectObjects(scene.children);
+
+		for (var i = 0; i < intersects.length; i++) {
+
+			intersects[i].object.material.color.set(0xff0000);
+
 		}
 
 		updatePhysics();
@@ -1595,8 +1652,10 @@ Ammo().then(function (Ammo) {
 			});
 
 			andy = mesh;
+
 			mesh.position.set(0, 1, 5);
-			mesh.rotation.set(0, Math.PI / 2, 0);
+			mesh.rotation.set(0, Math.PI, 0);
+
 			scene.add(mesh);
 		});
 	}
@@ -1718,7 +1777,55 @@ Ammo().then(function (Ammo) {
 		scene.add(aboutSign);
 	}
 
+	function addKB() {
+		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
+			var kunaText = createText(
+				font,
+				"KUNA",
+				{ x: -9.5, y: 0, z: -10 },
+				ZERO_QUATERNION,
+				1, 2, 0.6,
+				0xf69e7b
+			);
+			scene.add(kunaText);
+			var pos = { x: -1.5, y: 0, z: -10 }
+			lText = createText(
+				font,
+				"L",
+				pos,
+				ZERO_QUATERNION,
+				1, 2, 0.6,
+				0xf69e7b
+			);
+			scene.add(lText);
+			var bohraText = createText(
+				font,
+				"BOHRA",
+				{ x: 1.5, y: 0, z: -10 },
+				ZERO_QUATERNION,
+				1, 2, 0.6,
+				0xff8364
+			);
+			scene.add(bohraText);
+			var devText = createText(
+				font,
+				"SOFTWARE DEV",
+				{ x: 3, y: 0, z: -6 },
+				ZERO_QUATERNION,
+				0.35, 2, 0.6,
+				0xef6c57
+			);
+			scene.add(devText);
+
+
+
+		});
+
+	}
+
 	function createObjects() {
+
+		addKB();
 
 		addSignPosts();
 
