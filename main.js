@@ -26,7 +26,6 @@ Ammo().then(function (Ammo) {
 	var isAndyMoving = false;
 	var hasAndyTurned = false;
 	var temp = new THREE.Vector3;
-	var projector = new THREE.Projector();
 	var mouse = new THREE.Vector3();
 	var raycaster = new THREE.Raycaster();
 
@@ -82,7 +81,7 @@ Ammo().then(function (Ammo) {
 
 		window.addEventListener('resize', onWindowResize, false);
 		window.addEventListener('wheel', scrolling, { passive: false });
-		window.addEventListener('mousemove', onMouseMove, false);
+		window.addEventListener('mousedown', onMouseDown, false);
 	}
 
 	function scrolling() {
@@ -95,6 +94,10 @@ Ammo().then(function (Ammo) {
 			if (camz > -174 || camz <= -180) {
 				camera.position.z -= dy * 0.005;
 				andy.position.z -= dy * 0.005;
+				andy.position.y = 1;
+				
+				if (camz <= -187)
+					andy.position.y = 1;
 				isAndyMoving = true;
 
 				if (event.deltaY < 0) {
@@ -109,16 +112,21 @@ Ammo().then(function (Ammo) {
 
 			else if (camz <= -178 && Math.ceil(camz) >= -179) {
 				camera.lookAt(pad.position);
-				camera.position.y -= dy * 0.005;
 				pad.position.y -= dy * 0.005;
 				andy.position.y = pad.position.y + 1;
+				camera.position.y -= dy * 0.005;
+				camera.position.z = -178;
 				for (var i = 0; i < 4; i++) {
 					takeOffAction[i].stop();
 				}
 				if (camera.position.y < 5) {
-					camera.position.z = -180;
 					camera.position.y = 5;
-					andy.position.y = 1;
+					andy.position.y = 2;
+					andy.position.z = -186;
+					pad.position.z = -186;
+					pad.position.y = 1;
+					camera.position.z = -181;
+					camera.lookAt(andy.position);
 
 					for (var i = 0; i < 4; i++) {
 						openAction[i].play();
@@ -127,15 +135,17 @@ Ammo().then(function (Ammo) {
 						for (var i = 0; i < 4; i++) {
 							openAction[i].timeScale = 0;
 						}
-					}, 3200);
+					}, 3000);
 				}
 				if (camy > 120) {
+					camera.position.y = 119;
 					camera.position.z = -176;
 				}
 			}
 
 			else if (camz <= -174 && camz >= -177) {
 				camera.lookAt(pad.position);
+				camera.position.z = -174.5;
 				pad.position.y += dy * 0.005;
 				andy.position.y = pad.position.y + 1;
 				camera.position.y += dy * 0.005;
@@ -146,8 +156,13 @@ Ammo().then(function (Ammo) {
 				if (camy < 5) {
 					camera.position.z = -173;
 					camera.position.y = 5;
+					andy.position.y = 2;
+					andy.position.z = -180;
+					pad.position.z = -180;
+					pad.position.y = 1;
 				}
-				if (camy > 120) {
+				else if (camy > 120) {
+					camera.position.y = pad.position.y;
 					camera.position.z = -178;
 					pad.position.z = -186;
 					andy.position.z = -186;
@@ -158,46 +173,46 @@ Ammo().then(function (Ammo) {
 				andy.position.y += dy * 0.005;
 			}
 
-			if (andyz < -9.5 && andyz > -11) {
-				//movement of L
-				lText.position.x = -2;
-				lText.rotation.y = Math.PI / 4;
-			} else if (andyz <= -218 && andyz >= -220) {
-				//github
-				window.open('https://www.github.com/ItsTheKayBee');
-
-			} else if (andyz <= -238 && andyz >= -240) {
-				//linkedin
-				window.open('https://linkedin.com/in/itsthekaybee');
-
-			} else if (andyz <= -258 && andyz >= -260) {
-				//email
-
-			} else if (andyz <= -29 && andyz >= -31) {
-				// instanote
-				window.open('https://github.com/ItsTheKayBee/InstaNote');
-
-			} else if (andyz <= -39 && andyz >= -41) {
-				// fundeasy
-				window.open('https://github.com/ItsTheKayBee/FundEasy');
-
-			} else if (andyz <= -49 && andyz >= -51) {
-				// essentialskart
-				window.open('https://github.com/ItsTheKayBee/EssentialsKart');
-
-			} else if (andyz <= -59 && andyz >= -61) {
-				// fms
-				window.open('https://github.com/ItsTheKayBee/FacultyManagementSystem');
-
-			} else if (andyz <= -69 && andyz >= -71) {
-				// xervixx
-				window.open('https://github.com/ItsTheKayBee/Xervixx');
-			}
+			/* 	if (andyz < -9.5 && andyz > -11) {
+					//movement of L
+					lText.position.x = -2;
+					lText.rotation.y = Math.PI / 4;
+				} else if (andyz <= -218 && andyz >= -220) {
+					//github
+					window.open('https://www.github.com/ItsTheKayBee');
+	
+				} else if (andyz <= -238 && andyz >= -240) {
+					//linkedin
+					window.open('https://linkedin.com/in/itsthekaybee');
+	
+				} else if (andyz <= -258 && andyz >= -260) {
+					//email
+	
+				} else if (andyz <= -29 && andyz >= -31) {
+					// instanote
+					window.open('https://github.com/ItsTheKayBee/InstaNote');
+	
+				} else if (andyz <= -39 && andyz >= -41) {
+					// fundeasy
+					window.open('https://github.com/ItsTheKayBee/FundEasy');
+	
+				} else if (andyz <= -49 && andyz >= -51) {
+					// essentialskart
+					window.open('https://github.com/ItsTheKayBee/EssentialsKart');
+	
+				} else if (andyz <= -59 && andyz >= -61) {
+					// fms
+					window.open('https://github.com/ItsTheKayBee/FacultyManagementSystem');
+	
+				} else if (andyz <= -69 && andyz >= -71) {
+					// xervixx
+					window.open('https://github.com/ItsTheKayBee/Xervixx');
+				} */
 		}
 	}
 
 
-	function onMouseMove(event) {
+	function onMouseDown(event) {
 
 		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
 		mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
@@ -262,7 +277,7 @@ Ammo().then(function (Ammo) {
 
 		for (var i = 0; i < intersects.length; i++) {
 
-			intersects[i].object.material.color.set(0xff0000);
+			// intersects[i].object.material.color.set(0xffffff);
 
 		}
 
@@ -1740,6 +1755,23 @@ Ammo().then(function (Ammo) {
 		createExperience();
 	}
 
+	function addButton(pos, color) {
+		var geom = new THREE.BoxBufferGeometry(1.5, 0.6, 0.25);
+		var material = new THREE.MeshBasicMaterial({
+			color: color,
+			transparent: true,
+			opacity: 0.6
+		});
+
+		var edges = new THREE.EdgesGeometry(geom);
+		var lineMaterial = new THREE.LineBasicMaterial({ color: color });
+		var line = new THREE.LineSegments(edges, lineMaterial);
+		var button = new THREE.Mesh(geom, material);
+		button.add(line);
+		button.position.set(pos.x, pos.y, pos.z);
+		return button;
+	}
+
 	function addTrack() {
 		var trackWidth = 30;
 		var trackLength = 1000;
@@ -1816,8 +1848,86 @@ Ammo().then(function (Ammo) {
 				0xef6c57
 			);
 			scene.add(devText);
+		});
 
+	}
 
+	function addButtons() {
+		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
+			var posn = { x: -0.55, y: -0.1, z: 0.2 };
+			var rot = { x: 0, y: 0, z: 0, w: 1 };
+			var visitText = createText(
+				font,
+				"OPEN",
+				posn,
+				rot,
+				0.5, 0.6, 0.05, 0xe9e9e5
+			);
+
+			//instanote
+			var color = 0xbb5a5a;
+			var pos = { x: 2.5, y: 4, z: -30 };
+			var button = addButton(pos, color);
+			button.add(visitText);
+			scene.add(button);
+
+			//fundeasy
+			color = 0x61c0bf;
+			pos = { x: -2.5, y: 4, z: -38 };
+			var button = addButton(pos, color);
+			button.add(visitText.clone());
+			scene.add(button);
+
+			//essentialskart
+			color = 0xffcab0;
+			pos = { x: 2.5, y: 4, z: -51 };
+			var button = addButton(pos, color);
+			button.add(visitText.clone());
+			scene.add(button);
+
+			//fms
+			color = 0x9a9b94;
+			pos = { x: -2.5, y: 4, z: -60 };
+			var button = addButton(pos, color);
+			button.add(visitText.clone());
+			scene.add(button);
+
+			//xervixx
+			color = 0xe6a4b4;
+			pos = { x: 2.5, y: 4, z: -70 };
+			var button = addButton(pos, color);
+			button.add(visitText.clone());
+			scene.add(button);
+
+			var posn = { x: -0.65, y: -0.1, z: 0.2 };
+			var teleportText = createText(
+				font,
+				"TELEPORT",
+				posn,
+				rot,
+				0.5, 0.4, 0.05, 0xe8ecf1
+			);
+
+			//github
+			color = 0x8a79af;
+			pos = { x: -4.5, y: 4, z: -220 };
+			var button = addButton(pos, color);
+			button.add(teleportText);
+			scene.add(button);
+
+			//linkedin
+			color = 0x99ddcc;
+			pos = { x: 4.5, y: 4, z: -240 };
+			var button = addButton(pos, color);
+			button.add(teleportText.clone());
+			scene.add(button);
+
+			//email
+			color = 0xf67280;
+			pos = { x: -4.5, y: 4, z: -260 };
+			var button = addButton(pos, color);
+			button.add(teleportText.clone());
+			scene.add(button);
 
 		});
 
@@ -1826,6 +1936,8 @@ Ammo().then(function (Ammo) {
 	function createObjects() {
 
 		addKB();
+
+		addButtons();
 
 		addSignPosts();
 
