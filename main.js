@@ -15,9 +15,7 @@ Ammo().then(function (Ammo) {
 	var up = 1, down = 0;
 	var dl = 1, dr = 0, step = 0;
 	var trendBack = 1, trendFront = 0;
-	let gltfLoader = new THREE.GLTFLoader();
-	var textureLoader = new THREE.TextureLoader();
-	var textLoader = new THREE.FontLoader();
+	var loadingManager, gltfLoader, textLoader, textureLoader;
 	var mixers = [];
 	var models3d = [];
 	var foods = [];
@@ -46,6 +44,16 @@ Ammo().then(function (Ammo) {
 	var physicsWorld;
 	var rigidBodies = [];
 	var margin = 0.05;
+
+	var loadingScreen = {
+		scene: new THREE.Scene(),
+		camera: new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100),
+		circle: new THREE.Mesh(
+			new THREE.SphereBufferGeometry(0.2, 20, 20),
+			new THREE.MeshBasicMaterial({ color: 0x99d8d0 })
+		)
+	};
+	var RESOURCES_LOADED = false;
 
 	function scenes() {
 		scene = new THREE.Scene();
@@ -87,6 +95,23 @@ Ammo().then(function (Ammo) {
 		scenes();
 		cam();
 		lights();
+
+		// Set up the loading screen's scene.
+		loadingScreen.circle.position.set(0, 0, 5);
+		loadingScreen.camera.lookAt(loadingScreen.circle.position);
+		loadingScreen.scene.add(loadingScreen.circle);
+		console.log(loadingScreen.circle);
+
+		// Create a loading manager.
+		// Pass loadingManager to all resource loaders.
+		loadingManager = new THREE.LoadingManager();
+		gltfLoader = new THREE.GLTFLoader(loadingManager);
+		textureLoader = new THREE.TextureLoader(loadingManager);
+		textLoader = new THREE.FontLoader(loadingManager);
+
+		loadingManager.onLoad = function () {
+			RESOURCES_LOADED = true;
+		};
 
 		window.addEventListener('resize', onWindowResize, false);
 		window.addEventListener('wheel', scrolling, { passive: false });
@@ -241,7 +266,6 @@ Ammo().then(function (Ammo) {
 		mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
 		raycaster.setFromCamera(mouse, camera);
-
 		var intersects = raycaster.intersectObjects(scene.children);
 
 		if (intersects.length > 0) {
@@ -256,7 +280,6 @@ Ammo().then(function (Ammo) {
 		mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
 		raycaster.setFromCamera(mouse, camera);
-
 		var intersects = raycaster.intersectObjects(scene.children);
 
 		if (intersects.length > 0) {
@@ -295,6 +318,18 @@ Ammo().then(function (Ammo) {
 	}
 
 	function animate() {
+
+		if (RESOURCES_LOADED == false) {
+			requestAnimationFrame(animate);
+
+			let posx = loadingScreen.circle.position.x;
+			loadingScreen.circle.position.x -= 0.05;
+			if (posx < -1) loadingScreen.circle.position.x = 1;
+
+			renderer.render(loadingScreen.scene, loadingScreen.camera);
+			return; // Stop the function here.
+		}
+
 		requestAnimationFrame(animate);
 		var dt = clock.getDelta();
 
@@ -364,9 +399,9 @@ Ammo().then(function (Ammo) {
 	function projectsAnimation(step) {
 
 		//rotation of holographs
-		mobile.rotation.y += 0.01;
-		pc.rotation.y += 0.01;
-		blockchain.rotation.y += 0.01;
+		mobile.rotation.y += 0.02;
+		pc.rotation.y += 0.02;
+		blockchain.rotation.y += 0.02;
 
 		//coin animation
 		if (coin.position.y >= 4) {
@@ -377,13 +412,13 @@ Ammo().then(function (Ammo) {
 			up = 1;
 		}
 		if (up) {
-			coin.position.y += 0.02;
+			coin.position.y += 0.04;
 		} else if (down) {
-			coin.position.y -= 0.02;
+			coin.position.y -= 0.04;
 		}
 
 		//dialogflow animation
-		if (step % 90 == 0) {
+		if (step % 30 == 0) {
 			if (dl == 1) {
 				dl = 0;
 				dr = 1;
@@ -397,7 +432,7 @@ Ammo().then(function (Ammo) {
 
 		//stock graph animation
 		if (trendFront == 1) {
-			trend.position.z += 0.05;
+			trend.position.z += 0.1;
 			if (trend.position.z >= 3) {
 				trend.rotation.y += 0.1;
 				if (trend.rotation.y % Math.PI >= Math.PI - 0.10) {
@@ -406,8 +441,8 @@ Ammo().then(function (Ammo) {
 				}
 			}
 		}
-		if (trendBack == 1) {
-			trend.position.z -= 0.05;
+		else if (trendBack == 1) {
+			trend.position.z -= 0.1;
 			if (trend.position.z <= 0) {
 				trendBack = 0;
 				trendFront = 1;
@@ -672,6 +707,14 @@ Ammo().then(function (Ammo) {
 		// extruded shape
 		var geometry = new THREE.ExtrudeBufferGeometry(shape, extrudeSettings);
 
+		var edges = new THREE.EdgesGeometry(geometry);
+		var lineMaterial = new THREE.LineBasicMaterial({
+			color: color,
+			transparent: true,
+			opacity: 0.7
+		});
+		var line = new THREE.LineSegments(edges, lineMaterial);
+
 		if (image !== '') {
 			var texture = textureLoader.load('textures/' + image + '.png', function (texture) {
 				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
@@ -703,6 +746,7 @@ Ammo().then(function (Ammo) {
 		mesh.position.set(x, y, z);
 		mesh.rotation.set(rx, ry, rz);
 		mesh.scale.set(s, s, s);
+		mesh.add(line);
 		return mesh;
 	}
 
@@ -738,7 +782,7 @@ Ammo().then(function (Ammo) {
 		var extrudeSettings = { depth: 0.2, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 0.25, bevelThickness: 0.1 };
 		var addPhoneShape = new THREE.Shape();
 
-		createRoundedRect(addPhoneShape, -1, 0, 2, 4, 0.1);
+		createRoundedRect(addPhoneShape, -1, 0, 2, 3.5, 0.1);
 
 		mobile = addShape('', addPhoneShape, extrudeSettings, 0xf0f69f, 4, 2, 0, 0, 0, 0, 1, 0.25, 0.25);
 
@@ -753,7 +797,7 @@ Ammo().then(function (Ammo) {
 		var material = new THREE.MeshBasicMaterial({
 			color: 0xef6c57,
 			transparent: true,
-			opacity: 0.3
+			opacity: 0.7
 		});
 
 		var block1 = new THREE.Mesh(blockGeo, material);
@@ -775,13 +819,11 @@ Ammo().then(function (Ammo) {
 		CustomSinCurve.prototype.constructor = CustomSinCurve;
 
 		CustomSinCurve.prototype.getPoint = function (t) {
-
 			var tx = t / 2 - 1.5;
 			var ty = Math.sin(Math.PI * t);
 			var tz = 1.25;
 
 			return new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale);
-
 		};
 		var path = new CustomSinCurve(0.8);
 
@@ -791,7 +833,6 @@ Ammo().then(function (Ammo) {
 		blockchain.add(block2);
 		blockchain.add(block3);
 		blockchain.add(block4);
-
 
 		var edges = new THREE.EdgesGeometry(blockGeo);
 		var lineMaterial = new THREE.LineBasicMaterial({
@@ -943,7 +984,7 @@ Ammo().then(function (Ammo) {
 		var chat = new THREE.Group();
 		chat.add(dialogueL);
 		chat.add(dialogueR);
-		chat.position.set(8, 2, -51);
+		chat.position.set(8, 1, -51);
 		scene.add(chat);
 	}
 
@@ -1008,7 +1049,7 @@ Ammo().then(function (Ammo) {
 		var graph = new THREE.Group();
 		graph.add(axes);
 		graph.add(trend);
-		graph.position.set(8.5, 2, -70);
+		graph.position.set(8.5, 1, -70);
 		scene.add(graph);
 	}
 
@@ -2098,8 +2139,6 @@ Ammo().then(function (Ammo) {
 	function addRibbon() {
 		var geom = new THREE.CylinderBufferGeometry(0.5, 0.5, 0.15, 17);
 		var texture = textureLoader.load('images/github.png');
-		texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-		texture.repeat.set(1, 1);
 
 		var material = new THREE.MeshBasicMaterial({
 			color: 0xffffff,
@@ -2115,8 +2154,6 @@ Ammo().then(function (Ammo) {
 		scene.add(btn);
 
 		var texture = textureLoader.load('images/linkedin.png');
-		texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-		texture.repeat.set(1, 1);
 
 		material = new THREE.MeshBasicMaterial({
 			color: 0xffffff,
@@ -2132,8 +2169,6 @@ Ammo().then(function (Ammo) {
 		scene.add(btn);
 
 		var texture = textureLoader.load('images/gmail.png');
-		texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-		texture.repeat.set(1, 1);
 
 		material = new THREE.MeshBasicMaterial({
 			color: 0xffffff,
@@ -2151,13 +2186,12 @@ Ammo().then(function (Ammo) {
 
 	function addScrollText() {
 		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
-
 			var scrollText = createText(
 				font,
-				"Scroll Down",
+				"SCROLL TO MOVE",
 				{ x: 1.5, y: 0, z: 5 },
 				ZERO_QUATERNION,
-				0.5, 0.9, 0.01, 0x427996
+				0.5, 0.6, 0.01, 0x427996
 			);
 			scrollText.rotation.x = -Math.PI / 2;
 			scene.add(scrollText);
@@ -2257,7 +2291,7 @@ Ammo().then(function (Ammo) {
 			//essentialskart
 			var text = createText(
 				font,
-				"Essentialskart",
+				"EssentialsKart",
 				{ x: 7, y: -0.2, z: -47 },
 				ZERO_QUATERNION,
 				0.6, 0.9, 0.20, 0xee8276
@@ -2356,7 +2390,6 @@ Ammo().then(function (Ammo) {
 		addAllExperiences();
 
 		addTrack();
-
 	}
 
 	// Init
