@@ -1,3 +1,4 @@
+# code for random movement in blender
 import bpy
 import random
 from math import radians

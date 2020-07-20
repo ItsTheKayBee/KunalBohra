@@ -23,7 +23,6 @@ Ammo().then(function (Ammo) {
 	var foods = [];
 	var runAction = [];
 	var andy, lText;
-	var activeButton = -1;
 	var isAndyMoving = false;
 	var hasAndyTurned = false;
 	var mouse = new THREE.Vector3();
@@ -192,45 +191,36 @@ Ammo().then(function (Ammo) {
 			//buttons
 			if (andyz <= -218 && andyz >= -220) {
 				//github
-				activeButton = 5;
 				github_button.position.y = 4;
 
 			} else if (andyz <= -238 && andyz >= -240) {
 				//linkedin
-				activeButton = 6;
 				linkedin_button.position.y = 4;
 
 			} else if (andyz <= -258 && andyz >= -260) {
 				//email
-				activeButton = 7;
 				email_button.position.y = 4;
 			} else if (andyz <= -23 && andyz >= -31) {
 				// instanote
 				insta_button.position.y = 4;
-				activeButton = 0;
 
 			} else if (andyz <= -34 && andyz >= -41) {
 				// fundeasy
-				activeButton = 1;
 				fund_button.position.y = 4;
 
 			} else if (andyz <= -43 && andyz >= -51) {
 				// essentialskart
-				activeButton = 2;
 				kart_button.position.y = 4;
 
 			} else if (andyz <= -54 && andyz >= -61) {
 				// fms
-				activeButton = 3;
 				fms_button.position.y = 4;
 
 			} else if (andyz <= -64 && andyz >= -71) {
 				// xervixx
-				activeButton = 4;
 				xerv_button.position.y = 4;
 
 			} else {
-				activeButton = -1;
 				insta_button.position.y = -4;
 				fund_button.position.y = -4;
 				kart_button.position.y = -4;
@@ -243,7 +233,6 @@ Ammo().then(function (Ammo) {
 		}
 	}
 
-
 	function onMouseDown(event) {
 		event.preventDefault();
 		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -254,11 +243,9 @@ Ammo().then(function (Ammo) {
 		var intersects = raycaster.intersectObjects(scene.children);
 
 		if (intersects.length > 0) {
-
-			window.open(intersects[0].object.userData.url);
+			var url = intersects[0].object.userData.url;
+			if (url) window.open(url);
 		}
-
-
 	}
 
 	function onWindowResize() {
@@ -294,6 +281,16 @@ Ammo().then(function (Ammo) {
 			foods[i].rotation.x = -Math.PI / 2;
 		}
 
+		andyMovement();
+
+		updatePhysics();
+
+		composer.render(0.1);
+		renderer.render(scene, camera);
+	}
+
+
+	function andyMovement() {
 		if (andy) {
 			if (isAndyMoving) {
 				for (var i = 0; i < 4; i++) {
@@ -312,11 +309,6 @@ Ammo().then(function (Ammo) {
 			}
 			isAndyMoving = false;
 		}
-
-		updatePhysics();
-
-		composer.render(0.1);
-		renderer.render(scene, camera);
 	}
 
 	function updatePhysics() {
@@ -474,9 +466,7 @@ Ammo().then(function (Ammo) {
 	function createFlag() {
 		var steelMaterial = new THREE.MeshPhongMaterial({
 			flatShading: true,
-			color: 0x858482,
-			specular: 0xffffff,
-			shininess: 100,
+			color: 0x858482
 		});
 		var pole = new THREE.Mesh(new THREE.CylinderBufferGeometry(0.2, 0.2, 10, 10), steelMaterial);
 		var top = new THREE.Mesh(new THREE.SphereBufferGeometry(0.4, 10, 10), steelMaterial);
@@ -488,7 +478,7 @@ Ammo().then(function (Ammo) {
 			side: THREE.DoubleSide,
 			alphaTest: 0.5,
 		});
-		var flag = new THREE.Mesh(new THREE.PlaneBufferGeometry(6.5, 4, 32), clothMaterial);
+		var flag = new THREE.Mesh(new THREE.PlaneBufferGeometry(6.75, 3.75, 32), clothMaterial);
 		flag.position.y = 2.65;
 		flag.position.x = -3.25;
 		pole.add(flag);
@@ -496,6 +486,57 @@ Ammo().then(function (Ammo) {
 		pole.position.set(-5, 2, -210);
 		pole.scale.set(0.35, 0.35, 0.35);
 		scene.add(pole);
+	}
+
+	//creates taj
+	function addTaj() {
+		var rot = { x: -Math.PI / 2, y: 0, z: 0 };
+		loadModel(
+			'taj',
+			{ x: -5, y: 0, z: -200 },
+			ZERO_QUATERNION,
+			rot,
+			0.005, 0, 0.5, 0.5, 0.1
+		).then((model) => {
+			scene.add(model);
+		});
+	}
+
+	//adds bio
+	function addBio() {
+		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
+			var text = createText(
+				font,
+				"Hi, I am Kunal Bohra, 2O years young undergraduate student with a keen interest in ",
+				{ x: -7.5, y: 0, z: 0 },
+				ZERO_QUATERNION,
+				0.5, 0.5, 0.01,
+				0x385170
+			);
+			text.rotation.x = -Math.PI / 2;
+			scene.add(text);
+			var text = createText(
+				font,
+				"programming and software development. I am enthusiastic about Blockchain and",
+				{ x: -7.5, y: 0, z: 0.5 },
+				ZERO_QUATERNION,
+				0.5, 0.5, 0.01,
+				0x385170
+			);
+			text.rotation.x = -Math.PI / 2;
+			scene.add(text);
+			var text = createText(
+				font,
+				"Android. I ",
+				{ x: -7.5, y: 0, z: 0.5 },
+				ZERO_QUATERNION,
+				0.5, 0.5, 0.01,
+				0x385170
+			);
+			text.rotation.x = -Math.PI / 2;
+			scene.add(text);
+
+		});
 	}
 
 	//returns 3D text 
@@ -1492,7 +1533,6 @@ Ammo().then(function (Ammo) {
 			plateMesh.position.set(0, 0.75, 0);
 			plateMesh.rotation.y = -1.5 * Math.PI / 6;
 
-
 			var ufoLightMaterial = new THREE.MeshBasicMaterial({
 				color: 0x009eff,
 				transparent: true,
@@ -1579,16 +1619,9 @@ Ammo().then(function (Ammo) {
 	}
 
 	function createPad() {
-		let pos = { x: 0, y: 3, z: -180 };
-		let quat = ZERO_QUATERNION;
-		let w = 1;
-		let h = 1;
-		let l = 1;
 
 		gltfLoader.load('models3d/pad/scene.gltf', function (gltf) {
 			var mesh = gltf.scene;
-
-			// createBox(mesh, pos, quat, w, h, l, 100, 1);
 
 			let mixer = new THREE.AnimationMixer(mesh);
 			mixers.push(mixer);
@@ -1630,16 +1663,9 @@ Ammo().then(function (Ammo) {
 	}
 
 	function createExperience() {
-		let pos = { x: 10, y: 100, z: -200 };
-		let quat = ZERO_QUATERNION;
-		let w = 4;
-		let h = 4;
-		let l = 4;
 
 		gltfLoader.load('models3d/arcon/scene.gltf', function (gltf) {
 			let mesh = gltf.scene;
-			createBox(mesh, pos, quat, w, h, l, 0, 1);
-			models3d.push(mesh);
 			let mixer = new THREE.AnimationMixer(mesh);
 			mixers.push(mixer);
 			let rotation = mixer.clipAction(gltf.animations[0]);
@@ -1648,17 +1674,11 @@ Ammo().then(function (Ammo) {
 			mesh.rotation.y = -1.2 * Math.PI / 2;
 			mesh.position.set(10, 100, -200);
 
-			arcon = mesh;
-
 			scene.add(mesh);
 		});
 
-		pos = { x: -10, y: 50, z: -200 };
-
 		gltfLoader.load('models3d/gre_edge/scene.gltf', function (gltf) {
 			let mesh = gltf.scene;
-			createBox(mesh, pos, quat, w, h, l, 0, 1);
-			models3d.push(mesh);
 			let mixer = new THREE.AnimationMixer(mesh);
 			mixers.push(mixer);
 			let rotation = mixer.clipAction(gltf.animations[0]);
@@ -1776,6 +1796,8 @@ Ammo().then(function (Ammo) {
 
 	function addAllAboutMe() {
 		createFlag();
+		addTaj();
+		addBio();
 		createGithubUfo();
 		createMailUfo();
 		createLinkedinUfo();
@@ -1900,9 +1922,7 @@ Ammo().then(function (Ammo) {
 			);
 			scene.add(vText);
 		});
-
 	}
-
 
 	function addButtons() {
 		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
@@ -1990,12 +2010,255 @@ Ammo().then(function (Ammo) {
 			scene.add(email_button);
 
 		});
-
 	}
 
+	function addRibbon() {
+		var geom = new THREE.CylinderBufferGeometry(0.5, 0.5, 0.15, 17);
+		var texture = textureLoader.load('images/github.png');
+		texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+		texture.repeat.set(1, 1);
+
+		var material = new THREE.MeshBasicMaterial({
+			color: 0xffffff,
+			transparent: true,
+			opacity: 0.6,
+			map: texture
+		});
+		var btn = new THREE.Mesh(geom, material);
+		btn.rotation.y = Math.PI / 2;
+		btn.rotation.x = Math.PI / 2;
+		btn.userData = { url: links[5] };
+		btn.position.set(-11, 3, -10);
+		scene.add(btn);
+
+		var texture = textureLoader.load('images/linkedin.png');
+		texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+		texture.repeat.set(1, 1);
+
+		material = new THREE.MeshBasicMaterial({
+			color: 0xffffff,
+			transparent: true,
+			opacity: 0.6,
+			map: texture
+		});
+		btn = new THREE.Mesh(geom, material);
+		btn.rotation.y = Math.PI / 2;
+		btn.rotation.x = Math.PI / 2;
+		btn.userData = { url: links[6] };
+		btn.position.set(-11, 1.5, -10);
+		scene.add(btn);
+
+		var texture = textureLoader.load('images/gmail.png');
+		texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+		texture.repeat.set(1, 1);
+
+		material = new THREE.MeshBasicMaterial({
+			color: 0xffffff,
+			transparent: true,
+			opacity: 0.6,
+			map: texture
+		});
+		btn = new THREE.Mesh(geom, material);
+		btn.rotation.y = Math.PI / 2;
+		btn.rotation.x = Math.PI / 2;
+		btn.userData = { url: links[7] };
+		btn.position.set(-11, 4.5, -10);
+		scene.add(btn);
+	}
+
+	function addScrollText() {
+		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
+
+			var scrollText = createText(
+				font,
+				"Scroll Down",
+				{ x: 1.5, y: 0, z: 5 },
+				ZERO_QUATERNION,
+				0.5, 0.9, 0.01, 0xffffff
+			);
+			scrollText.rotation.x = -Math.PI / 2;
+			scene.add(scrollText);
+		});
+	}
+
+	function addProjectDesc() {
+		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
+			//instanote
+			var text = createText(
+				font,
+				"InstaNote",
+				{ x: 8, y: -0.2, z: -27 },
+				ZERO_QUATERNION,
+				0.6, 0.9, 0.20, 0x6e5773
+			);
+			scene.add(text);
+
+			var text = createText(
+				font,
+				"ANDROID",
+				{ x: 5.25, y: -0.2, z: -29.5 },
+				ZERO_QUATERNION,
+				0.6, 0.6, 0.01, 0x516091
+			);
+			text.rotation.x = -Math.PI / 2;
+			scene.add(text);
+
+			var text = createText(
+				font,
+				"Making notes in 1 click",
+				{ x: 4, y: -0.2, z: -29 },
+				ZERO_QUATERNION,
+				0.5, 0.45, 0.01, 0x494949
+			);
+			text.rotation.x = -Math.PI / 2;
+			scene.add(text);
+
+			//fms
+			var text = createText(
+				font,
+				"Faculty Management System",
+				{ x: -14, y: -0.2, z: -57 },
+				ZERO_QUATERNION,
+				0.6, 0.9, 0.20, 0x6a8caf
+			);
+			scene.add(text);
+			var text = createText(
+				font,
+				"PHP | MySQL - FULL STACK",
+				{ x: -8, y: -0.2, z: -59.5 },
+				ZERO_QUATERNION,
+				0.6, 0.6, 0.01, 0x516091
+			);
+			text.rotation.x = -Math.PI / 2;
+			scene.add(text);
+
+			var text = createText(
+				font,
+				"Portal for faculties in college",
+				{ x: -8, y: -0.2, z: -59 },
+				ZERO_QUATERNION,
+				0.5, 0.45, 0.01, 0x494949
+			);
+			text.rotation.x = -Math.PI / 2;
+			scene.add(text);
+
+			//fundeasy
+			var text = createText(
+				font,
+				"FundEasy",
+				{ x: -11.5, y: -0.2, z: -37 },
+				ZERO_QUATERNION,
+				0.6, 0.9, 0.20, 0x32afa9
+			);
+			scene.add(text);
+			var text = createText(
+				font,
+				"BLOCKCHAIN - MERN STACK",
+				{ x: -8, y: -0.2, z: -39.5 },
+				ZERO_QUATERNION,
+				0.6, 0.6, 0.01, 0x516091
+			);
+			text.rotation.x = -Math.PI / 2;
+			scene.add(text);
+
+			var text = createText(
+				font,
+				"Making fund disbursal secure",
+				{ x: -8, y: -0.2, z: -39 },
+				ZERO_QUATERNION,
+				0.5, 0.45, 0.01, 0x494949
+			);
+			text.rotation.x = -Math.PI / 2;
+			scene.add(text);
+
+			//essentialskart
+			var text = createText(
+				font,
+				"Essentialskart",
+				{ x: 7, y: -0.2, z: -47 },
+				ZERO_QUATERNION,
+				0.6, 0.9, 0.20, 0xee8276
+			);
+			scene.add(text);
+			var text = createText(
+				font,
+				"Dialogflow | Python",
+				{ x: 3.75, y: -0.2, z: -49.5 },
+				ZERO_QUATERNION,
+				0.6, 0.5, 0.01, 0x516091
+			);
+			text.rotation.x = -Math.PI / 2;
+			scene.add(text);
+
+			var text = createText(
+				font,
+				"WhatsApp chatbot for",
+				{ x: 4.15, y: -0.2, z: -49 },
+				ZERO_QUATERNION,
+				0.5, 0.45, 0.01, 0x494949
+			);
+			text.rotation.x = -Math.PI / 2;
+			scene.add(text);
+			var text = createText(
+				font,
+				"online shopping",
+				{ x: 4.95, y: -0.2, z: -48.5 },
+				ZERO_QUATERNION,
+				0.5, 0.45, 0.01, 0x494949
+			);
+			text.rotation.x = -Math.PI / 2;
+			scene.add(text);
+
+			//xervixx
+			var text = createText(
+				font,
+				"Xervixx",
+				{ x: 8, y: -0.2, z: -67 },
+				ZERO_QUATERNION,
+				0.6, 0.9, 0.20, 0xf1935c
+			);
+			scene.add(text);
+			var text = createText(
+				font,
+				"PHP | MySQL - FULL STACK",
+				{ x: 1.7, y: -0.2, z: -69.5 },
+				ZERO_QUATERNION,
+				0.6, 0.6, 0.01, 0x516091
+			);
+			text.rotation.x = -Math.PI / 2;
+			scene.add(text);
+
+			var text = createText(
+				font,
+				"Gamified customer",
+				{ x: 4.8, y: -0.2, z: -69 },
+				ZERO_QUATERNION,
+				0.5, 0.45, 0.01, 0x494949
+			);
+			text.rotation.x = -Math.PI / 2;
+			scene.add(text);
+			var text = createText(
+				font,
+				"engagement dashboard",
+				{ x: 3.8, y: -0.2, z: -68.5 },
+				ZERO_QUATERNION,
+				0.5, 0.45, 0.01, 0x494949
+			);
+			text.rotation.x = -Math.PI / 2;
+			scene.add(text);
+		});
+
+	}
 	function createObjects() {
+		addAndy();
 
 		addKB();
+
+		addProjectDesc();
+
+		addScrollText();
+
+		addRibbon();
 
 		addButtons();
 
@@ -2009,13 +2272,11 @@ Ammo().then(function (Ammo) {
 
 		addAllExperiences();
 
-		addAndy();
-
 		addTrack();
 
 	}
 
-	// - Init -
+	// Init
 	initGraphics();
 	initPhysics();
 	createObjects();
