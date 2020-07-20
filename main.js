@@ -16,16 +16,12 @@ Ammo().then(function (Ammo) {
 	var dl = 1, dr = 0, step = 0;
 	var trendBack = 1, trendFront = 0;
 	var loadingManager, gltfLoader, textLoader, textureLoader;
-	var mixers = [];
-	var models3d = [];
-	var foods = [];
-	var runAction = [];
-	var andy, lText;
-	var isAndyMoving = false;
-	var hasAndyTurned = false;
-	var mouse = new THREE.Vector3();
+	var mouse, raycaster;
+	var mixers = [], foods = [], runAction = [];
+	var andy, lText, starInfo;
+	var isAndyMoving = false, hasAndyTurned = false;
 	var INTERSECTED;
-	var raycaster = new THREE.Raycaster();
+
 	var links = ['https://github.com/ItsTheKayBee/InstaNote',
 		'https://github.com/ItsTheKayBee/FundEasy',
 		'https://github.com/ItsTheKayBee/EssentialsKart',
@@ -49,8 +45,8 @@ Ammo().then(function (Ammo) {
 		scene: new THREE.Scene(),
 		camera: new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100),
 		circle: new THREE.Mesh(
-			new THREE.SphereBufferGeometry(0.2, 20, 20),
-			new THREE.MeshBasicMaterial({ color: 0x99d8d0 })
+			new THREE.CircleBufferGeometry(0.2, 20),
+			new THREE.MeshBasicMaterial({ color: 0x99d8d0, side: THREE.DoubleSide })
 		)
 	};
 	var RESOURCES_LOADED = false;
@@ -100,7 +96,6 @@ Ammo().then(function (Ammo) {
 		loadingScreen.circle.position.set(0, 0, 5);
 		loadingScreen.camera.lookAt(loadingScreen.circle.position);
 		loadingScreen.scene.add(loadingScreen.circle);
-		console.log(loadingScreen.circle);
 
 		// Create a loading manager.
 		// Pass loadingManager to all resource loaders.
@@ -108,6 +103,8 @@ Ammo().then(function (Ammo) {
 		gltfLoader = new THREE.GLTFLoader(loadingManager);
 		textureLoader = new THREE.TextureLoader(loadingManager);
 		textLoader = new THREE.FontLoader(loadingManager);
+		mouse = new THREE.Vector3();
+		raycaster = new THREE.Raycaster();
 
 		loadingManager.onLoad = function () {
 			RESOURCES_LOADED = true;
@@ -129,10 +126,18 @@ Ammo().then(function (Ammo) {
 			if (camz > -174 || camz <= -180) {
 				camera.position.z -= dy * 0.005;
 				andy.position.z -= dy * 0.005;
-				andy.position.y = 1;
 
-				if (camz <= -187)
+				if (camz <= -186)
 					andy.position.y = 1;
+				else if (camz > -186 && camz <= -180)
+					andy.position.y = 2;
+				else if (camz <= -170 && camz >= -172)
+					andy.position.y = pad.position.y + 0.5;
+				else if (camz < -172 && camz >= -174)
+					andy.position.y = pad.position.y + 1;
+				else
+					andy.position.y = 1;
+
 				isAndyMoving = true;
 
 				if (event.deltaY < 0) {
@@ -140,11 +145,9 @@ Ammo().then(function (Ammo) {
 				} else {
 					hasAndyTurned = false;
 				}
-
 				camera.position.clampScalar(-270, 10);
 				andy.position.clampScalar(-275, 5);
 			}
-
 			else if (camz <= -178 && Math.ceil(camz) >= -179) {
 				camera.lookAt(pad.position);
 				pad.position.y -= dy * 0.005;
@@ -154,7 +157,7 @@ Ammo().then(function (Ammo) {
 				for (var i = 0; i < 4; i++) {
 					takeOffAction[i].stop();
 				}
-				if (camera.position.y < 5) {
+				if (camy < 5) {
 					camera.position.y = 5;
 					andy.position.y = 2;
 					andy.position.z = -186;
@@ -172,12 +175,11 @@ Ammo().then(function (Ammo) {
 						}
 					}, 3000);
 				}
-				if (camy > 120) {
+				else if (camy > 120) {
 					camera.position.y = 119;
 					camera.position.z = -176;
 				}
 			}
-
 			else if (camz <= -174 && camz >= -177) {
 				camera.lookAt(pad.position);
 				camera.position.z = -174.5;
@@ -197,16 +199,12 @@ Ammo().then(function (Ammo) {
 					pad.position.y = 1;
 				}
 				else if (camy > 120) {
+					pad.position.y = 119;
 					camera.position.y = pad.position.y;
 					camera.position.z = -178;
 					pad.position.z = -186;
 					andy.position.z = -186;
 				}
-			}
-
-			//jumping
-			if (camz <= -171 && camz >= -174) {
-				andy.position.y += dy * 0.005;
 			}
 
 			//movement of L
@@ -227,6 +225,7 @@ Ammo().then(function (Ammo) {
 			} else if (andyz <= -258 && andyz >= -260) {
 				//email
 				email_button.position.y = 4;
+
 			} else if (andyz <= -23 && andyz >= -31) {
 				// instanote
 				insta_button.position.y = 4;
@@ -247,6 +246,10 @@ Ammo().then(function (Ammo) {
 				// xervixx
 				xerv_button.position.y = 4;
 
+			} else if (andyz <= -80 && andyz >= -87) {
+				// info
+				starInfo.position.y = 4;
+
 			} else {
 				insta_button.position.y = -4;
 				fund_button.position.y = -4;
@@ -256,6 +259,7 @@ Ammo().then(function (Ammo) {
 				linkedin_button.position.y = -4;
 				github_button.position.y = -4;
 				email_button.position.y = -4;
+				starInfo.position.y = -4;
 			}
 		}
 	}
@@ -500,7 +504,6 @@ Ammo().then(function (Ammo) {
 
 				//physics
 				createBox(mesh, pos, quat, w, h, l, mass, 1);
-				models3d.push(mesh);
 
 				//animation 
 				if (gltf.animations[0]) {
@@ -545,25 +548,37 @@ Ammo().then(function (Ammo) {
 		flag.position.x = -3.25;
 		pole.add(flag);
 		pole.rotation.y = Math.PI;
-		pole.position.set(-7.5, 2, -210.5);
+		pole.position.set(-7.5, 2, -213);
 		pole.scale.set(0.35, 0.35, 0.35);
 		scene.add(pole);
 	}
 
-	/* //creates taj
-	function addTaj() {
-		var rot = { x: -Math.PI / 2, y: 0, z: 0 };
+	function addMumbai() {
+		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
+			var text = createText(
+				font,
+				"I      Mumbai",
+				{ x: -10, y: 0, z: -210 },
+				ZERO_QUATERNION,
+				2, 0.5, 0.2,
+				0xf9f9f9
+			);
+			text.rotation.y = Math.PI / 6;
+			scene.add(text);
+		});
+		var rot = { x: -Math.PI / 2, y: 0, z: Math.PI / 6 };
 		loadModel(
-			'taj',
-			{ x: -5, y: 0, z: -200 },
+			'heart',
+			{ x: -9.2, y: 0.2, z: -211 },
 			ZERO_QUATERNION,
 			rot,
-			0.005, 0, 0.5, 0.5, 0.1
+			2, 0, 0.5, 0.5, 0.1
 		).then((model) => {
 			scene.add(model);
+			model.scale.set(0.5, 0.5, 0.5);
 		});
 	}
- */
+
 	//adds bio
 	function addBio() {
 		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
@@ -619,7 +634,7 @@ Ammo().then(function (Ammo) {
 			scene.add(text);
 			var text = createText(
 				font,
-				"I am open for any JOB opportunities.",
+				"I am open for any JOB opportunities in the IT industry.",
 				{ x: -7.5, y: 0, z: -207 },
 				ZERO_QUATERNION,
 				0.5, 0.5, 0.01,
@@ -765,7 +780,7 @@ Ammo().then(function (Ammo) {
 
 	//to create rounded rectangle shape
 	function createRoundedRect(ctx, x, y, width, height, radius) {
-		//ceates rounded rectangle
+		//creates rounded rectangle
 		ctx.moveTo(x, y + radius);
 		ctx.lineTo(x, y + height - radius);
 		ctx.quadraticCurveTo(x, y + height, x + radius, y + height);
@@ -1894,6 +1909,7 @@ Ammo().then(function (Ammo) {
 	function addAllAboutMe() {
 		createFlag();
 		addBio();
+		addMumbai();
 		createGithubUfo();
 		createMailUfo();
 		createLinkedinUfo();
@@ -2133,6 +2149,34 @@ Ammo().then(function (Ammo) {
 			button.add(text);
 			scene.add(button);
 
+			//stars info
+			color = 0xac8daf;
+			pos = { x: 0, y: -4, z: -85 };
+			var geom = new THREE.BoxBufferGeometry(5, 0.6, 0.3);
+			var material = new THREE.MeshBasicMaterial({
+				color: color,
+				transparent: true,
+				opacity: 0.6
+			});
+
+			var edges = new THREE.EdgesGeometry(geom);
+			var lineMaterial = new THREE.LineBasicMaterial({ color: color });
+			var line = new THREE.LineSegments(edges, lineMaterial);
+			var button = new THREE.Mesh(geom, material);
+			button.add(line);
+			button.position.set(pos.x, pos.y, pos.z);
+
+			var posn = { x: -2.25, y: -0.1, z: 0.2 };
+			var text = createText(
+				font,
+				"Food indicates expertise out of 5",
+				posn,
+				rot,
+				0.5, 0.4, 0.05, 0xe8ecf1
+			);
+			button.add(text);
+			starInfo = button;
+			scene.add(button);
 		});
 	}
 
@@ -2234,7 +2278,7 @@ Ammo().then(function (Ammo) {
 			var text = createText(
 				font,
 				"Faculty Management System",
-				{ x: -14, y: -0.2, z: -57 },
+				{ x: -13, y: -0.2, z: -57 },
 				ZERO_QUATERNION,
 				0.6, 0.9, 0.20, 0x6a8caf
 			);
