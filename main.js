@@ -483,12 +483,12 @@ Ammo().then(function (Ammo) {
 		flag.position.x = -3.25;
 		pole.add(flag);
 		pole.rotation.y = Math.PI;
-		pole.position.set(-5, 2, -210);
+		pole.position.set(-7.5, 2, -210.5);
 		pole.scale.set(0.35, 0.35, 0.35);
 		scene.add(pole);
 	}
 
-	//creates taj
+	/* //creates taj
 	function addTaj() {
 		var rot = { x: -Math.PI / 2, y: 0, z: 0 };
 		loadModel(
@@ -501,14 +501,14 @@ Ammo().then(function (Ammo) {
 			scene.add(model);
 		});
 	}
-
+ */
 	//adds bio
 	function addBio() {
 		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
 			var text = createText(
 				font,
 				"Hi, I am Kunal Bohra, 2O years young undergraduate student with a keen interest in ",
-				{ x: -7.5, y: 0, z: 0 },
+				{ x: -7.5, y: 0, z: -210 },
 				ZERO_QUATERNION,
 				0.5, 0.5, 0.01,
 				0x385170
@@ -518,7 +518,7 @@ Ammo().then(function (Ammo) {
 			var text = createText(
 				font,
 				"programming and software development. I am enthusiastic about Blockchain and",
-				{ x: -7.5, y: 0, z: 0.5 },
+				{ x: -7.5, y: 0, z: -209.5 },
 				ZERO_QUATERNION,
 				0.5, 0.5, 0.01,
 				0x385170
@@ -527,15 +527,44 @@ Ammo().then(function (Ammo) {
 			scene.add(text);
 			var text = createText(
 				font,
-				"Android. I ",
-				{ x: -7.5, y: 0, z: 0.5 },
+				"Android. I am a motivated IT student with a solution-oriented mindset to tackle any",
+				{ x: -7.5, y: 0, z: -209 },
 				ZERO_QUATERNION,
 				0.5, 0.5, 0.01,
 				0x385170
 			);
 			text.rotation.x = -Math.PI / 2;
 			scene.add(text);
-
+			var text = createText(
+				font,
+				"obstacle that comes in path. I am a passionate learner who keeps on learning new",
+				{ x: -7.5, y: 0, z: -208.5 },
+				ZERO_QUATERNION,
+				0.5, 0.5, 0.01,
+				0x385170
+			);
+			text.rotation.x = -Math.PI / 2;
+			scene.add(text);
+			var text = createText(
+				font,
+				"technologies and expands his skillset to become a valuable asset for any company.",
+				{ x: -7.5, y: 0, z: -208 },
+				ZERO_QUATERNION,
+				0.5, 0.5, 0.01,
+				0x385170
+			);
+			text.rotation.x = -Math.PI / 2;
+			scene.add(text);
+			var text = createText(
+				font,
+				"I am open for any JOB opportunities.",
+				{ x: -7.5, y: 0, z: -207 },
+				ZERO_QUATERNION,
+				0.5, 0.5, 0.01,
+				0x494949
+			);
+			text.rotation.x = -Math.PI / 2;
+			scene.add(text);
 		});
 	}
 
@@ -1796,7 +1825,6 @@ Ammo().then(function (Ammo) {
 
 	function addAllAboutMe() {
 		createFlag();
-		addTaj();
 		addBio();
 		createGithubUfo();
 		createMailUfo();
