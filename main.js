@@ -26,6 +26,7 @@ Ammo().then(function (Ammo) {
 	var isAndyMoving = false;
 	var hasAndyTurned = false;
 	var mouse = new THREE.Vector3();
+	var INTERSECTED;
 	var raycaster = new THREE.Raycaster();
 	var links = ['https://github.com/ItsTheKayBee/InstaNote',
 		'https://github.com/ItsTheKayBee/FundEasy',
@@ -90,6 +91,7 @@ Ammo().then(function (Ammo) {
 		window.addEventListener('resize', onWindowResize, false);
 		window.addEventListener('wheel', scrolling, { passive: false });
 		window.addEventListener('mousedown', onMouseDown, false);
+		window.addEventListener('mousemove', hover, false);
 	}
 
 	function scrolling() {
@@ -248,6 +250,32 @@ Ammo().then(function (Ammo) {
 		}
 	}
 
+	function hover(event) {
+		event.preventDefault();
+		mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+		mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+		raycaster.setFromCamera(mouse, camera);
+
+		var intersects = raycaster.intersectObjects(scene.children);
+
+		if (intersects.length > 0) {
+			var obj = intersects[0].object;
+			var url = obj.userData.url;
+			if (INTERSECTED != obj && url) {
+				if (INTERSECTED) INTERSECTED.scale.set(1, 1, 1);
+				obj.geometry.type == "CylinderBufferGeometry" ? obj.scale.set(1, 3, 1) : obj.scale.set(1, 1, 1.5);
+				INTERSECTED = obj;
+			} else if (!url) {
+				if (INTERSECTED) INTERSECTED.scale.set(1, 1, 1);
+				INTERSECTED = null;
+			}
+		} else {
+			if (INTERSECTED) INTERSECTED.scale.set(1, 1, 1);
+			INTERSECTED = null;
+		}
+	}
+
 	function onWindowResize() {
 
 		camera.aspect = window.innerWidth / window.innerHeight;
@@ -288,7 +316,6 @@ Ammo().then(function (Ammo) {
 		composer.render(0.1);
 		renderer.render(scene, camera);
 	}
-
 
 	function andyMovement() {
 		if (andy) {
@@ -2037,6 +2064,34 @@ Ammo().then(function (Ammo) {
 			email_button.userData = { url: links[7] };
 			scene.add(email_button);
 
+			//that's about it
+			color = 0xbb5a5a;
+			pos = { x: 0, y: 4, z: -275 };
+			var geom = new THREE.BoxBufferGeometry(4.5, 0.6, 0.3);
+			var material = new THREE.MeshBasicMaterial({
+				color: color,
+				transparent: true,
+				opacity: 0.6
+			});
+
+			var edges = new THREE.EdgesGeometry(geom);
+			var lineMaterial = new THREE.LineBasicMaterial({ color: color });
+			var line = new THREE.LineSegments(edges, lineMaterial);
+			var button = new THREE.Mesh(geom, material);
+			button.add(line);
+			button.position.set(pos.x, pos.y, pos.z);
+
+			var posn = { x: -2, y: -0.1, z: 0.2 };
+			var text = createText(
+				font,
+				"That's all about me. Scroll up",
+				posn,
+				rot,
+				0.5, 0.4, 0.05, 0xe8ecf1
+			);
+			button.add(text);
+			scene.add(button);
+
 		});
 	}
 
@@ -2102,7 +2157,7 @@ Ammo().then(function (Ammo) {
 				"Scroll Down",
 				{ x: 1.5, y: 0, z: 5 },
 				ZERO_QUATERNION,
-				0.5, 0.9, 0.01, 0xffffff
+				0.5, 0.9, 0.01, 0x427996
 			);
 			scrollText.rotation.x = -Math.PI / 2;
 			scene.add(scrollText);
