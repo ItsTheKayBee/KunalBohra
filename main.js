@@ -16,6 +16,7 @@ Ammo().then(function (Ammo) {
 	var dl = 1, dr = 0, step = 0;
 	var trendBack = 1, trendFront = 0;
 	var loadingManager, gltfLoader, textLoader, textureLoader;
+	var linkedinTexture, gmailTexture, githubTexture, clothTexture, bitcoinTexture;
 	var mouse, raycaster;
 	var mixers = [], foods = [], runAction = [];
 	var andy, lText, starInfo;
@@ -103,6 +104,13 @@ Ammo().then(function (Ammo) {
 		gltfLoader = new THREE.GLTFLoader();
 		textureLoader = new THREE.TextureLoader(loadingManager);
 		textLoader = new THREE.FontLoader(loadingManager);
+
+		githubTexture = textureLoader.load('images/github.png');
+		linkedinTexture = textureLoader.load('images/linkedin.png');
+		gmailTexture = textureLoader.load('images/gmail.png');
+		clothTexture = textureLoader.load('textures/indian_flag.jpg');
+		bitcoinTexture = textureLoader.load('textures/bitcoin.png');
+
 		mouse = new THREE.Vector3();
 		raycaster = new THREE.Raycaster();
 
@@ -529,7 +537,6 @@ Ammo().then(function (Ammo) {
 		var top = new THREE.Mesh(new THREE.SphereBufferGeometry(0.4, 10, 10), steelMaterial);
 		top.position.y = 5;
 		pole.add(top);
-		var clothTexture = textureLoader.load('textures/indian_flag.jpg');
 		var clothMaterial = new THREE.MeshBasicMaterial({
 			map: clothTexture,
 			side: THREE.DoubleSide,
@@ -584,7 +591,7 @@ Ammo().then(function (Ammo) {
 				hover.play();
 				mixers.push(mixer);
 			}
-		}	
+		}
 	}
 
 	//adds bio
@@ -921,7 +928,6 @@ Ammo().then(function (Ammo) {
 		blockchain.position.set(-10, 1, -40);
 
 		var coinGeo = new THREE.CylinderBufferGeometry(0.5, 0.5, 0.15, 20);
-		var texture = textureLoader.load('textures/bitcoin.png');
 
 		var coinMat = [
 			new THREE.MeshBasicMaterial({
@@ -930,7 +936,7 @@ Ammo().then(function (Ammo) {
 				opacity: 0.3
 			}),
 			new THREE.MeshBasicMaterial({
-				map: texture,
+				map: bitcoinTexture,
 				color: 0xef6c57,
 				opacity: 0.7,
 				transparent: true,
@@ -1112,12 +1118,12 @@ Ammo().then(function (Ammo) {
 			models.push(model2);
 			model1.position.set(3, 3, 0);
 			model2.position.set(6, 2, 0);
-		
+
 			addGltfAnims(models, clip);
 			bcSkillGroup.add(model1);
 			bcSkillGroup.add(model2);
 		});
-	
+
 		bcSkillGroup.position.set(-11, 0, -90);
 		scene.add(bcSkillGroup);
 	}
@@ -1339,7 +1345,7 @@ Ammo().then(function (Ammo) {
 			foods.push(model3);
 
 		});
-		
+
 		webSkillGroup.position.set(-10, 0, -130);
 		scene.add(webSkillGroup);
 	}
@@ -1388,7 +1394,7 @@ Ammo().then(function (Ammo) {
 			javaSkillGroup.add(model2);
 			javaSkillGroup.add(model3);
 		});
-	
+
 		javaSkillGroup.position.set(7, 0, -140);
 		scene.add(javaSkillGroup);
 	}
@@ -1491,7 +1497,7 @@ Ammo().then(function (Ammo) {
 			foods.push(model1);
 			foods.push(model2);
 		});
-	
+
 		cppSkillGroup.position.set(6, 0, -160);
 		scene.add(cppSkillGroup);
 	}
@@ -1509,7 +1515,7 @@ Ammo().then(function (Ammo) {
 		).then((gltf) => {
 			let model = gltf.scene;
 			githubUfo.add(model);
-			var logo = textureLoader.load('images/github.png');
+			var logo = githubTexture;
 			logo.wrapS = logo.wrapT = THREE.RepeatWrapping;
 			logo.offset.set(0, 0);
 			logo.repeat.set(1, 1);
@@ -1568,7 +1574,7 @@ Ammo().then(function (Ammo) {
 		).then((gltf) => {
 			let model = gltf.scene;
 			linkedinUfo.add(model);
-			var logo = textureLoader.load('images/linkedin.png');
+			var logo = linkedinTexture;
 			logo.wrapS = logo.wrapT = THREE.RepeatWrapping;
 			logo.offset.set(0, 0);
 			logo.repeat.set(1, 1);
@@ -1627,7 +1633,7 @@ Ammo().then(function (Ammo) {
 		).then((gltf) => {
 			let model = gltf.scene;
 			mailUfo.add(model);
-			var logo = textureLoader.load('images/gmail.png');
+			var logo = gmailTexture;
 			logo.wrapS = logo.wrapT = THREE.RepeatWrapping;
 			logo.offset.set(0, 0);
 			logo.repeat.set(1, 1);
@@ -2125,13 +2131,12 @@ Ammo().then(function (Ammo) {
 
 	function addRibbon() {
 		var geom = new THREE.CylinderBufferGeometry(0.5, 0.5, 0.15, 17);
-		var texture = textureLoader.load('images/github.png');
 
 		var material = new THREE.MeshBasicMaterial({
 			color: 0xffffff,
 			transparent: true,
 			opacity: 0.6,
-			map: texture
+			map: githubTexture
 		});
 		var btn = new THREE.Mesh(geom, material);
 		btn.rotation.y = Math.PI / 2;
@@ -2140,13 +2145,11 @@ Ammo().then(function (Ammo) {
 		btn.position.set(-11, 3, -10);
 		scene.add(btn);
 
-		var texture = textureLoader.load('images/linkedin.png');
-
 		material = new THREE.MeshBasicMaterial({
 			color: 0xffffff,
 			transparent: true,
 			opacity: 0.6,
-			map: texture
+			map: linkedinTexture
 		});
 		btn = new THREE.Mesh(geom, material);
 		btn.rotation.y = Math.PI / 2;
@@ -2155,13 +2158,11 @@ Ammo().then(function (Ammo) {
 		btn.position.set(-11, 1.5, -10);
 		scene.add(btn);
 
-		var texture = textureLoader.load('images/gmail.png');
-
 		material = new THREE.MeshBasicMaterial({
 			color: 0xffffff,
 			transparent: true,
 			opacity: 0.6,
-			map: texture
+			map: gmailTexture
 		});
 		btn = new THREE.Mesh(geom, material);
 		btn.rotation.y = Math.PI / 2;
