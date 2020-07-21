@@ -1587,6 +1587,7 @@ Ammo().then(function (Ammo) {
 			var plate = new THREE.SphereBufferGeometry(0.7, 10, 10, 2, 0.8, 1, 0.6);
 			var plateMesh = new THREE.Mesh(plate, logoMat);
 
+
 			linkedinUfo.add(plateMesh);
 			plateMesh.scale.set(1.5, 1.5, 1.5);
 			plateMesh.position.set(0, 0.75, 0);
