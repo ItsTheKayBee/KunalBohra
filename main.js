@@ -100,7 +100,7 @@ Ammo().then(function (Ammo) {
 		// Create a loading manager.
 		// Pass loadingManager to all resource loaders.
 		loadingManager = new THREE.LoadingManager();
-		gltfLoader = new THREE.GLTFLoader(loadingManager);
+		gltfLoader = new THREE.GLTFLoader();
 		textureLoader = new THREE.TextureLoader(loadingManager);
 		textLoader = new THREE.FontLoader(loadingManager);
 		mouse = new THREE.Vector3();
