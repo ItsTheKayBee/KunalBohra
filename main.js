@@ -505,14 +505,6 @@ Ammo().then(function (Ammo) {
 				//physics
 				createBox(mesh, pos, quat, w, h, l, mass, 1);
 
-				//animation 
-				if (gltf.animations[0]) {
-					let mixer = new THREE.AnimationMixer(mesh);
-					let hover = mixer.clipAction(gltf.animations[0]);
-					hover.play();
-					mixers.push(mixer);
-				}
-
 				mesh.traverse(function (node) {
 
 					if (node.isMesh) {
@@ -521,7 +513,7 @@ Ammo().then(function (Ammo) {
 					}
 				});
 
-				resolve(mesh);
+				resolve(gltf);
 			});
 		});
 		return modelPromise;
@@ -573,10 +565,26 @@ Ammo().then(function (Ammo) {
 			ZERO_QUATERNION,
 			rot,
 			2, 0, 0.5, 0.5, 0.1
-		).then((model) => {
+		).then((gltf) => {
+			let model = gltf.scene;
+			let clip = gltf.animations[0];
 			scene.add(model);
 			model.scale.set(0.5, 0.5, 0.5);
+			let models = [model];
+			addGltfAnims(models, clip);
 		});
+	}
+
+	function addGltfAnims(models, clip) {
+		for (var i = 0; i < models.length; i++) {
+			//animation 
+			if (clip) {
+				let mixer = new THREE.AnimationMixer(models[i]);
+				let hover = mixer.clipAction(clip);
+				hover.play();
+				mixers.push(mixer);
+			}
+		}	
 	}
 
 	//adds bio
@@ -1091,34 +1099,25 @@ Ammo().then(function (Ammo) {
 			ZERO_QUATERNION,
 			rot,
 			2, 0, 0.5, 0.5, 0.1
-		).then((model) => {
+		).then((gltf) => {
+			let model = gltf.scene;
+			let clip = gltf.animations[0];
 			bcSkillGroup.add(model);
+			models = [];
+			models.push(model);
 			model.scale.set(0.025, 0.025, 0.025);
+			model1 = model.clone();
+			model2 = model.clone();
+			models.push(model1);
+			models.push(model2);
+			model1.position.set(3, 3, 0);
+			model2.position.set(6, 2, 0);
+		
+			addGltfAnims(models, clip);
+			bcSkillGroup.add(model1);
+			bcSkillGroup.add(model2);
 		});
-		setTimeout(() => {
-			loadModel(
-				'pancakes',
-				{ x: 3, y: 3, z: 0 },
-				ZERO_QUATERNION,
-				rot,
-				2, 0, 0.5, 0.5, 0.1
-			).then((model) => {
-				bcSkillGroup.add(model);
-				model.scale.set(0.025, 0.025, 0.025);
-			});
-		}, 1000);
-		setTimeout(() => {
-			loadModel(
-				'pancakes',
-				{ x: 6, y: 2, z: 0 },
-				ZERO_QUATERNION,
-				rot,
-				2, 0, 0.5, 0.5, 0.1
-			).then((model) => {
-				bcSkillGroup.add(model);
-				model.scale.set(0.025, 0.025, 0.025);
-			});
-		}, 2000);
+	
 		bcSkillGroup.position.set(-11, 0, -90);
 		scene.add(bcSkillGroup);
 	}
@@ -1146,34 +1145,28 @@ Ammo().then(function (Ammo) {
 			ZERO_QUATERNION,
 			rot,
 			0.1, 0, 0.5, 0.5, 0.1
-		).then((model) => phpSkillGroup.add(model));
-		setTimeout(() => {
-			loadModel(
-				'pizza',
-				{ x: 1.5, y: 3, z: 0 },
-				ZERO_QUATERNION,
-				rot,
-				0.1, 0, 0.5, 0.5, 0.1
-			).then((model) => phpSkillGroup.add(model));
-		}, 1000);
-		setTimeout(() => {
-			loadModel(
-				'pizza',
-				{ x: 2.7, y: 3, z: 0 },
-				ZERO_QUATERNION,
-				rot,
-				0.1, 0, 0.5, 0.5, 0.1
-			).then((model) => phpSkillGroup.add(model));
-		}, 2000);
-		setTimeout(() => {
-			loadModel(
-				'pizza',
-				{ x: 3.6, y: 2, z: 0 },
-				ZERO_QUATERNION,
-				rot,
-				0.1, 0, 0.5, 0.5, 0.1
-			).then((model) => phpSkillGroup.add(model));
-		}, 3000);
+		).then((gltf) => {
+			let model = gltf.scene;
+			let clip = gltf.animations[0];
+			phpSkillGroup.add(model);
+			models = [];
+			models.push(model);
+			model1 = model.clone();
+			model2 = model.clone();
+			model3 = model.clone();
+			models.push(model1);
+			models.push(model2);
+			models.push(model3);
+			model1.position.set(1.5, 3, 0);
+			model2.position.set(2.7, 3, 0);
+			model3.position.set(3.6, 2, 0);
+			addGltfAnims(models, clip);
+
+			phpSkillGroup.add(model1);
+			phpSkillGroup.add(model2);
+			phpSkillGroup.add(model3);
+
+		});
 
 		phpSkillGroup.position.set(6, 0, -100);
 		scene.add(phpSkillGroup);
@@ -1202,34 +1195,27 @@ Ammo().then(function (Ammo) {
 			ZERO_QUATERNION,
 			rot,
 			0.0035, 0, 0.5, 0.5, 0.1
-		).then((model) => {
+		).then((gltf) => {
+			let model = gltf.scene;
+			let clip = gltf.animations[0];
 			androidSkillGroup.add(model);
+			models = [];
+			models.push(model);
+			model1 = model.clone();
+			model2 = model.clone();
+			models.push(model1);
+			models.push(model2);
+			model1.position.set(5, 4, 0);
+			model2.position.set(8.4, 3, 0);
+			addGltfAnims(models, clip);
+
+			androidSkillGroup.add(model1);
+			androidSkillGroup.add(model2);
+
 			foods.push(model);
+			foods.push(model1);
+			foods.push(model2);
 		});
-		setTimeout(() => {
-			loadModel(
-				'donut',
-				{ x: 5, y: 4, z: 0 },
-				ZERO_QUATERNION,
-				rot,
-				0.0035, 0, 0.5, 0.5, 0.1
-			).then((model) => {
-				androidSkillGroup.add(model);
-				foods.push(model);
-			});
-		}, 1000);
-		setTimeout(() => {
-			loadModel(
-				'donut',
-				{ x: 8.4, y: 3, z: 0 },
-				ZERO_QUATERNION,
-				rot,
-				0.0035, 0, 0.5, 0.5, 0.1
-			).then((model) => {
-				androidSkillGroup.add(model);
-				foods.push(model);
-			});
-		}, 2000);
 
 		androidSkillGroup.position.set(-12, 0, -110);
 		scene.add(androidSkillGroup);
@@ -1258,25 +1244,23 @@ Ammo().then(function (Ammo) {
 			ZERO_QUATERNION,
 			rot,
 			0.25, 0, 0.5, 0.5, 0.1
-		).then((model) => pythonSkillGroup.add(model));
-		setTimeout(() => {
-			loadModel(
-				'fries',
-				{ x: 4.25, y: 4, z: 0 },
-				ZERO_QUATERNION,
-				rot,
-				0.25, 0, 0.5, 0.5, 0.1
-			).then((model) => pythonSkillGroup.add(model));
-		}, 1000);
-		setTimeout(() => {
-			loadModel(
-				'fries',
-				{ x: 7, y: 3, z: 0 },
-				ZERO_QUATERNION,
-				rot,
-				0.25, 0, 0.5, 0.5, 0.1
-			).then((model) => pythonSkillGroup.add(model));
-		}, 2000);
+		).then((gltf) => {
+			let model = gltf.scene;
+			let clip = gltf.animations[0];
+			pythonSkillGroup.add(model);
+			models = [];
+			models.push(model);
+			model1 = model.clone();
+			model2 = model.clone();
+			models.push(model1);
+			models.push(model2);
+			model1.position.set(4.25, 4, 0);
+			model2.position.set(7, 3, 0);
+			addGltfAnims(models, clip);
+
+			pythonSkillGroup.add(model1);
+			pythonSkillGroup.add(model2);
+		});
 
 		pythonSkillGroup.position.set(5, 0, -120);
 		scene.add(pythonSkillGroup);
@@ -1297,8 +1281,7 @@ Ammo().then(function (Ammo) {
 				0xcc5079
 			);
 			webSkillGroup.add(htmlText);
-		});
-		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
+
 			var cssText = createText(
 				font,
 				"CSS",
@@ -1310,8 +1293,7 @@ Ammo().then(function (Ammo) {
 				0xf274bc
 			);
 			webSkillGroup.add(cssText);
-		});
-		textLoader.load('fonts/Poppins/Poppins_Bold.json', function (font) {
+
 			var jsText = createText(
 				font,
 				"JS",
@@ -1331,47 +1313,33 @@ Ammo().then(function (Ammo) {
 			ZERO_QUATERNION,
 			rot,
 			0.25, 0, 0.5, 0.5, 0.1
-		).then((model) => {
+		).then((gltf) => {
+			let model = gltf.scene;
+			let clip = gltf.animations[0];
 			webSkillGroup.add(model);
 			foods.push(model);
-		});
-		setTimeout(() => {
-			loadModel(
-				'ice_cream',
-				{ x: 2, y: 5, z: 0 },
-				ZERO_QUATERNION,
-				rot,
-				0.25, 0, 0.5, 0.5, 0.1
-			).then((model) => {
-				webSkillGroup.add(model);
-				foods.push(model);
-			});
-		}, 1000);
-		setTimeout(() => {
-			loadModel(
-				'ice_cream',
-				{ x: 3.5, y: 5, z: 0 },
-				ZERO_QUATERNION,
-				rot,
-				0.25, 0, 0.5, 0.5, 0.1
-			).then((model) => {
-				webSkillGroup.add(model);
-				foods.push(model);
-			});
-		}, 2000);
-		setTimeout(() => {
-			loadModel(
-				'ice_cream',
-				{ x: 4.85, y: 3.5, z: 0 },
-				ZERO_QUATERNION,
-				rot,
-				0.25, 0, 0.5, 0.5, 0.1
-			).then((model) => {
-				webSkillGroup.add(model);
-				foods.push(model);
-			});
-		}, 3000);
+			models = [];
+			models.push(model);
+			model1 = model.clone();
+			model2 = model.clone();
+			model3 = model.clone();
+			models.push(model1);
+			models.push(model2);
+			models.push(model3);
+			model1.position.set(2, 5, 0);
+			model2.position.set(3.5, 5, 0);
+			model3.position.set(4.85, 3.5, 0);
+			addGltfAnims(models, clip);
 
+			webSkillGroup.add(model1);
+			webSkillGroup.add(model2);
+			webSkillGroup.add(model3);
+			foods.push(model1);
+			foods.push(model2);
+			foods.push(model3);
+
+		});
+		
 		webSkillGroup.position.set(-10, 0, -130);
 		scene.add(webSkillGroup);
 	}
@@ -1399,35 +1367,28 @@ Ammo().then(function (Ammo) {
 			ZERO_QUATERNION,
 			rot,
 			2, 0, 0.5, 0.5, 0.1
-		).then((model) => javaSkillGroup.add(model));
-		setTimeout(() => {
-			loadModel(
-				'cookie',
-				{ x: 2.2, y: 4, z: 0 },
-				ZERO_QUATERNION,
-				rot,
-				2, 0, 0.5, 0.5, 0.1
-			).then((model) => javaSkillGroup.add(model));
-		}, 1000);
-		setTimeout(() => {
-			loadModel(
-				'cookie',
-				{ x: 3.5, y: 4, z: 0 },
-				ZERO_QUATERNION,
-				rot,
-				2, 0, 0.5, 0.5, 0.1
-			).then((model) => javaSkillGroup.add(model));
-		}, 2000);
-		setTimeout(() => {
-			loadModel(
-				'cookie',
-				{ x: 4.5, y: 3, z: 0 },
-				ZERO_QUATERNION,
-				rot,
-				2, 0, 0.5, 0.5, 0.1
-			).then((model) => javaSkillGroup.add(model));
-		}, 3000);
+		).then((gltf) => {
+			let model = gltf.scene;
+			let clip = gltf.animations[0];
+			javaSkillGroup.add(model);
+			models = [];
+			models.push(model);
+			model1 = model.clone();
+			model2 = model.clone();
+			model3 = model.clone();
+			models.push(model1);
+			models.push(model2);
+			models.push(model3);
+			model1.position.set(2.2, 4, 0);
+			model2.position.set(3.5, 4, 0);
+			model3.position.set(4.5, 3, 0);
+			addGltfAnims(models, clip);
 
+			javaSkillGroup.add(model1);
+			javaSkillGroup.add(model2);
+			javaSkillGroup.add(model3);
+		});
+	
 		javaSkillGroup.position.set(7, 0, -140);
 		scene.add(javaSkillGroup);
 	}
@@ -1455,46 +1416,32 @@ Ammo().then(function (Ammo) {
 			ZERO_QUATERNION,
 			rot,
 			0.45, 0, 0.5, 0.5, 0.1
-		).then((model) => {
+		).then((gltf) => {
+			let model = gltf.scene;
+			let clip = gltf.animations[0];
 			mysqlSkillGroup.add(model);
+			models = [];
+			models.push(model);
+			model1 = model.clone();
+			model2 = model.clone();
+			model3 = model.clone();
+			models.push(model1);
+			models.push(model2);
+			models.push(model3);
+			model1.position.set(2.5, 5, 0);
+			model2.position.set(4.5, 5, 0);
+			model3.position.set(6, 3, 0);
+			addGltfAnims(models, clip);
+
+			mysqlSkillGroup.add(model1);
+			mysqlSkillGroup.add(model2);
+			mysqlSkillGroup.add(model3);
 			foods.push(model);
+			foods.push(model1);
+			foods.push(model2);
+			foods.push(model3);
+
 		});
-		setTimeout(() => {
-			loadModel(
-				'burger',
-				{ x: 2.5, y: 5, z: 0 },
-				ZERO_QUATERNION,
-				rot,
-				0.45, 0, 0.5, 0.5, 0.1
-			).then((model) => {
-				mysqlSkillGroup.add(model);
-				foods.push(model);
-			});
-		}, 1000);
-		setTimeout(() => {
-			loadModel(
-				'burger',
-				{ x: 4.5, y: 5, z: 0 },
-				ZERO_QUATERNION,
-				rot,
-				0.45, 0, 0.5, 0.5, 0.1
-			).then((model) => {
-				mysqlSkillGroup.add(model);
-				foods.push(model);
-			});
-		}, 2000);
-		setTimeout(() => {
-			loadModel(
-				'burger',
-				{ x: 6, y: 3, z: 0 },
-				ZERO_QUATERNION,
-				rot,
-				0.45, 0, 0.5, 0.5, 0.1
-			).then((model) => {
-				mysqlSkillGroup.add(model);
-				foods.push(model);
-			});
-		}, 3000);
 
 		mysqlSkillGroup.position.set(-10, 0, -150);
 		scene.add(mysqlSkillGroup);
@@ -1523,35 +1470,28 @@ Ammo().then(function (Ammo) {
 			ZERO_QUATERNION,
 			rot,
 			2, 0, 0.5, 0.5, 0.1
-		).then((model) => {
+		).then((gltf) => {
+			let model = gltf.scene;
+			let clip = gltf.animations[0];
 			cppSkillGroup.add(model);
-			foods.push(model);
-		});
-		setTimeout(() => {
-			loadModel(
-				'cake',
-				{ x: 2.5, y: 3.5, z: 0 },
-				ZERO_QUATERNION,
-				rot,
-				2, 0, 0.5, 0.5, 0.1
-			).then((model) => {
-				cppSkillGroup.add(model);
-				foods.push(model);
-			});
-		}, 1000);
-		setTimeout(() => {
-			loadModel(
-				'cake',
-				{ x: 4.25, y: 2.5, z: 0 },
-				ZERO_QUATERNION,
-				rot,
-				2, 0, 0.5, 0.5, 0.1
-			).then((model) => {
-				cppSkillGroup.add(model);
-				foods.push(model);
-			});
-		}, 2000);
+			models = [];
+			models.push(model);
+			model1 = model.clone();
+			model2 = model.clone();
+			models.push(model1);
+			models.push(model2);
+			model1.position.set(2.5, 3.5, 0);
+			model2.position.set(4.25, 2.5, 0);
+			addGltfAnims(models, clip);
 
+			cppSkillGroup.add(model1);
+			cppSkillGroup.add(model2);
+
+			foods.push(model);
+			foods.push(model1);
+			foods.push(model2);
+		});
+	
 		cppSkillGroup.position.set(6, 0, -160);
 		scene.add(cppSkillGroup);
 	}
@@ -1566,7 +1506,8 @@ Ammo().then(function (Ammo) {
 			ZERO_QUATERNION,
 			rot,
 			1, 0, 0.5, 0.5, 0.1
-		).then((model) => {
+		).then((gltf) => {
+			let model = gltf.scene;
 			githubUfo.add(model);
 			var logo = textureLoader.load('images/github.png');
 			logo.wrapS = logo.wrapT = THREE.RepeatWrapping;
@@ -1624,7 +1565,8 @@ Ammo().then(function (Ammo) {
 			ZERO_QUATERNION,
 			rot,
 			1, 0, 0.5, 0.5, 0.1
-		).then((model) => {
+		).then((gltf) => {
+			let model = gltf.scene;
 			linkedinUfo.add(model);
 			var logo = textureLoader.load('images/linkedin.png');
 			logo.wrapS = logo.wrapT = THREE.RepeatWrapping;
@@ -1682,7 +1624,8 @@ Ammo().then(function (Ammo) {
 			ZERO_QUATERNION,
 			rot,
 			1, 0, 0.5, 0.5, 0.1
-		).then((model) => {
+		).then((gltf) => {
+			let model = gltf.scene;
 			mailUfo.add(model);
 			var logo = textureLoader.load('images/gmail.png');
 			logo.wrapS = logo.wrapT = THREE.RepeatWrapping;
