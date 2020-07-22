@@ -11,7 +11,7 @@ Ammo().then(function (Ammo) {
 	var githubUfo, linkedinUfo, mailUfo;
 	var mobile, pc, blockchain, coin, dialogueL, dialogueR, trend;
 	var pad, takeOffAction = [], hoverAction, closeAction = [], openAction = [];
-	var insta_button, fms_button, kart_button, linkedin_button, github_button, email_button, xerv_button, fund_button;
+	var insta_button, fms_button, kart_button, linkedin_button, github_button, email_button, xerv_button, fund_button, download_button;
 	var up = 1, down = 0;
 	var dl = 1, dr = 0, step = 0;
 	var trendBack = 1, trendFront = 0;
@@ -30,7 +30,8 @@ Ammo().then(function (Ammo) {
 		'https://github.com/ItsTheKayBee/Xervixx',
 		'https://www.github.com/ItsTheKayBee',
 		'https://linkedin.com/in/itsthekaybee',
-		'mailto:kunal.bohra@somaiya.edu'
+		'mailto:kunal.bohra@somaiya.edu',
+		'resume/kunal_resume.pdf'
 	];
 
 	// Physics variables
@@ -2085,6 +2086,37 @@ Ammo().then(function (Ammo) {
 			button.add(text);
 			starInfo = button;
 			scene.add(button);
+
+			//download resume
+			color = 0x9a9b94;
+			pos = { x: 5, y: 0, z: -206.5 };
+			var geom = new THREE.BoxBufferGeometry(3, 0.6, 0.3);
+			var material = new THREE.MeshBasicMaterial({
+				color: color,
+				transparent: true,
+				opacity: 0.6
+			});
+
+			var edges = new THREE.EdgesGeometry(geom);
+			var lineMaterial = new THREE.LineBasicMaterial({ color: color });
+			var line = new THREE.LineSegments(edges, lineMaterial);
+			download_button = new THREE.Mesh(geom, material);
+			download_button.add(line);
+			download_button.position.set(pos.x, pos.y, pos.z);
+
+			var posn = { x: -1.3, y: -0.1, z: 0.2 };
+			var text = createText(
+				font,
+				"Download resume",
+				posn,
+				rot,
+				0.5, 0.4, 0.05, 0xe8ecf1
+			);
+			download_button.add(text);
+			download_button.rotation.x = -Math.PI / 2;
+			download_button.userData = { url: links[8] };
+			scene.add(download_button);
+
 		});
 	}
 
