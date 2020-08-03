@@ -100,19 +100,22 @@ Ammo().then(function (Ammo) {
 		rotateButton.setAttribute('src', 'images/rotate.png');
 		rotateButton.setAttribute('id', 'rotate');
 		var div = document.createElement('div');
+		// div.setAttribute('id', 'div');
 		var t = document.createTextNode("CLICK TO ROTATE!"); 
 		div.appendChild(t);
-		div.setAttribute('style','color:white');
+		div.setAttribute('style', 'display:none');
 		document.body.appendChild(div);
-		document.body.appendChild(rotateButton);
 		rotateButton.setAttribute('style', 'display:none');
+		document.body.appendChild(rotateButton);
 
 		if (screen.orientation.type === "portrait-primary" || screen.orientation.type === "portrait-secondary") {
 			rotateButton.setAttribute('style', 'display:block');
+			div.setAttribute('style', 'display:block');
 			document.getElementById("rotate").addEventListener("click", function () {
 				canvas.requestFullscreen();
 				screen.orientation.lock("landscape-primary");
 				rotateButton.setAttribute('style', 'display:none');
+				div.setAttribute('style', 'display:none');
 			}, false);
 		}
 
@@ -363,6 +366,12 @@ Ammo().then(function (Ammo) {
 
 			renderer.render(loadingScreen.scene, loadingScreen.camera);
 			return; // Stop the function here.
+		}
+
+		if (screen.orientation.type == "portrait-primary" || screen.orientation.type == "portrait-secondary") {
+			rotateButton.style.display = 'block';
+		} else {
+			rotateButton.style.display = 'none';
 		}
 
 		requestAnimationFrame(animate);
