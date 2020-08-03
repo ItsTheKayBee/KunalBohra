@@ -95,12 +95,15 @@ Ammo().then(function (Ammo) {
 		lights();
 
 		var canvas = document.getElementsByTagName('canvas')[0];
+		rotateButton = document.createElement('button');
+		rotateButton.setAttribute('id', 'rotate');
+		var t = document.createTextNode("ROTATE SCREEN");
+		rotateButton.appendChild(t);
+		document.body.appendChild(rotateButton);
+		rotateButton.setAttribute('style', 'display:none');
+
 		if (screen.orientation.type === "portrait-primary" || screen.orientation.type === "portrait-secondary") {
-			rotateButton = document.createElement('button');
-			rotateButton.setAttribute('id', 'rotate');
-			var t = document.createTextNode("ROTATE SCREEN");
-			rotateButton.appendChild(t);
-			document.body.appendChild(rotateButton);
+			rotateButton.setAttribute('style', 'display:block');
 			document.getElementById("rotate").addEventListener("click", function () {
 				canvas.requestFullscreen();
 				screen.orientation.lock("landscape-primary");
