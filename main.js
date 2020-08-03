@@ -21,7 +21,7 @@ Ammo().then(function (Ammo) {
 	var mixers = [], foods = [], runAction = [];
 	var andy, lText, starInfo;
 	var isAndyMoving = false, hasAndyTurned = false;
-	var INTERSECTED;
+	var INTERSECTED, rotateButton;
 
 	var links = ['https://github.com/ItsTheKayBee/InstaNote',
 		'https://github.com/ItsTheKayBee/FundEasy',
@@ -93,6 +93,20 @@ Ammo().then(function (Ammo) {
 		scenes();
 		cam();
 		lights();
+
+		var canvas = document.getElementsByTagName('canvas')[0];
+		if (screen.orientation.type === "portrait-primary" || screen.orientation.type === "portrait-secondary") {
+			rotateButton = document.createElement('button');
+			rotateButton.setAttribute('id', 'rotate');
+			var t = document.createTextNode("ROTATE SCREEN");
+			rotateButton.appendChild(t);
+			document.body.appendChild(rotateButton);
+			document.getElementById("rotate").addEventListener("click", function () {
+				canvas.requestFullscreen();
+				screen.orientation.lock("landscape-primary");
+				rotateButton.setAttribute('style', 'display:none');
+			}, false);
+		}
 
 		// Set up the loading screen's scene.
 		loadingScreen.circle.position.set(0, 0, 5);
@@ -255,7 +269,7 @@ Ammo().then(function (Ammo) {
 				// xervixx
 				xerv_button.position.y = 4;
 
-			} else if (andyz <= -80 && andyz >= -87) {
+			} else if (andyz <= -75 && andyz >= -87) {
 				// info
 				starInfo.position.y = 4;
 
@@ -332,7 +346,7 @@ Ammo().then(function (Ammo) {
 
 	function animate() {
 
-		if (RESOURCES_LOADED == false) {
+		if (!RESOURCES_LOADED || rotateButton.style.display != 'none') {
 			requestAnimationFrame(animate);
 
 			let posx = loadingScreen.circle.position.x;
