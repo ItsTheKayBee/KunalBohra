@@ -31,21 +31,57 @@
             }
 
             #rotate {
-                border: none;
-                padding: 10px 0;
                 position: absolute;
                 top: 75%;
-                left: -moz-calc(50% - 85px);
+                left: -moz-calc(50% - 32px);
                 /* Firefox */
-                left: -webkit-calc(50% - 85px);
+                left: -webkit-calc(50% - 32px);
                 /* WebKit */
-                left: -o-calc(50% - 85px);
+                left: -o-calc(50% - 32px);
                 /* Opera */
-                left: calc(50% - 85px);
+                left: calc(50% - 32px);
                 /* Standard */
-                width: 170px;
+                width: 64px;
                 display: block;
-                border-radius: 30px;
+                animation: rotation 3s linear 0s infinite;
+            }
+
+            div {
+                position: absolute;
+                top: 85%;
+                left: -moz-calc(50% - 94px);
+                /* Firefox */
+                left: -webkit-calc(50% - 94px);
+                /* WebKit */
+                left: -o-calc(50% - 94px);
+                /* Opera */
+                left: calc(50% - 94px);
+                /* Standard */
+                width: 188px;
+                font-size: 20px;
+                font-family:Arial, Helvetica, sans-serif;
+            }
+
+            @keyframes rotation {
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                25% {
+                    transform: rotate(-90deg);
+                }
+
+                50% {
+                    transform: rotate(-180deg);
+                }
+
+                75%{
+                    transform: rotate(-270deg);
+                }
+
+                100% {
+                    transform: rotate(-360deg);
+                }
             }
         </style>
     </head>

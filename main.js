@@ -95,10 +95,15 @@ Ammo().then(function (Ammo) {
 		lights();
 
 		var canvas = document.getElementsByTagName('canvas')[0];
-		rotateButton = document.createElement('button');
+		rotateButton = document.createElement('input');
+		rotateButton.setAttribute('type', 'image');
+		rotateButton.setAttribute('src', 'images/rotate.png');
 		rotateButton.setAttribute('id', 'rotate');
-		var t = document.createTextNode("ROTATE SCREEN");
-		rotateButton.appendChild(t);
+		var div = document.createElement('div');
+		var t = document.createTextNode("CLICK TO ROTATE!"); 
+		div.appendChild(t);
+		div.setAttribute('style','color:white');
+		document.body.appendChild(div);
 		document.body.appendChild(rotateButton);
 		rotateButton.setAttribute('style', 'display:none');
 
