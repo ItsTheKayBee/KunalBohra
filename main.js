@@ -357,7 +357,7 @@ Ammo().then(function (Ammo) {
 
 	function animate() {
 
-		if (!RESOURCES_LOADED || rotateButton.style.display != 'none') {
+		if (!RESOURCES_LOADED || screen.orientation.type == "portrait-primary" || screen.orientation.type == "portrait-secondary") {
 			requestAnimationFrame(animate);
 
 			let posx = loadingScreen.circle.position.x;
@@ -366,12 +366,6 @@ Ammo().then(function (Ammo) {
 
 			renderer.render(loadingScreen.scene, loadingScreen.camera);
 			return; // Stop the function here.
-		}
-
-		if (screen.orientation.type == "portrait-primary" || screen.orientation.type == "portrait-secondary") {
-			rotateButton.style.display = 'block';
-		} else {
-			rotateButton.style.display = 'none';
 		}
 
 		requestAnimationFrame(animate);
