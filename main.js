@@ -100,8 +100,7 @@ Ammo().then(function (Ammo) {
 		rotateButton.setAttribute('src', 'images/rotate.png');
 		rotateButton.setAttribute('id', 'rotate');
 		var div = document.createElement('div');
-		// div.setAttribute('id', 'div');
-		var t = document.createTextNode("CLICK TO ROTATE!"); 
+		var t = document.createTextNode("CLICK TO ROTATE!");
 		div.appendChild(t);
 		div.setAttribute('style', 'display:none');
 		document.body.appendChild(div);
@@ -148,6 +147,172 @@ Ammo().then(function (Ammo) {
 		window.addEventListener('wheel', scrolling, { passive: false });
 		window.addEventListener('mousedown', onMouseDown, false);
 		window.addEventListener('mousemove', hover, false);
+		window.addEventListener('touchstart', touchstart, false);
+		window.addEventListener('touchend', touchend, false);
+	}
+
+	var ts;
+	function touchstart(e) {
+		ts = e.touches[0].clientY;
+	}
+
+	function touchend(e) {
+		var te = e.changedTouches[0].clientY;
+		/* if (ts > te + 5) {
+			touchScroll(ts - te - 5);
+		} else if (ts < te - 5) {
+			touchScroll(ts - te + 5);
+		} */
+		touchScroll(ts - te);
+
+		console.log(ts - te);
+	}
+
+	function touchScroll(dy) {
+		if (andy) {
+			let andyz = andy.position.z;
+			let camz = camera.position.z;
+			let camy = camera.position.y;
+
+			if (camz > -174 || camz <= -180) {
+				camera.position.z -= dy * 0.05;
+				andy.position.z -= dy * 0.05;
+
+				if (camz <= -186)
+					andy.position.y = 1;
+				else if (camz > -186 && camz <= -180)
+					andy.position.y = 2;
+				else if (camz <= -170 && camz >= -172)
+					andy.position.y = pad.position.y + 0.5;
+				else if (camz < -172 && camz >= -174)
+					andy.position.y = pad.position.y + 1;
+				else
+					andy.position.y = 1;
+
+				isAndyMoving = true;
+
+				if (dy < 0) {
+					hasAndyTurned = true;
+				} else {
+					hasAndyTurned = false;
+				}
+				camera.position.clampScalar(-270, 10);
+				andy.position.clampScalar(-275, 5);
+			}
+			else if (camz <= -178 && Math.ceil(camz) >= -179) {
+				camera.lookAt(pad.position);
+				pad.position.y -= dy * 0.005;
+				andy.position.y = pad.position.y + 1;
+				camera.position.y -= dy * 0.005;
+				camera.position.z = -178;
+				for (var i = 0; i < 4; i++) {
+					takeOffAction[i].stop();
+				}
+				if (camy < 5) {
+					camera.position.y = 5;
+					andy.position.y = 2;
+					andy.position.z = -186;
+					pad.position.z = -186;
+					pad.position.y = 1;
+					camera.position.z = -181;
+					camera.lookAt(andy.position);
+
+					for (var i = 0; i < 4; i++) {
+						openAction[i].play();
+					}
+					setTimeout(() => {
+						for (var i = 0; i < 4; i++) {
+							openAction[i].timeScale = 0;
+						}
+					}, 3000);
+				}
+				else if (camy > 120) {
+					camera.position.y = 119;
+					camera.position.z = -176;
+				}
+			}
+			else if (camz <= -174 && camz >= -177) {
+				camera.lookAt(pad.position);
+				camera.position.z = -174.5;
+				pad.position.y += dy * 0.005;
+				andy.position.y = pad.position.y + 1;
+				camera.position.y += dy * 0.005;
+				for (var i = 0; i < 4; i++) {
+					takeOffAction[i].play();
+					closeAction[i].play();
+				}
+				if (camy < 5) {
+					camera.position.z = -173;
+					camera.position.y = 5;
+					andy.position.y = 2;
+					andy.position.z = -180;
+					pad.position.z = -180;
+					pad.position.y = 1;
+				}
+				else if (camy > 120) {
+					pad.position.y = 119;
+					camera.position.y = pad.position.y;
+					camera.position.z = -178;
+					pad.position.z = -186;
+					andy.position.z = -186;
+				}
+			}
+
+			//movement of L
+			if (andyz < -9.5 && andyz > -11) {
+				lText.position.x = -2;
+				lText.rotation.y = Math.PI / 4;
+			}
+
+			//buttons
+			if (andyz <= -218 && andyz >= -220) {
+				//github
+				github_button.position.y = 4;
+
+			} else if (andyz <= -238 && andyz >= -240) {
+				//linkedin
+				linkedin_button.position.y = 4;
+
+			} else if (andyz <= -258 && andyz >= -260) {
+				//email
+				email_button.position.y = 4;
+
+			} else if (andyz <= -23 && andyz >= -31) {
+				// instanote
+				insta_button.position.y = 4;
+
+			} else if (andyz <= -34 && andyz >= -41) {
+				// fundeasy
+				fund_button.position.y = 4;
+
+			} else if (andyz <= -43 && andyz >= -51) {
+				// essentialskart
+				kart_button.position.y = 4;
+
+			} else if (andyz <= -54 && andyz >= -61) {
+				// fms
+				fms_button.position.y = 4;
+
+			} else if (andyz <= -64 && andyz >= -71) {
+				// xervixx
+				xerv_button.position.y = 4;
+
+			} else if (andyz <= -75 && andyz >= -87) {
+				// info
+				starInfo.position.y = 4;
+
+			} else {
+				insta_button.position.y = -4;
+				fund_button.position.y = -4;
+				kart_button.position.y = -4;
+				fms_button.position.y = -4;
+				xerv_button.position.y = -4;
+				linkedin_button.position.y = -4;
+				github_button.position.y = -4;
+				email_button.position.y = -4;
+				starInfo.position.y = -4;
+			}
+		}
 	}
 
 	function scrolling() {
@@ -156,6 +321,7 @@ Ammo().then(function (Ammo) {
 			let camz = camera.position.z;
 			let camy = camera.position.y;
 			let dy = event.deltaY;
+			console.log(dy);
 
 			if (camz > -174 || camz <= -180) {
 				camera.position.z -= dy * 0.005;
@@ -174,7 +340,7 @@ Ammo().then(function (Ammo) {
 
 				isAndyMoving = true;
 
-				if (event.deltaY < 0) {
+				if (dy < 0) {
 					hasAndyTurned = true;
 				} else {
 					hasAndyTurned = false;
@@ -1750,9 +1916,8 @@ Ammo().then(function (Ammo) {
 				var action = mixer.clipAction(gltf.animations[i]);
 				runAction.push(action);
 			}
-
 			var headMove = mixer.clipAction(gltf.animations[0]);
-			headMove.play();
+			headMove.play()
 			var lAntennaMove = mixer.clipAction(gltf.animations[6]);
 			lAntennaMove.play();
 			var rAntennaMove = mixer.clipAction(gltf.animations[7]);
