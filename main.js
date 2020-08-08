@@ -89,11 +89,12 @@ Ammo().then(function (Ammo) {
 
 	function initGraphics() {
 		//config graphics
-		window.addEventListener('resize', onWindowResize, false);
 		rend();
 		scenes();
 		cam();
 		lights();
+
+		window.addEventListener('resize', onWindowResize, false);
 
 		var canvas = document.getElementsByTagName('canvas')[0];
 		rotateButton = document.createElement('input');
@@ -158,13 +159,8 @@ Ammo().then(function (Ammo) {
 
 	function touchend(e) {
 		var te = e.changedTouches[0].clientY;
-		/* if (ts > te + 5) {
-			touchScroll(ts - te - 5);
-		} else if (ts < te - 5) {
-			touchScroll(ts - te + 5);
-		} */
-		touchScroll(ts - te);
 
+		touchScroll(ts - te);
 		console.log(ts - te);
 	}
 
@@ -321,7 +317,6 @@ Ammo().then(function (Ammo) {
 			let camz = camera.position.z;
 			let camy = camera.position.y;
 			let dy = event.deltaY;
-			console.log(dy);
 
 			if (camz > -174 || camz <= -180) {
 				camera.position.z -= dy * 0.005;
@@ -522,6 +517,11 @@ Ammo().then(function (Ammo) {
 	}
 
 	function animate() {
+
+		if (screen.orientation.type !== "portrait-primary" || screen.orientation.type !== "portrait-secondary") {
+			rotateButton.setAttribute('style', 'display:none');
+			div.setAttribute('style', 'display:none');
+		}
 
 		if (!RESOURCES_LOADED || screen.orientation.type == "portrait-primary" || screen.orientation.type == "portrait-secondary") {
 			requestAnimationFrame(animate);
