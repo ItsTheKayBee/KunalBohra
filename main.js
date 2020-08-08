@@ -89,6 +89,7 @@ Ammo().then(function (Ammo) {
 
 	function initGraphics() {
 		//config graphics
+		window.addEventListener('resize', onWindowResize, false);
 		rend();
 		scenes();
 		cam();
@@ -143,7 +144,6 @@ Ammo().then(function (Ammo) {
 			RESOURCES_LOADED = true;
 		};
 
-		window.addEventListener('resize', onWindowResize, false);
 		window.addEventListener('wheel', scrolling, { passive: false });
 		window.addEventListener('mousedown', onMouseDown, false);
 		window.addEventListener('mousemove', hover, false);
