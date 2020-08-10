@@ -21,7 +21,7 @@ Ammo().then(function (Ammo) {
 	var mixers = [], foods = [], runAction = [];
 	var andy, lText, starInfo;
 	var isAndyMoving = false, hasAndyTurned = false;
-	var INTERSECTED, rotateButton;
+	var INTERSECTED, rotateButton, div;
 
 	var links = ['https://github.com/ItsTheKayBee/InstaNote',
 		'https://github.com/ItsTheKayBee/FundEasy',
@@ -101,10 +101,11 @@ Ammo().then(function (Ammo) {
 		rotateButton.setAttribute('type', 'image');
 		rotateButton.setAttribute('src', 'images/rotate.png');
 		rotateButton.setAttribute('id', 'rotate');
-		var div = document.createElement('div');
+		div = document.createElement('div');
 		var t = document.createTextNode("CLICK TO ROTATE!");
 		div.appendChild(t);
 		div.setAttribute('style', 'display:none');
+		div.setAttribute('id', 'div');
 		document.body.appendChild(div);
 		rotateButton.setAttribute('style', 'display:none');
 		document.body.appendChild(rotateButton);
@@ -2198,7 +2199,7 @@ Ammo().then(function (Ammo) {
 
 			//github
 			color = 0x8a79af;
-			pos = { x: -4, y: -4, z: -220 };
+			pos = { x: -3, y: -4, z: -220 };
 			github_button = addButton(pos, color);
 			github_button.add(teleportText);
 			github_button.userData = { url: links[5] };
@@ -2206,7 +2207,7 @@ Ammo().then(function (Ammo) {
 
 			//linkedin
 			color = 0x99ddcc;
-			pos = { x: 4, y: -4, z: -240 };
+			pos = { x: 3, y: -4, z: -240 };
 			linkedin_button = addButton(pos, color);
 			linkedin_button.add(teleportText.clone());
 			linkedin_button.userData = { url: links[6] };
@@ -2214,7 +2215,7 @@ Ammo().then(function (Ammo) {
 
 			//email
 			color = 0xf67280;
-			pos = { x: -4, y: -4, z: -260 };
+			pos = { x: -3, y: -4, z: -260 };
 			email_button = addButton(pos, color);
 			email_button.add(teleportText.clone());
 			email_button.userData = { url: links[7] };
