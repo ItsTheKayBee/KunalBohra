@@ -102,7 +102,7 @@ Ammo().then(function (Ammo) {
 		rotateButton.setAttribute('src', 'images/rotate.png');
 		rotateButton.setAttribute('id', 'rotate');
 		div = document.createElement('div');
-		var t = document.createTextNode("CLICK TO ROTATE!");
+		var t = document.createTextNode("This website requires landscape mode. Click to rotate!");
 		div.appendChild(t);
 		div.setAttribute('style', 'display:none');
 		div.setAttribute('id', 'div');
@@ -114,6 +114,12 @@ Ammo().then(function (Ammo) {
 			rotateButton.setAttribute('style', 'display:block');
 			div.setAttribute('style', 'display:block');
 			document.getElementById("rotate").addEventListener("click", function () {
+				canvas.requestFullscreen();
+				screen.orientation.lock("landscape-primary");
+				rotateButton.setAttribute('style', 'display:none');
+				div.setAttribute('style', 'display:none');
+			}, false);
+			document.getElementById("div").addEventListener("click", function () {
 				canvas.requestFullscreen();
 				screen.orientation.lock("landscape-primary");
 				rotateButton.setAttribute('style', 'display:none');
@@ -517,14 +523,18 @@ Ammo().then(function (Ammo) {
 		physicsWorld.setGravity(new Ammo.btVector3(0, -5.8, 0));
 	}
 
+	var firstFlag = false;
+
 	function animate() {
 
-		if (screen.orientation.type !== "portrait-primary" || screen.orientation.type !== "portrait-secondary") {
-			rotateButton.setAttribute('style', 'display:none');
-			div.setAttribute('style', 'display:none');
-		}
+		if (screen.orientation.type == "portrait-primary" || screen.orientation.type == "portrait-secondary") {
+			if (RESOURCES_LOADED && firstFlag) {
 
-		if (!RESOURCES_LOADED || screen.orientation.type == "portrait-primary" || screen.orientation.type == "portrait-secondary") {
+				rotateButton.setAttribute('id', 'rotateLarge');
+				div.setAttribute('id', 'divLarge');
+				rotateButton.setAttribute('style', 'display:block');
+				div.setAttribute('style', 'display:block');
+			}
 			requestAnimationFrame(animate);
 
 			let posx = loadingScreen.circle.position.x;
@@ -533,6 +543,20 @@ Ammo().then(function (Ammo) {
 
 			renderer.render(loadingScreen.scene, loadingScreen.camera);
 			return; // Stop the function here.
+		} else {
+			if (!RESOURCES_LOADED) {
+				requestAnimationFrame(animate);
+
+				let posx = loadingScreen.circle.position.x;
+				loadingScreen.circle.position.x -= 0.05;
+				if (posx < -1) loadingScreen.circle.position.x = 1;
+
+				renderer.render(loadingScreen.scene, loadingScreen.camera);
+				return;
+			}
+			rotateButton.setAttribute('style', 'display:none');
+			div.setAttribute('style', 'display:none');
+			firstFlag = true;
 		}
 
 		requestAnimationFrame(animate);
