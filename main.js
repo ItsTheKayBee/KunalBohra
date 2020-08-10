@@ -495,13 +495,16 @@ Ammo().then(function (Ammo) {
 				if (INTERSECTED) INTERSECTED.scale.set(1, 1, 1);
 				obj.geometry.type == "CylinderBufferGeometry" ? obj.scale.set(1, 3, 1) : obj.scale.set(1, 1, 1.5);
 				INTERSECTED = obj;
+				document.body.style.cursor = 'pointer';
 			} else if (!url) {
 				if (INTERSECTED) INTERSECTED.scale.set(1, 1, 1);
 				INTERSECTED = null;
+				document.body.style.cursor = 'default';
 			}
 		} else {
 			if (INTERSECTED) INTERSECTED.scale.set(1, 1, 1);
 			INTERSECTED = null;
+			document.body.style.cursor = 'default';
 		}
 	}
 
