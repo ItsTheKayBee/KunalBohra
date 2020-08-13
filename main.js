@@ -151,7 +151,7 @@ function touchstart(e) {
 
 function touchmove(e) {
 	let te = e.changedTouches[0].clientY;
-	scroll(7 * (ts - te));
+	scroll(10 * (ts - te));
 	ts = te;
 }
 
