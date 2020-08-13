@@ -475,9 +475,9 @@ function projectsAnimation(step) {
 	//stock graph animation
 	if (trendFront == 1) {
 		trend.position.z += 0.1;
-		if (trend.position.z >= 3) {
+		if (trend.position.z >= 1) {
 			trend.rotation.y += 0.1;
-			if (trend.rotation.y % Math.PI >= Math.PI - 0.10) {
+			if (trend.rotation.y % Math.PI >= Math.PI - 0.1) {
 				trendBack = 1;
 				trendFront = 0;
 			}
@@ -554,7 +554,7 @@ function addMumbai() {
 			{ x: -10, y: 0, z: -210 },
 			DEFAULT_ROTATION,
 			2, 0.5, 0.2,
-			0xf9f9f9
+			0xfbf4f9
 		);
 		text.rotation.y = Math.PI / 6;
 		scene.add(text);
@@ -1037,7 +1037,7 @@ function addDesktop() {
 //xervixx project
 function addStock() {
 	var material = new THREE.LineBasicMaterial({
-		color: 0xffc5a1,
+		color: 0x7d5a5a,
 		transparent: true,
 		opacity: 0.7,
 	});
@@ -2195,7 +2195,7 @@ function addProjectDesc() {
 			"Faculty Management System",
 			{ x: -13, y: -0.2, z: -57 },
 			DEFAULT_ROTATION,
-			0.6, 0.9, 0.20, 0x6a8caf
+			0.6, 0.9, 0.20, 0xd45d79
 		);
 		scene.add(text);
 		var text = createText(
