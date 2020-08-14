@@ -121,7 +121,7 @@ function initGraphics() {
 
 	// Create a loading manager. Pass loadingManager to all resource loaders.
 	loadingManager = new THREE.LoadingManager();
-	gltfLoader = new THREE.GLTFLoader();
+	gltfLoader = new THREE.GLTFLoader(loadingManager);
 	textureLoader = new THREE.TextureLoader(loadingManager);
 	textLoader = new THREE.FontLoader(loadingManager);
 
