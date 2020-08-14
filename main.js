@@ -350,7 +350,7 @@ function hover(event) {
 
 function onWindowResize() {
 
-	if (!RESOURCES_LOADED) {
+	if (!RESOURCES_LOADED || screen.orientation.type == "portrait-primary" || screen.orientation.type == "portrait-secondary") {
 		loadingScreen.camera.aspect = window.innerWidth / window.innerHeight;
 		loadingScreen.camera.updateProjectionMatrix();
 	} else {
@@ -391,6 +391,10 @@ function animate() {
 			renderer.render(loadingScreen.scene, loadingScreen.camera);
 			return;
 		}
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+		renderer.setSize(window.innerWidth, window.innerHeight);
+
 		rotateButton.setAttribute('style', 'display:none');
 		div.setAttribute('style', 'display:none');
 		firstFlag = true;
