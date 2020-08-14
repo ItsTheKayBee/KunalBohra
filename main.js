@@ -350,8 +350,13 @@ function hover(event) {
 
 function onWindowResize() {
 
-	camera.aspect = window.innerWidth / window.innerHeight;
-	camera.updateProjectionMatrix();
+	if (!RESOURCES_LOADED) {
+		loadingScreen.camera.aspect = window.innerWidth / window.innerHeight;
+		loadingScreen.camera.updateProjectionMatrix();
+	} else {
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+	}
 	renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
