@@ -6,3 +6,7 @@ This static website is purely made in JavaScript using the three.js library. Som
 
 ## Usage
 1. Clone the repository, unzip and add models according to your need.
+
+## To-Do
+1. Make compatible on iphone.
+2. Add levels for direct skipping.
